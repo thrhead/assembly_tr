@@ -38,13 +38,15 @@ const statusLabels: Record<string, string> = {
   CANCELLED: "İptal"
 }
 
-export default async function WorkerDashboard() {
-  try {
-    const session = await auth()
-    if (!session || (session.user.role !== "WORKER" && session.user.role !== "TEAM_LEAD")) {
-      redirect("/login")
-    }
+import { isRedirectError } from "next/dist/client/components/redirect"
 
+export default async function WorkerDashboard() {
+  const session = await auth()
+  if (!session || (session.user.role !== "WORKER" && session.user.role !== "TEAM_LEAD")) {
+    redirect("/login")
+  }
+
+  try {
     const jobs = await getWorkerJobs(session.user.id)
 
     return (
@@ -122,6 +124,7 @@ export default async function WorkerDashboard() {
     </div>
     )
   } catch (error) {
+    if (isRedirectError(error)) throw error
     console.error("Worker Dashboard Error:", error)
     return (
       <div className="p-6">
