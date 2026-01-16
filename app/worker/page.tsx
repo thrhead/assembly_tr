@@ -1,26 +1,9 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  CalendarIcon,
-  MapPinIcon,
-  ChevronRightIcon,
-  Building2Icon,
-  BriefcaseIcon
-} from 'lucide-react'
 import Link from "next/link"
 import { getWorkerJobs } from "@/lib/data/worker-dashboard"
 
 export const dynamic = 'force-dynamic'
-
-const priorityColors: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-  LOW: "secondary",
-  MEDIUM: "default",
-  HIGH: "destructive",
-  URGENT: "destructive"
-}
 
 const priorityLabels: Record<string, string> = {
   LOW: "Düşük",
@@ -54,32 +37,29 @@ export default async function WorkerDashboard() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {jobs.map((job) => (
-          <Card key={job.id} className="overflow-hidden hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
+          <div key={job.id} className="bg-white rounded-lg border shadow-sm overflow-hidden">
+            <div className="p-4 border-b">
               <div className="flex justify-between items-start gap-2">
                 <div className="space-y-1">
-                  <CardTitle className="text-lg font-semibold leading-tight">
+                  <h3 className="text-lg font-semibold leading-tight text-gray-900">
                     {job.title}
-                  </CardTitle>
+                  </h3>
                   <div className="flex items-center gap-1 text-sm text-gray-500">
-                    <Building2Icon className="h-3 w-3" />
-                    {job.customer.company}
+                    🏢 {job.customer.company}
                   </div>
                 </div>
-                <Badge variant={priorityColors[job.priority]}>
-                  {priorityLabels[job.priority]}
-                </Badge>
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  {priorityLabels[job.priority] || job.priority}
+                </span>
               </div>
-            </CardHeader>
-            <CardContent className="pb-3 space-y-3">
+            </div>
+            <div className="p-4 space-y-3">
               <div className="flex items-start gap-2 text-sm text-gray-600">
-                <MapPinIcon className="h-4 w-4 mt-0.5 shrink-0 text-gray-400" />
-                <span className="line-clamp-2">{job.location || job.customer.address || "Adres belirtilmemiş"}</span>
+                📍 <span className="line-clamp-2">{job.location || job.customer.address || "Adres belirtilmemiş"}</span>
               </div>
               
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <CalendarIcon className="h-4 w-4 shrink-0 text-gray-400" />
-                <span>
+                📅 <span>
                   {job.scheduledDate 
                     ? new Date(job.scheduledDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
                     : "Tarih belirtilmemiş"
@@ -88,30 +68,27 @@ export default async function WorkerDashboard() {
               </div>
 
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-xs font-normal">
-                  {statusLabels[job.status]}
-                </Badge>
+                <span className="text-xs px-2 py-1 bg-gray-50 border rounded text-gray-700">
+                  {statusLabels[job.status] || job.status}
+                </span>
                 {job._count.steps > 0 && (
                   <span className="text-xs text-gray-500">
                     {job._count.steps} Adım
                   </span>
                 )}
               </div>
-            </CardContent>
-            <CardFooter className="bg-gray-50 p-3">
-              <Button asChild className="w-full" variant="default">
-                <Link href={`/worker/jobs/${job.id}`}>
-                  Detayları Gör
-                  <ChevronRightIcon className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
+            </div>
+            <div className="bg-gray-50 p-3">
+              <Link href={`/worker/jobs/${job.id}`} className="block w-full text-center py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors text-sm font-medium">
+                Detayları Gör →
+              </Link>
+            </div>
+          </div>
         ))}
 
         {jobs.length === 0 && (
           <div className="col-span-full text-center py-12 bg-white rounded-lg border border-dashed">
-            <BriefcaseIcon className="h-12 w-12 mx-auto text-gray-300 mb-3" />
+            <div className="text-4xl mb-3">💼</div>
             <h3 className="text-lg font-medium text-gray-900">Aktif işiniz bulunmuyor</h3>
             <p className="text-gray-500 mt-1">Yeni iş atandığında burada göreceksiniz.</p>
           </div>
