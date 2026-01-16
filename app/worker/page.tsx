@@ -10,8 +10,6 @@ import {
   Building2Icon,
   BriefcaseIcon
 } from 'lucide-react'
-import { format } from "date-fns"
-import { tr } from "date-fns/locale"
 import Link from "next/link"
 import { getWorkerJobs } from "@/lib/data/worker-dashboard"
 
@@ -83,7 +81,7 @@ export default async function WorkerDashboard() {
                 <CalendarIcon className="h-4 w-4 shrink-0 text-gray-400" />
                 <span>
                   {job.scheduledDate 
-                    ? format(new Date(job.scheduledDate), 'd MMM yyyy, HH:mm', { locale: tr })
+                    ? new Date(job.scheduledDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
                     : "Tarih belirtilmemiş"
                   }
                 </span>
