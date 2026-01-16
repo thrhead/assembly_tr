@@ -52,6 +52,11 @@ interface JobDetail {
       blockedReason?: string
       blockedNote?: string
       order: number
+      photos: {
+        id: string
+        url: string
+        uploadedAt: string
+      }[]
     }[]
     photos: {
       id: string
@@ -171,47 +176,41 @@ export default function JobDetailPage(props: { params: Promise<{ id: string }> }
     }
   }
 
-  const handlePhotoUpload = async (stepId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (stepId: string, e: React.ChangeEvent<HTMLInputElement>, subStepId?: string) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // In a real app, we would upload to S3/Cloudinary here.
-    // For this demo, we'll simulate an upload by creating a fake URL or using a data URL if small enough,
-    // BUT the user asked for "resim eklensin", so let's try to be realistic.
-    // Since we don't have a real storage backend setup in the prompt instructions, 
-    // I will use a placeholder URL or a simple data URL for demonstration.
-    // Let's use a prompt to ask for a URL or just simulate it.
-    // Actually, the user might expect a real upload. 
-    // Given the constraints, I'll use a prompt to get a URL from the user OR just mock it.
-    // Let's mock it for now as "uploaded_photo_[timestamp].jpg" and store it in DB.
-    // Wait, I can't display a local file path on another machine.
-    // I will use a simple prompt to ask for a URL for now, or just use a placeholder image service.
+    const formData = new FormData()
+    formData.append('photo', file)
+    if (subStepId) {
+      formData.append('subStepId', subStepId)
+    }
 
-    // BETTER APPROACH: Use a simple prompt to input URL for now, as implementing full file upload is complex without backend storage.
-    // However, the UI shows an input type="file". 
-    // Let's change the UI to ask for a URL or just simulate success with a placeholder.
-
-    // Let's use a prompt for URL for simplicity and robustness in this environment.
-    const url = prompt("Lütfen fotoğraf URL'sini girin (veya boş bırakıp test için rastgele bir resim kullanın):")
-    const finalUrl = url || `https://picsum.photos/seed/${Date.now()}/800/600`
+    const toastId = toast.loading('Fotoğraf yükleniyor...')
+    const trackingId = subStepId || stepId
 
     try {
-      setUploadingPhoto(stepId)
+      setUploadingPhoto(trackingId)
+
       const res = await fetch(`/api/worker/jobs/${params.id}/steps/${stepId}/photos`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: finalUrl })
+        body: formData
       })
 
       if (res.ok) {
+        toast.success('Fotoğraf başarıyla yüklendi', { id: toastId })
         fetchJob()
       } else {
-        toast.error('Fotoğraf yüklenemedi')
+        const data = await res.json()
+        toast.error(data.error || 'Fotoğraf yüklenemedi', { id: toastId })
       }
     } catch (error) {
       console.error(error)
+      toast.error('Bir hata oluştu', { id: toastId })
     } finally {
       setUploadingPhoto(null)
+      // Reset input value to allow uploading same file again if needed
+      e.target.value = ''
     }
   }
 
@@ -351,12 +350,18 @@ export default function JobDetailPage(props: { params: Promise<{ id: string }> }
             const isExpanded = expandedSteps[step.id] || false
             const isBlocked = !!step.blockedReason
 
+            // Logic: if no substeps, then photo is required for the step itself
+            const hasPhoto = step.photos && step.photos.length > 0
+            const isPhotoRequired = !hasSubSteps && !step.isCompleted && !hasPhoto
+            const isStepDisabled = isLocked || isPhotoRequired
+
             return (
               <div key={step.id} className={cn(
                 "border rounded-lg overflow-hidden transition-all",
                 step.isCompleted ? "bg-green-50 border-green-200" :
-                  isBlocked ? "bg-red-50 border-red-200" : "bg-white border-gray-200",
-                isLocked && "opacity-50 bg-gray-50"
+                  isBlocked ? "bg-red-50 border-red-200" :
+                  isStepDisabled ? "bg-gray-50 border-gray-200" : "bg-white border-gray-200",
+                isLocked && "opacity-50"
               )}>
                 {/* Main Step Header */}
                 <div className="p-4 flex items-start gap-3">
@@ -367,11 +372,18 @@ export default function JobDetailPage(props: { params: Promise<{ id: string }> }
                         ? "bg-green-500 border-green-500 text-white"
                         : isBlocked
                           ? "bg-red-100 border-red-300 text-red-600"
-                          : isLocked
-                            ? "bg-gray-100 border-gray-300 cursor-not-allowed"
+                          : isStepDisabled
+                            ? "bg-gray-200 border-gray-300 cursor-not-allowed text-gray-400"
                             : "border-gray-300 bg-white hover:border-indigo-500"
                     )}
-                    onClick={() => !isLocked && !isBlocked && toggleStep(step.id, step.isCompleted)}
+                    onClick={() => {
+                      if (isLocked || isBlocked) return
+                      if (isPhotoRequired) {
+                         toast.warning('Bu adımı tamamlamak için önce fotoğraf yüklemelisiniz.')
+                         return
+                      }
+                      toggleStep(step.id, step.isCompleted)
+                    }}
                   >
                     {step.isCompleted && <CheckCircle2Icon className="h-5 w-5" />}
                     {isBlocked && <AlertTriangleIcon className="h-4 w-4" />}
@@ -395,6 +407,11 @@ export default function JobDetailPage(props: { params: Promise<{ id: string }> }
                           <p className="text-xs text-red-500 mt-1">
                             Önceki adımı tamamlayın
                           </p>
+                        )}
+                        {isPhotoRequired && !isLocked && !isBlocked && (
+                          <span className="text-xs text-orange-500 flex items-center gap-1 mt-1">
+                            <CameraIcon className="h-3 w-3" /> Fotoğraf gerekli
+                          </span>
                         )}
                         {isBlocked && (
                           <div className="text-xs text-red-600 mt-1">
@@ -452,22 +469,37 @@ export default function JobDetailPage(props: { params: Promise<{ id: string }> }
                         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Alt Görevler</p>
                         {step.subSteps.map(subStep => {
                           const isSubBlocked = !!subStep.blockedReason
+                          const hasPhoto = subStep.photos && subStep.photos.length > 0
+                          const isPhotoRequired = !subStep.isCompleted && !hasPhoto
+                          const isLocked = isPhotoRequired
+
                           return (
                             <div
                               key={subStep.id}
                               className={cn(
-                                "flex items-center gap-3 p-2 rounded border cursor-pointer transition-colors",
-                                isSubBlocked ? "bg-red-50 border-red-200" : "bg-white border-gray-200 hover:border-indigo-300"
+                                "flex items-center gap-3 p-2 rounded border transition-colors",
+                                isSubBlocked ? "bg-red-50 border-red-200" :
+                                isLocked ? "bg-gray-50 border-gray-200 cursor-not-allowed opacity-80" :
+                                "bg-white border-gray-200 hover:border-indigo-300 cursor-pointer"
                               )}
-                              onClick={() => !step.isCompleted && !isSubBlocked && toggleSubStep(step.id, subStep.id)}
+                              onClick={() => {
+                                if (step.isCompleted || isSubBlocked) return
+                                if (isPhotoRequired) {
+                                  toast.warning('Bu adımı tamamlamak için önce fotoğraf yüklemelisiniz.')
+                                  return
+                                }
+                                toggleSubStep(step.id, subStep.id)
+                              }}
                             >
                               <div className={cn(
-                                "h-4 w-4 rounded border flex items-center justify-center",
+                                "h-4 w-4 rounded border flex items-center justify-center shrink-0",
                                 subStep.isCompleted
                                   ? "bg-indigo-500 border-indigo-500 text-white"
                                   : isSubBlocked
                                     ? "bg-red-100 border-red-300 text-red-600"
-                                    : "border-gray-300"
+                                    : isLocked
+                                      ? "bg-gray-200 border-gray-300 text-gray-400"
+                                      : "border-gray-300"
                               )}>
                                 {subStep.isCompleted && <CheckCircle2Icon className="h-3 w-3" />}
                                 {isSubBlocked && <AlertTriangleIcon className="h-2.5 w-2.5" />}
@@ -485,20 +517,51 @@ export default function JobDetailPage(props: { params: Promise<{ id: string }> }
                                     {subStep.blockedReason}
                                   </span>
                                 )}
+                                {!subStep.isCompleted && !hasPhoto && !isSubBlocked && (
+                                  <span className="text-xs text-orange-500 flex items-center gap-1 mt-0.5">
+                                    <CameraIcon className="h-3 w-3" /> Fotoğraf gerekli
+                                  </span>
+                                )}
+                                {hasPhoto && !subStep.isCompleted && (
+                                  <span className="text-xs text-green-600 flex items-center gap-1 mt-0.5">
+                                    <ImageIcon className="h-3 w-3" /> {subStep.photos.length} Fotoğraf
+                                  </span>
+                                )}
                               </div>
-                              {!subStep.isCompleted && !step.isCompleted && !isSubBlocked && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setBlockingTask({ id: subStep.id, type: 'substep', parentId: step.id, title: subStep.title })
-                                  }}
-                                >
-                                  <AlertTriangleIcon className="h-3 w-3" />
-                                </Button>
-                              )}
+
+                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                <label className={cn(
+                                  "cursor-pointer p-1.5 rounded-full hover:bg-gray-100 transition-colors",
+                                  uploadingPhoto === subStep.id && "opacity-50 cursor-not-allowed"
+                                )}>
+                                  <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    disabled={uploadingPhoto === subStep.id}
+                                    onChange={(e) => handleFileUpload(step.id, e, subStep.id)}
+                                  />
+                                  {uploadingPhoto === subStep.id ? (
+                                    <span className="animate-spin h-4 w-4 block rounded-full border-2 border-gray-300 border-t-indigo-600" />
+                                  ) : (
+                                    <CameraIcon className="h-4 w-4 text-gray-500 hover:text-indigo-600" />
+                                  )}
+                                </label>
+
+                                {!subStep.isCompleted && !step.isCompleted && !isSubBlocked && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-7 w-7 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setBlockingTask({ id: subStep.id, type: 'substep', parentId: step.id, title: subStep.title })
+                                    }}
+                                  >
+                                    <AlertTriangleIcon className="h-3 w-3" />
+                                  </Button>
+                                )}
+                              </div>
                             </div>
                           )
                         })}
@@ -508,20 +571,26 @@ export default function JobDetailPage(props: { params: Promise<{ id: string }> }
                     {/* Photo Upload */}
                     <div>
                       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Fotoğraf Ekle</p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full flex gap-2"
-                        onClick={() => handlePhotoUpload(step.id, { target: { files: [new File([], "dummy")] } } as any)}
-                        disabled={uploadingPhoto === step.id}
-                      >
-                        {uploadingPhoto === step.id ? (
-                          <span className="animate-spin">⌛</span>
-                        ) : (
-                          <CameraIcon className="h-4 w-4" />
-                        )}
-                        Fotoğraf Yükle (URL)
-                      </Button>
+                      <label className="w-full">
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          disabled={uploadingPhoto === step.id}
+                          onChange={(e) => handleFileUpload(step.id, e)}
+                        />
+                        <div className={cn(
+                          "flex items-center justify-center gap-2 w-full py-2 px-4 border rounded-md text-sm font-medium transition-colors cursor-pointer",
+                          uploadingPhoto === step.id ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "border-gray-300 hover:bg-gray-50 text-gray-700"
+                        )}>
+                          {uploadingPhoto === step.id ? (
+                            <span className="animate-spin h-4 w-4 block rounded-full border-2 border-gray-300 border-t-indigo-600" />
+                          ) : (
+                            <CameraIcon className="h-4 w-4" />
+                          )}
+                          Fotoğraf Yükle
+                        </div>
+                      </label>
                     </div>
                   </div>
                 )}
