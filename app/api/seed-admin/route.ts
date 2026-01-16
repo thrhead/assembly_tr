@@ -5,6 +5,7 @@ import { hash } from 'bcryptjs'
 import { NextRequest } from 'next/server'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,15 +20,20 @@ export async function GET(request: NextRequest) {
     })
 
     if (existing) {
-      if (reset) {
-        // Şifreyi sıfırla
+      // Check if existing password hash is invalid (e.g. plain text from manual insert)
+      const isInvalidHash = !existing.passwordHash || !existing.passwordHash.startsWith('$2');
+
+      if (reset || isInvalidHash) {
+        // Şifreyi sıfırla veya düzelt
         const updated = await prisma.user.update({
           where: { email: 'admin@montaj.com' },
           data: { passwordHash: adminPassword }
         })
         return NextResponse.json({
           success: true,
-          message: 'Admin şifresi sıfırlandı! ✅ (admin123)',
+          message: isInvalidHash
+            ? 'Geçersiz şifre formatı tespit edildi ve düzeltildi! ✅ (admin123)'
+            : 'Admin şifresi sıfırlandı! ✅ (admin123)',
           user: { email: updated.email, role: updated.role }
         })
       }
