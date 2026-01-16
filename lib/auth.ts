@@ -83,9 +83,8 @@ export const authConfig: NextAuthConfig = {
   session: {
     strategy: "jwt",
   },
-  ...(process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET ? {
-    secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
-  } : {}),
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "temp_secret_change_me_in_prod",
+  debug: process.env.NODE_ENV === 'development',
   trustHost: true,
 }
 
