@@ -70,7 +70,12 @@ export function LoginForm() {
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-            {error}
+            <p>{error}</p>
+            {error.includes("hatalı") && (
+              <p className="mt-2 text-xs text-gray-500">
+                İlk kurulum mu? <a href="/api/seed-admin" target="_blank" className="underline text-indigo-600">Admin kullanıcısını oluştur</a>
+              </p>
+            )}
           </div>
         )}
 
