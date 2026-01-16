@@ -37,14 +37,15 @@ const statusLabels: Record<string, string> = {
 }
 
 export default async function WorkerDashboard() {
-  const session = await auth()
-  if (!session || (session.user.role !== "WORKER" && session.user.role !== "TEAM_LEAD")) {
-    redirect("/login")
-  }
+  try {
+    const session = await auth()
+    if (!session || (session.user.role !== "WORKER" && session.user.role !== "TEAM_LEAD")) {
+      redirect("/login")
+    }
 
-  const jobs = await getWorkerJobs(session.user.id)
+    const jobs = await getWorkerJobs(session.user.id)
 
-  return (
+    return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">İşlerim</h1>
@@ -117,5 +118,17 @@ export default async function WorkerDashboard() {
         )}
       </div>
     </div>
-  )
+    )
+  } catch (error) {
+    console.error("Worker Dashboard Error:", error)
+    return (
+      <div className="p-6">
+        <h1 className="text-xl font-bold text-red-600">Bir hata oluştu</h1>
+        <p className="text-gray-600">Lütfen daha sonra tekrar deneyin.</p>
+        <pre className="mt-4 p-4 bg-gray-100 rounded text-xs overflow-auto">
+          {error instanceof Error ? error.message : JSON.stringify(error)}
+        </pre>
+      </div>
+    )
+  }
 }

@@ -120,10 +120,7 @@ export function LoginForm() {
 
       <div className="mt-6 text-center text-sm text-gray-600">
         <p>
-          Hesabınız yok mu?{" "}
-          <Link href="/register" className="text-indigo-600 hover:text-indigo-700 font-medium">
-            Kayıt olun
-          </Link>
+          Hesabınız yok mu? Yöneticinizle iletişime geçin.
         </p>
       </div>
     </div>
