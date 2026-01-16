@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "tsx watch server.ts",
     "dev:next": "next dev",
+    "postinstall": "prisma generate",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
