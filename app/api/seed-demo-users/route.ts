@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
             name: 'Tahir Kahraman',
             role: 'TEAM_LEAD',
             phone: '555-0011',
-            password: 'thr123'
+            password: 'tahir123'
         },
         {
             email: 'ali@montaj.com',

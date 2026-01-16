@@ -12,8 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { formatDistanceToNow } from 'date-fns'
-import { tr } from 'date-fns/locale'
 
 interface Notification {
   id: string
@@ -159,9 +157,11 @@ export function NotificationDropdown() {
                       {notification.message}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      {formatDistanceToNow(new Date(notification.createdAt), { 
-                        addSuffix: true,
-                        locale: tr 
+                      {new Date(notification.createdAt).toLocaleDateString('tr-TR', {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit'
                       })}
                     </p>
                   </div>
