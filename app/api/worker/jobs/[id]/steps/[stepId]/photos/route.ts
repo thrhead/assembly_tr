@@ -17,49 +17,23 @@ export async function POST(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        const formData = await req.formData()
-        const file = formData.get('photo') as File
-        const subStepId = formData.get('subStepId') as string | null
+        const contentType = req.headers.get('content-type') || ''
+        let photoUrl: string = ''
+        let subStepId: string | null = null
 
-        console.log('[Photo Upload] Received request:', {
-            stepId: params.stepId,
-            subStepId,
-            fileName: file?.name,
-            fileSize: file?.size,
-            fileType: file?.type
-        })
+        if (contentType.includes('application/json')) {
+            const body = await req.json()
+            photoUrl = body.url
+            subStepId = body.subStepId || null
 
-        if (!file) {
-            return NextResponse.json({ error: 'No file provided' }, { status: 400 })
-        }
-
-        let buffer: Buffer
-        try {
-            if (typeof file.arrayBuffer === 'function') {
-                const bytes = await file.arrayBuffer()
-                buffer = Buffer.from(bytes)
-            } else {
-                console.log('[Photo Upload] arrayBuffer missing, trying Response workaround')
-                const bytes = await new Response(file).arrayBuffer()
-                buffer = Buffer.from(bytes)
+            if (!photoUrl) {
+                return NextResponse.json({ error: 'No URL provided' }, { status: 400 })
             }
-        } catch (err) {
-            console.error('[Photo Upload] Error reading file buffer:', err)
-            return NextResponse.json({ error: 'Failed to read file' }, { status: 500 })
+        } else {
+            // FormData handler (disabled for Vercel/Serverless fs compatibility in this patch, using mock URL for now)
+            // Ideally should upload to Cloudinary/S3
+            return NextResponse.json({ error: 'File upload not supported in this environment yet. Please use URL.' }, { status: 400 })
         }
-
-        // Create directory if not exists
-        const uploadDir = join(process.cwd(), 'public', 'uploads', 'jobs', params.id)
-        await mkdir(uploadDir, { recursive: true })
-
-        const filename = `${params.stepId}_${Date.now()}_${file.name}`
-        const filepath = join(uploadDir, filename)
-
-        // Save file
-        await writeFile(filepath, buffer)
-
-        // Create database record
-        const photoUrl = `/uploads/jobs/${params.id}/${filename}`
 
         const photo = await prisma.stepPhoto.create({
             data: {
