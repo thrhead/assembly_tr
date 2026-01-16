@@ -88,7 +88,7 @@ export function LoginForm() {
             type="email"
             placeholder="ornek@sirket.com"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value.toLowerCase() })}
             error={errors.email}
             disabled={isLoading}
           />

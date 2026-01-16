@@ -29,7 +29,12 @@ export const authConfig: NextAuthConfig = {
       },
       async authorize(credentials) {
         try {
-          const { email, password } = loginSchema.parse(credentials)
+          // Normalize email to lowercase
+          const rawEmail = (credentials?.email as string || "").toLowerCase()
+          const { email, password } = loginSchema.parse({
+            ...credentials,
+            email: rawEmail
+          })
           console.log(`[Auth] Attempting login for: ${email}`)
 
           const user = await prisma.user.findUnique({
@@ -44,6 +49,12 @@ export const authConfig: NextAuthConfig = {
           if (!user.isActive) {
             console.log(`[Auth] User found but inactive: ${email}`)
             return null
+          }
+
+          // Check if password hash is valid bcrypt format
+          if (!user.passwordHash || !user.passwordHash.startsWith('$2')) {
+             console.warn(`[Auth] Invalid password hash format for user: ${email}`)
+             return null
           }
 
           const isPasswordValid = await compare(password, user.passwordHash)
