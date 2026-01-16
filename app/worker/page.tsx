@@ -15,6 +15,8 @@ import { tr } from "date-fns/locale"
 import Link from "next/link"
 import { getWorkerJobs } from "@/lib/data/worker-dashboard"
 
+export const dynamic = 'force-dynamic'
+
 const priorityColors: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   LOW: "secondary",
   MEDIUM: "default",

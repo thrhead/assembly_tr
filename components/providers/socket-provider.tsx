@@ -27,8 +27,15 @@ export function SocketProvider({ children }: { children: ReactNode }) {
             return
         }
 
+        // Disable socket on Vercel production to avoid console errors
+        // or ensure it connects to a valid URL if configured
+        if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' && !process.env.NEXT_PUBLIC_SOCKET_URL) {
+            console.log('Socket.IO disabled in production (no separate server configured)')
+            return
+        }
+
         // Initialize socket connection
-        const socketInstance = io({
+        const socketInstance = io(process.env.NEXT_PUBLIC_SOCKET_URL || '', {
             path: '/api/socket',
             autoConnect: true,
         })
