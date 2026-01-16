@@ -30,20 +30,30 @@ export const authConfig: NextAuthConfig = {
       async authorize(credentials) {
         try {
           const { email, password } = loginSchema.parse(credentials)
+          console.log(`[Auth] Attempting login for: ${email}`)
 
           const user = await prisma.user.findUnique({
             where: { email },
           })
 
-          if (!user || !user.isActive) {
+          if (!user) {
+            console.log(`[Auth] User not found: ${email}`)
+            return null
+          }
+
+          if (!user.isActive) {
+            console.log(`[Auth] User found but inactive: ${email}`)
             return null
           }
 
           const isPasswordValid = await compare(password, user.passwordHash)
 
           if (!isPasswordValid) {
+            console.log(`[Auth] Invalid password for: ${email}`)
             return null
           }
+
+          console.log(`[Auth] Login successful for: ${email} (${user.role})`)
 
           return {
             id: user.id,
