@@ -1,8 +1,6 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { AlertTriangle } from 'lucide-react'
 
 export default function Error({
   error,
@@ -12,23 +10,25 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
+    // Log the error
     console.error(error)
   }, [error])
 
   return (
-    <div className="flex h-full flex-col items-center justify-center space-y-4 p-8 text-center">
-      <div className="rounded-full bg-red-100 p-4">
-        <AlertTriangle className="h-8 w-8 text-red-600" />
-      </div>
-      <h2 className="text-xl font-bold text-gray-900">Bir şeyler ters gitti!</h2>
-      <p className="text-gray-600 max-w-md">
-        İş listesi yüklenirken bir hata oluştu. Lütfen tekrar deneyin.
+    <div className="p-8 text-center bg-red-50 rounded-lg">
+      <h2 className="text-xl font-bold text-red-900">Bir şeyler ters gitti!</h2>
+      <p className="text-red-700 my-4">
+        Sayfa yüklenirken bir hata oluştu.
       </p>
-      <div className="text-xs text-gray-400 font-mono bg-gray-50 p-2 rounded max-w-md overflow-hidden">
+      <div className="text-xs text-red-500 font-mono bg-white p-2 rounded overflow-hidden border border-red-200">
         {error.message || 'Bilinmeyen hata'}
       </div>
-      <Button onClick={() => reset()}>Tekrar Dene</Button>
+      <button
+        onClick={() => reset()}
+        className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      >
+        Tekrar Dene
+      </button>
     </div>
   )
 }
