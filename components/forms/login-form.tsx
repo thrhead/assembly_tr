@@ -73,7 +73,7 @@ export function LoginForm() {
             <p>{error}</p>
             {error.includes("hatalı") && (
               <p className="mt-2 text-xs text-gray-500">
-                İlk kurulum mu? <a href="/api/seed-admin" target="_blank" className="underline text-indigo-600">Admin kullanıcısını oluştur</a>
+                Giriş yapılamıyor mu? <a href="/api/seed-admin?reset=true" target="_blank" className="underline text-indigo-600">Admin şifresini sıfırla (admin123)</a>
               </p>
             )}
           </div>
