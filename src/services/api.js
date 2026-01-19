@@ -29,9 +29,9 @@ const getBaseUrl = () => {
     }
 
     // Hardcoded LAN IP for physical device testing in development
-    if (__DEV__) {
-        return 'http://192.168.1.173:3000';
-    }
+    // if (__DEV__) {
+    //    return 'http://192.168.1.173:3000';
+    // }
 
     // Fallback for production if no env var is set
     return 'https://assemblyweb.vercel.app';
