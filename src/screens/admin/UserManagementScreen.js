@@ -5,6 +5,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useUserManagement } from '../../hooks/useUserManagement';
 import UserListItem from '../../components/admin/UserListItem';
 import UserFormModal from '../../components/admin/UserFormModal';
+import { ROLES, ROLE_LABELS } from '../../constants/roles';
 
 export default function UserManagementScreen({ navigation, route }) {
     const { theme, isDark } = useTheme();
@@ -94,7 +95,7 @@ export default function UserManagementScreen({ navigation, route }) {
             </View>
 
             <View style={styles.tabsContainer}>
-                {['ALL', 'ADMIN', 'MANAGER', 'TEAM_LEAD', 'WORKER'].map((role) => (
+                {['ALL', ROLES.ADMIN, ROLES.MANAGER, ROLES.TEAM_LEAD, ROLES.WORKER, ROLES.CUSTOMER].map((role) => (
                     <TouchableOpacity
                         key={role}
                         style={[
@@ -109,7 +110,7 @@ export default function UserManagementScreen({ navigation, route }) {
                             { color: activeTab === role ? theme.colors.textInverse : theme.colors.subText },
                             activeTab === role && styles.activeTabText
                         ]}>
-                            {role === 'ALL' ? 'Tümü' : role}
+                            {role === 'ALL' ? 'Tümü' : ROLE_LABELS[role]}
                         </Text>
                     </TouchableOpacity>
                 ))}

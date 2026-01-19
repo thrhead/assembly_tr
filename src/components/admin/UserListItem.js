@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/theme';
+import { ROLE_LABELS } from '../../constants/roles';
 
 const UserListItem = ({ item, onEdit, onDelete, theme }) => {
     // Fallback if theme prop isn't passed
@@ -20,7 +21,7 @@ const UserListItem = ({ item, onEdit, onDelete, theme }) => {
                 <Text style={[styles.userName, { color: textMain }]}>{item.name}</Text>
                 <Text style={[styles.userEmail, { color: textSub }]}>{item.email}</Text>
                 <View style={[styles.roleContainer, { backgroundColor: primary + '15' }]}>
-                    <Text style={[styles.userRole, { color: primary }]}>{item.role}</Text>
+                    <Text style={[styles.userRole, { color: primary }]}>{ROLE_LABELS[item.role] || item.role}</Text>
                 </View>
             </View>
             <View style={styles.actionButtons}>

@@ -3,12 +3,13 @@ import { View, Text, Modal, ScrollView, TouchableOpacity, StyleSheet, Alert, Swi
 import CustomInput from '../CustomInput';
 import CustomButton from '../CustomButton';
 import { COLORS } from '../../constants/theme';
+import { ROLES, ROLE_LABELS } from '../../constants/roles';
 
 const UserFormModal = ({ visible, onClose, initialData, onSave, theme }) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        role: 'WORKER',
+        role: ROLES.WORKER,
         password: '',
         phone: '',
         isActive: true
@@ -27,7 +28,7 @@ const UserFormModal = ({ visible, onClose, initialData, onSave, theme }) => {
                 setFormData({
                     name: initialData.name || '',
                     email: initialData.email || '',
-                    role: initialData.role || 'WORKER',
+                    role: initialData.role || ROLES.WORKER,
                     password: '', // Always empty on edit
                     phone: initialData.phone || '',
                     isActive: initialData.isActive ?? true
@@ -36,7 +37,7 @@ const UserFormModal = ({ visible, onClose, initialData, onSave, theme }) => {
                 setFormData({
                     name: '',
                     email: '',
-                    role: 'WORKER',
+                    role: ROLES.WORKER,
                     password: '',
                     phone: '',
                     isActive: true
@@ -125,7 +126,7 @@ const UserFormModal = ({ visible, onClose, initialData, onSave, theme }) => {
 
                         <Text style={[styles.label, { color: textMain }]}>Rol</Text>
                         <View style={styles.roleSelector}>
-                            {['WORKER', 'TEAM_LEAD', 'MANAGER', 'ADMIN'].map((role) => (
+                            {[ROLES.WORKER, ROLES.TEAM_LEAD, ROLES.MANAGER, ROLES.ADMIN, ROLES.CUSTOMER].map((role) => (
                                 <TouchableOpacity
                                     key={role}
                                     style={[
@@ -140,7 +141,7 @@ const UserFormModal = ({ visible, onClose, initialData, onSave, theme }) => {
                                         { color: textSub },
                                         formData.role === role && { color: theme ? theme.colors.textInverse : COLORS.black, fontWeight: 'bold' }
                                     ]}>
-                                        {role}
+                                        {ROLE_LABELS[role]}
                                     </Text>
                                 </TouchableOpacity>
                             ))}
