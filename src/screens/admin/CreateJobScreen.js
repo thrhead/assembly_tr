@@ -94,7 +94,10 @@ export default function CreateJobScreen({ navigation }) {
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ flex: 1 }}
             >
-                <ScrollView style={styles.content}>
+                <ScrollView 
+                    style={{ flex: 1 }}
+                    contentContainerStyle={[styles.content, { flexGrow: 1 }]}
+                >
                     {/* Basic Info */}
                     <View style={styles.section}>
                         <CustomInput

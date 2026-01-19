@@ -161,7 +161,7 @@ export default function WorkerJobsScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    listContent: { padding: 16, paddingTop: 0, paddingBottom: 100 },
+    listContent: { padding: 16, paddingTop: 0, paddingBottom: 100, flexGrow: 1 },
     fabContainer: { position: 'absolute', bottom: 24, right: 24, alignItems: 'center' },
     fab: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.5, shadowRadius: 20, elevation: 10 },
     excelFab: { marginBottom: 16, backgroundColor: '#3b82f6' },

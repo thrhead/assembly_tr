@@ -508,7 +508,10 @@ export default function JobDetailScreen({ route, navigation }) {
             </View>
 
             <PageWrapper>
-                <ScrollView style={[styles.contentContainer, { flex: 1 }]}>
+                <ScrollView 
+                    style={{ flex: 1 }}
+                    contentContainerStyle={[styles.contentContainer, { flexGrow: 1 }]}
+                >
                     {/* Job Info Card */}
                     <JobInfoCard job={job} />
 

@@ -47,7 +47,11 @@ export default function ManagerDashboardScreen({ navigation }) {
             end={theme.colors.gradientEnd}
             style={{ flex: 1 }}
         >
-            <ScrollView style={styles.container}>
+            <ScrollView 
+                style={styles.container} 
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+                showsVerticalScrollIndicator={false}
+            >
                 <StatusBar
                     barStyle={isDark ? "light-content" : "dark-content"}
                     backgroundColor="transparent"
