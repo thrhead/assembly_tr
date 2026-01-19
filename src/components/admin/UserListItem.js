@@ -21,7 +21,7 @@ const UserListItem = ({ item, onEdit, onDelete, theme }) => {
                 <Text style={[styles.userName, { color: textMain }]}>{item.name}</Text>
                 <Text style={[styles.userEmail, { color: textSub }]}>{item.email}</Text>
                 <View style={[styles.roleContainer, { backgroundColor: primary + '15' }]}>
-                    <Text style={[styles.userRole, { color: primary }]}>{ROLE_LABELS[item.role] || item.role}</Text>
+                    <Text style={[styles.userRole, { color: primary }]}>{(ROLE_LABELS && ROLE_LABELS[item.role]) ? ROLE_LABELS[item.role] : item.role}</Text>
                 </View>
             </View>
             <View style={styles.actionButtons}>

@@ -94,26 +94,32 @@ export default function UserManagementScreen({ navigation, route }) {
                 )}
             </View>
 
-            <View style={styles.tabsContainer}>
-                {['ALL', ROLES.ADMIN, ROLES.MANAGER, ROLES.TEAM_LEAD, ROLES.WORKER, ROLES.CUSTOMER].map((role) => (
-                    <TouchableOpacity
-                        key={role}
-                        style={[
-                            styles.tab,
-                            { backgroundColor: activeTab === role ? theme.colors.primary : theme.colors.background },
-                            activeTab === role && styles.activeTab
-                        ]}
-                        onPress={() => setActiveTab(role)}
-                    >
-                        <Text style={[
-                            styles.tabText,
-                            { color: activeTab === role ? theme.colors.textInverse : theme.colors.subText },
-                            activeTab === role && styles.activeTabText
-                        ]}>
-                            {role === 'ALL' ? 'Tümü' : ROLE_LABELS[role]}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+            <View style={styles.tabsContainerWrapper}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.tabsContainer}
+                >
+                    {['ALL', ROLES.ADMIN, ROLES.MANAGER, ROLES.TEAM_LEAD, ROLES.WORKER, ROLES.CUSTOMER].map((role) => (
+                        <TouchableOpacity
+                            key={role}
+                            style={[
+                                styles.tab,
+                                { backgroundColor: activeTab === role ? theme.colors.primary : theme.colors.background },
+                                activeTab === role && styles.activeTab
+                            ]}
+                            onPress={() => setActiveTab(role)}
+                        >
+                            <Text style={[
+                                styles.tabText,
+                                { color: activeTab === role ? theme.colors.textInverse : theme.colors.subText },
+                                activeTab === role && styles.activeTabText
+                            ]}>
+                                {role === 'ALL' ? 'Tümü' : (ROLE_LABELS ? ROLE_LABELS[role] : role)}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
             </View>
         </View>
     );
@@ -207,6 +213,9 @@ const styles = StyleSheet.create({
     searchInput: {
         flex: 1,
         fontSize: 14,
+    },
+    tabsContainerWrapper: {
+        paddingVertical: 8,
     },
     tabsContainer: {
         flexDirection: 'row',
