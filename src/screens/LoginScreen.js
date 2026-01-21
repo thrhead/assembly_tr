@@ -146,18 +146,26 @@ export default function LoginScreen({ navigation }) {
   );
 
   return (
-    <View style={[{ flex: 1, backgroundColor: theme.colors.background }, Platform.OS === 'web' && { height: '100dvh', minHeight: 0 }]}>
+    <View style={[{ flex: 1, backgroundColor: theme.colors.background }, Platform.OS === 'web' && { height: '100%', minHeight: '100vh' }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1, minHeight: 0 }}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flex: 1 }}
         enabled={Platform.OS !== 'web'}
       >
-        {showLoginForm ? (
-          <LoginForm
-            onBack={() => setShowLoginForm(false)}
-            onLoginSuccess={() => { /* Navigation handled by AuthContext */ }}
-          />
-        ) : renderLanding()}
+        <ScrollView 
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingBottom: 20 }}
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+          style={{ flex: 1 }}
+        >
+          {showLoginForm ? (
+            <LoginForm
+              onBack={() => setShowLoginForm(false)}
+              onLoginSuccess={() => { /* Navigation handled by AuthContext */ }}
+            />
+          ) : renderLanding()}
+        </ScrollView>
       </KeyboardAvoidingView>
     </View>
   );

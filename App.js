@@ -27,6 +27,7 @@ import CreateJobScreen from './src/screens/admin/CreateJobScreen';
 import CalendarScreen from './src/screens/admin/CalendarScreen';
 import CostManagementScreen from './src/screens/manager/CostManagementScreen';
 import NotificationsScreen from './src/screens/worker/NotificationsScreen';
+import ChatScreen from './src/screens/chat/ChatScreen';
 import notificationService from './src/services/notification.service';
 import * as Notifications from 'expo-notifications';
 import { SocketProvider } from './src/context/SocketContext';
@@ -211,6 +212,11 @@ function AppNavigator() {
                 name="Notifications"
                 component={NotificationsScreen}
                 options={{ title: 'Bildirimler' }}
+              />
+              <Stack.Screen
+                name="Chat"
+                component={ChatScreen}
+                options={{ headerShown: false }}
               />
 
               {/* Legacy Home Screen */}

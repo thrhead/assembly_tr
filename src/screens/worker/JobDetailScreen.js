@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -15,7 +15,8 @@ import {
     StatusBar,
     KeyboardAvoidingView,
     TouchableWithoutFeedback,
-    Keyboard
+    Keyboard,
+    FlatList
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
@@ -505,7 +506,12 @@ export default function JobDetailScreen({ route, navigation }) {
                     <MaterialIcons name="arrow-back" size={24} color={theme.colors.primary} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: theme.colors.text }]}>İş Detayı</Text>
-                <View style={{ width: 24 }} />
+                <TouchableOpacity 
+                    onPress={() => navigation.navigate('Chat', { jobId: job.id, jobTitle: job.title })} 
+                    style={styles.chatButton}
+                >
+                    <MaterialIcons name="chat" size={24} color={theme.colors.primary} />
+                </TouchableOpacity>
             </View>
 
             <View style={{ flex: 1, minHeight: 0 }}>
@@ -1122,6 +1128,9 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 20,
         fontWeight: 'bold',
+    },
+    chatButton: {
+        padding: 4,
     },
     contentContainer: {
         padding: 16,
