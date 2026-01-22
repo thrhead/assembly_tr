@@ -1623,4 +1623,4 @@ const styles = StyleSheet.create({
         color: COLORS.red500,
         fontSize: 14,
     },
-});
+});// Force rebuild Wed Jan 21 12:15:11 UTC 2026
