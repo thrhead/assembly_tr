@@ -26,6 +26,10 @@ import CustomerManagementScreen from './src/screens/admin/CustomerManagementScre
 import ApprovalsScreen from './src/screens/admin/ApprovalsScreen';
 import CreateJobScreen from './src/screens/admin/CreateJobScreen';
 import CalendarScreen from './src/screens/admin/CalendarScreen';
+import AdvancedPlanningScreen from './src/screens/admin/AdvancedPlanningScreen';
+import ReportsScreen from './src/screens/admin/ReportsScreen';
+import TeamManagementScreen from './src/screens/admin/TeamManagementScreen';
+import TeamDetailScreen from './src/screens/admin/TeamDetailScreen';
 import CostManagementScreen from './src/screens/manager/CostManagementScreen';
 import NotificationsScreen from './src/screens/worker/NotificationsScreen';
 import ChatScreen from './src/screens/chat/ChatScreen';
@@ -135,6 +139,16 @@ function AppNavigator() {
                 name="Calendar"
                 component={CalendarScreen}
                 options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="AdvancedPlanning"
+                component={AdvancedPlanningScreen}
+                options={{ title: 'Gelişmiş Planlama' }}
+              />
+              <Stack.Screen
+                name="Reports"
+                component={ReportsScreen}
+                options={{ title: 'Analiz & Raporlar' }}
               />
               {/* Profile Screen */}
               <Stack.Screen

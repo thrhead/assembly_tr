@@ -21,16 +21,36 @@ const JobInfoCard = ({ job }) => {
                 <MaterialIcons name="description" size={16} color={theme.colors.subText} />
                 <Text style={[styles.description, { color: theme.colors.subText }]}>{job.description}</Text>
             </View>
-            {job.startedAt && (
-                <View style={styles.infoRow}>
-                    <MaterialIcons name="play-circle-outline" size={16} color={theme.colors.primary} />
-                    <Text style={[styles.infoText, { color: theme.colors.subText }]}>Başlangıç: {formatDate(job.startedAt)}</Text>
-                </View>
-            )}
-            {job.completedDate && (
-                <View style={styles.infoRow}>
-                    <MaterialIcons name="check-circle-outline" size={16} color={theme.colors.success} />
-                    <Text style={[styles.infoText, { color: theme.colors.subText }]}>Bitiş: {formatDate(job.completedDate)}</Text>
+            {job.status === 'IN_PROGRESS' && job.startedAt && job.steps && job.steps.length > 0 && (
+                <View style={styles.estimationContainer}>
+                    <View style={styles.separator} />
+                    <View style={styles.infoRow}>
+                        <MaterialIcons name="timer" size={16} color={theme.colors.primary} />
+                        <Text style={[styles.infoText, { color: theme.colors.text, fontWeight: '600' }]}>
+                            Tahmini Bitiş: {(() => {
+                                const completed = job.steps.filter(s => s.isCompleted).length;
+                                if (completed === 0) return 'Hesaplanıyor...';
+                                const start = new Date(job.startedAt).getTime();
+                                const now = new Date().getTime();
+                                const elapsed = now - start;
+                                const progress = completed / job.steps.length;
+                                const totalEst = elapsed / progress;
+                                const finishDate = new Date(start + totalEst);
+                                return finishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            })()}
+                        </Text>
+                    </View>
+                    <View style={styles.progressBarBg}>
+                        <View
+                            style={[
+                                styles.progressBarFill,
+                                {
+                                    backgroundColor: theme.colors.primary,
+                                    width: `${(job.steps.filter(s => s.isCompleted).length / job.steps.length) * 100}%`
+                                }
+                            ]}
+                        />
+                    </View>
                 </View>
             )}
         </GlassCard>
@@ -60,6 +80,24 @@ const styles = StyleSheet.create({
         fontSize: 14,
         lineHeight: 20,
         marginTop: 8,
+    },
+    estimationContainer: {
+        marginTop: 12,
+    },
+    separator: {
+        height: 1,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        marginBottom: 12,
+    },
+    progressBarBg: {
+        height: 6,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        borderRadius: 3,
+        marginTop: 8,
+        overflow: 'hidden',
+    },
+    progressBarFill: {
+        height: '100%',
     },
 });
 

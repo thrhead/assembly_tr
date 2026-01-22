@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, Animated } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { LayoutGrid, Users, Plus, ListTodo, UserCircle } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
@@ -8,12 +8,32 @@ const DashboardBottomNav = ({ navigation, activeTab = 'Dashboard' }) => {
     const { theme, isDark } = useTheme();
     const { t } = useTranslation();
 
+    // Scale animation refs for each item
+    const animatedValues = {
+        Dashboard: useRef(new Animated.Value(activeTab === 'Dashboard' ? 1.2 : 1)).current,
+        TeamManagement: useRef(new Animated.Value(activeTab === 'TeamManagement' ? 1.2 : 1)).current,
+        Jobs: useRef(new Animated.Value(activeTab === 'Jobs' ? 1.2 : 1)).current,
+        Profile: useRef(new Animated.Value(activeTab === 'Profile' ? 1.2 : 1)).current,
+    };
+
+    useEffect(() => {
+        // Animate the active tab scale
+        Object.keys(animatedValues).forEach(tab => {
+            Animated.spring(animatedValues[tab], {
+                toValue: activeTab === tab ? 1.2 : 1,
+                useNativeDriver: true,
+                friction: 8,
+                tension: 40
+            }).start();
+        });
+    }, [activeTab]);
+
     const navItems = [
-        { id: 'Dashboard', title: t('navigation.home'), icon: 'grid-view', route: 'AdminDashboard' },
-        { id: 'TeamList', title: t('navigation.teams'), icon: 'people', route: 'TeamList' },
-        { id: 'QuickAdd', title: '', icon: 'add', route: 'CreateJob', isCenter: true },
-        { id: 'Jobs', title: t('navigation.jobs'), icon: 'assignment', route: 'Jobs' },
-        { id: 'Profile', title: t('navigation.profile'), icon: 'person', route: 'Profile' },
+        { id: 'Dashboard', title: t('navigation.home'), icon: LayoutGrid, route: 'AdminDashboard' },
+        { id: 'TeamManagement', title: t('navigation.teams'), icon: Users, route: 'TeamManagement' },
+        { id: 'QuickAdd', title: '', icon: Plus, route: 'CreateJob', isCenter: true },
+        { id: 'Jobs', title: t('navigation.jobs'), icon: ListTodo, route: 'Jobs' },
+        { id: 'Profile', title: t('navigation.profile'), icon: UserCircle, route: 'Profile' },
     ];
 
     return (
@@ -22,11 +42,10 @@ const DashboardBottomNav = ({ navigation, activeTab = 'Dashboard' }) => {
             {
                 backgroundColor: theme.colors.card,
                 borderTopColor: theme.colors.border,
-                // Shadow for light mode
                 shadowColor: "#000",
-                shadowOffset: { width: 0, height: -4 },
-                shadowOpacity: isDark ? 0.3 : 0.08,
-                shadowRadius: 12,
+                shadowOffset: { width: 0, height: -6 },
+                shadowOpacity: isDark ? 0.4 : 0.12,
+                shadowRadius: 16,
                 elevation: 24
             }
         ]}>
@@ -40,12 +59,14 @@ const DashboardBottomNav = ({ navigation, activeTab = 'Dashboard' }) => {
                                 onPress={() => navigation.navigate(item.route)}
                                 activeOpacity={0.8}
                             >
-                                <MaterialIcons name={item.icon} size={32} color={isDark ? '#000' : '#fff'} />
+                                <item.icon size={32} color={isDark ? '#000' : '#fff'} />
                             </TouchableOpacity>
                         );
                     }
 
                     const isActive = activeTab === item.id;
+                    const Icon = item.icon;
+
                     return (
                         <TouchableOpacity
                             key={item.id}
@@ -53,21 +74,37 @@ const DashboardBottomNav = ({ navigation, activeTab = 'Dashboard' }) => {
                             onPress={() => item.route && navigation.navigate(item.route)}
                             activeOpacity={0.6}
                         >
-                            <MaterialIcons
-                                name={item.icon}
-                                size={26}
-                                color={isActive ? theme.colors.primary : theme.colors.subText}
-                            />
+                            <Animated.View style={{ transform: [{ scale: animatedValues[item.id] || 1 }] }}>
+                                <Icon
+                                    size={24}
+                                    color={isActive ? theme.colors.primary : theme.colors.subText}
+                                    strokeWidth={isActive ? 2.5 : 2}
+                                />
+                            </Animated.View>
                             <Text style={[
                                 styles.navText,
                                 {
                                     color: isActive ? theme.colors.primary : theme.colors.subText,
-                                    fontWeight: isActive ? 'bold' : '500'
+                                    fontWeight: isActive ? '700' : '500',
+                                    fontSize: isActive ? 10.5 : 10
                                 }
                             ]}>
                                 {item.title}
                             </Text>
-                            {isActive && <View style={[styles.activeIndicator, { backgroundColor: theme.colors.primary }]} />}
+                            {isActive && (
+                                <Animated.View
+                                    style={[
+                                        styles.activeIndicator,
+                                        {
+                                            backgroundColor: theme.colors.primary,
+                                            width: 16,
+                                            height: 3,
+                                            borderRadius: 1.5,
+                                            marginTop: 6
+                                        }
+                                    ]}
+                                />
+                            )}
                         </TouchableOpacity>
                     );
                 })}
@@ -82,7 +119,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        height: Platform.OS === 'ios' ? 95 : 80,
+        height: Platform.OS === 'ios' ? 95 : 85,
         borderTopWidth: 1,
     },
     navInner: {
@@ -90,40 +127,36 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         height: '100%',
-        paddingHorizontal: 10,
-        paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+        paddingHorizontal: 8,
+        paddingBottom: Platform.OS === 'ios' ? 25 : 5,
     },
     navItem: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
         height: '100%',
-        paddingTop: 10,
+        paddingTop: 12,
     },
     centerButton: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        marginTop: -40, // Floating effect
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        marginTop: -45, // Enhanced floating effect
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 8,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.35,
+        shadowRadius: 10,
+        elevation: 10,
         borderWidth: 4,
-        borderColor: 'transparent', // Will be set by container bg ideally or just keep simple
+        borderColor: 'transparent',
     },
     navText: {
-        fontSize: 10,
-        marginTop: 4,
+        marginTop: 5,
     },
     activeIndicator: {
-        width: 4,
-        height: 4,
-        borderRadius: 2,
-        marginTop: 4,
+        // Styled inside render for animation/logic
     }
 });
 

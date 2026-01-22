@@ -18,7 +18,8 @@ import {
     KeyboardAvoidingView,
     TouchableWithoutFeedback,
     Keyboard,
-    FlatList
+    FlatList,
+    Share
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
@@ -41,6 +42,9 @@ import SignaturePad from '../../components/SignaturePad';
 import { COLORS } from '../../constants/theme';
 import { SocketProvider } from '../../context/SocketContext';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { API_URL } from '../../config';
 
 const AppModal = ({ visible, children, ...props }) => {
     if (Platform.OS === 'web') {
@@ -69,7 +73,7 @@ const PageWrapper = ({ children }) => {
 export default function JobDetailScreen({ route, navigation }) {
     const { jobId } = route.params;
     const { user } = useAuth();
-    const { theme, isDark } = useTheme(); 
+    const { theme, isDark } = useTheme();
     const { t, i18n } = useTranslation();
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -234,7 +238,7 @@ export default function JobDetailScreen({ route, navigation }) {
             setUploading(true);
             const formData = new FormData();
             const filename = uri.split('/').pop();
-            const type = 'audio/m4a'; 
+            const type = 'audio/m4a';
 
             formData.append('audio', { uri, name: filename, type });
 
@@ -493,7 +497,7 @@ export default function JobDetailScreen({ route, navigation }) {
     const handleSaveSignature = async (signatureBase64) => {
         setSignatureModalVisible(false);
         setConfirmationModalVisible(true);
-        
+
         let location = null;
         try {
             const { status } = await Location.requestForegroundPermissionsAsync();
@@ -509,30 +513,49 @@ export default function JobDetailScreen({ route, navigation }) {
         }
 
         // Store signature and coordinates to be sent with completion
-        setJob(prev => ({ 
-            ...prev, 
+        setJob(prev => ({
+            ...prev,
             signature: signatureBase64,
             signatureCoords: location
         }));
     };
 
-    const confirmCompleteJob = async () => {
-        setConfirmationModalVisible(false);
+    const handleExportProforma = async () => {
         try {
-            setCompleting(true);
-            // Pass signature and coords to completeJob
-            const result = await jobService.completeJob(jobId, job.signature, job.signatureCoords);
-            setSuccessMessage(t('common.success'));
-            setSuccessModalVisible(true);
-            setTimeout(() => {
-                setSuccessModalVisible(false);
-                navigation.goBack();
-            }, 2000);
+            setLoading(true);
+            const token = await AsyncStorage.getItem('userToken'); // Assuming user is logged in
+            const response = await axios.get(`${API_URL}/api/v1/jobs/${jobId}/proforma`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const data = response.data;
+            const itemsText = data.items.map(i => `- ${i.description}: ₺${i.price}`).join('\n');
+            const total = data.items.reduce((sum, i) => sum + i.price, 0);
+
+            const shareMessage = `
+PROFORMA FATURA (#${data.id.slice(-6).toUpperCase()})
+--------------------------------
+Müşteri: ${data.customer.company}
+İş: ${data.title}
+Tarih: ${new Date().toLocaleDateString('tr-TR')}
+
+HİZMETLER:
+${itemsText}
+
+GENEL TOPLAM: ₺${(total * 1.2).toLocaleString('tr-TR')} (KDV Dahil)
+--------------------------------
+Assembly Tracker Ltd. Şti.
+            `;
+
+            await Share.share({
+                message: shareMessage,
+                title: 'Proforma Fatura'
+            });
         } catch (error) {
-            console.error('Error completing job:', error);
-            Alert.alert(t('common.error'), error.message || t('common.error'));
+            console.error('Proforma export error:', error);
+            Alert.alert(t('common.error'), 'Dosya paylaşılamadı.');
         } finally {
-            setCompleting(false);
+            setLoading(false);
         }
     };
 
@@ -560,12 +583,19 @@ export default function JobDetailScreen({ route, navigation }) {
                     <MaterialIcons name="arrow-back" size={24} color={theme.colors.primary} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{t('worker.jobDetails')}</Text>
-                <TouchableOpacity 
-                    onPress={() => navigation.navigate('Chat', { jobId: job.id, jobTitle: job.title })} 
-                    style={styles.chatButton}
-                >
-                    <MaterialIcons name="chat" size={24} color={theme.colors.primary} />
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', gap: 12 }}>
+                    {['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (
+                        <TouchableOpacity onPress={handleExportProforma} style={styles.chatButton}>
+                            <MaterialIcons name="description" size={24} color={theme.colors.primary} />
+                        </TouchableOpacity>
+                    )}
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('Chat', { jobId: job.id, jobTitle: job.title })}
+                        style={styles.chatButton}
+                    >
+                        <MaterialIcons name="chat" size={24} color={theme.colors.primary} />
+                    </TouchableOpacity>
+                </View>
             </View>
 
             <View style={{ flex: 1, minHeight: 0 }}>
@@ -624,9 +654,19 @@ export default function JobDetailScreen({ route, navigation }) {
                                             </Text>
                                         )}
                                         {step.completedAt && (
-                                            <Text style={[styles.dateText, { color: theme.colors.subText }]}>
-                                                {t('worker.finished')}: {formatDate(step.completedAt)}
-                                            </Text>
+                                            <View>
+                                                <Text style={[styles.dateText, { color: theme.colors.subText }]}>
+                                                    {t('worker.finished')}: {formatDate(step.completedAt)}
+                                                </Text>
+                                                {(step.latitude && step.longitude) && (
+                                                    <View style={styles.metadataTag}>
+                                                        <MaterialIcons name="location-pin" size={12} color={theme.colors.subText} />
+                                                        <Text style={[styles.metadataText, { color: theme.colors.subText }]}>
+                                                            {step.latitude.toFixed(4)}, {step.longitude.toFixed(4)}
+                                                        </Text>
+                                                    </View>
+                                                )}
+                                            </View>
                                         )}
                                     </View>
                                 </View>
@@ -657,11 +697,34 @@ export default function JobDetailScreen({ route, navigation }) {
                         );
                     })}
 
-                    <CostSection
-                        job={job}
-                        canAdd={!['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase())}
-                        onAddPress={() => setCostModalVisible(true)}
-                    />
+                    {job.signatureUrl && (
+                        <GlassCard style={styles.card} theme={theme}>
+                            <Text style={[styles.sectionTitle, { color: theme.colors.text, marginTop: 0 }]}>{t('common.confirm')}</Text>
+                            <View style={styles.signatureDisplayContainer}>
+                                <Image
+                                    source={{ uri: job.signatureUrl }}
+                                    style={styles.signatureImage}
+                                    resizeMode="contain"
+                                />
+                            </View>
+                            <View style={styles.signatureMeta}>
+                                <View style={styles.metaRow}>
+                                    <MaterialIcons name="access-time" size={14} color={theme.colors.subText} />
+                                    <Text style={[styles.metaText, { color: theme.colors.subText }]}>
+                                        {job.completedDate ? formatDate(job.completedDate) : formatDate(new Date())}
+                                    </Text>
+                                </View>
+                                {(job.signatureLatitude && job.signatureLongitude) && (
+                                    <View style={styles.metaRow}>
+                                        <MaterialIcons name="location-on" size={14} color={theme.colors.subText} />
+                                        <Text style={[styles.metaText, { color: theme.colors.subText }]}>
+                                            {job.signatureLatitude.toFixed(6)}, {job.signatureLongitude.toFixed(6)}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                        </GlassCard>
+                    )}
 
                     <View style={{ height: 100 }} />
                 </ScrollView>
@@ -751,8 +814,8 @@ export default function JobDetailScreen({ route, navigation }) {
             </AppModal>
 
             <SuccessModal visible={successModalVisible} message={successMessage} onClose={() => setSuccessModalVisible(false)} />
-            
-            <SignaturePad 
+
+            <SignaturePad
                 visible={signatureModalVisible}
                 theme={theme}
                 onSave={handleSaveSignature}

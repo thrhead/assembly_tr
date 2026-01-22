@@ -63,11 +63,13 @@ export default function AdminDashboardScreen({ navigation }) {
     const navItems = [
         { id: 'users', title: 'Kullanıcılar', icon: 'people', route: 'UserManagement', color: theme.colors.primary },
         { id: 'customers', title: 'Müşteriler', icon: 'business', route: 'CustomerManagement', color: theme.colors.tertiary },
-        { id: 'teams', title: 'Ekipler', icon: 'groups', route: 'TeamList', color: theme.colors.secondary },
+        { id: 'teams', title: 'Ekip Yönetimi', icon: 'groups', route: 'TeamManagement', color: theme.colors.secondary },
         { id: 'jobs', title: 'İşler', icon: 'work', route: 'Jobs', color: '#f97316' }, // Orange
         { id: 'approvals', title: 'Onaylar', icon: 'fact-check', route: 'Approvals', color: '#14b8a6' }, // Teal
         { id: 'costs', title: 'Maliyetler', icon: 'attach-money', route: 'CostManagement', color: '#22c55e' }, // Green
         { id: 'calendar', title: 'Takvim', icon: 'calendar-today', route: 'Calendar', color: '#a855f7' }, // Purple
+        { id: 'planning', title: 'Planlama', icon: 'trending-up', route: 'AdvancedPlanning', color: theme.colors.primary },
+        { id: 'reports', title: 'Raporlar', icon: 'bar-chart', route: 'Reports', color: '#3b82f6' }, // Blue
     ];
 
     const handleNavPress = (route) => {

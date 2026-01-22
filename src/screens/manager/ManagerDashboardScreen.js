@@ -180,6 +180,10 @@ export default function ManagerDashboardScreen({ navigation }) {
                             <MaterialIcons name="assignment" size={32} color="#f97316" />
                             <Text style={{ color: theme.colors.text, fontWeight: '600' }}>İş Atama</Text>
                         </GlassCard>
+                        <GlassCard theme={theme} style={{ flex: 1, padding: 16, alignItems: 'center', gap: 12 }} onPress={() => navigation.navigate('AdvancedPlanning')}>
+                            <MaterialIcons name="trending-up" size={32} color={theme.colors.primary} />
+                            <Text style={{ color: theme.colors.text, fontWeight: '600' }}>Planlama</Text>
+                        </GlassCard>
                     </View>
                     <View style={[styles.quickActions, { marginTop: 12 }]}>
                         <GlassCard theme={theme} style={{ flex: 1, padding: 16, alignItems: 'center', gap: 12 }} onPress={() => navigation.navigate('CostManagement')}>
