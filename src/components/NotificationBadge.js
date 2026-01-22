@@ -7,7 +7,11 @@ const NotificationBadge = ({ onPress, color = '#000' }) => {
     const { unreadCount } = useSocket();
 
     return (
-        <TouchableOpacity style={styles.container} onPress={onPress}>
+        <TouchableOpacity 
+            style={styles.container} 
+            onPress={onPress}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
             <Ionicons name="notifications-outline" size={24} color={color} />
             {unreadCount > 0 && (
                 <View style={styles.badge}>

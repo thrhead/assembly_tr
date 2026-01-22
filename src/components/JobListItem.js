@@ -49,6 +49,7 @@ const JobListItem = ({ item, onPress }) => {
         <TouchableOpacity
             onPress={() => onPress(item)}
             activeOpacity={0.7}
+            hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
         >
             <View style={[
                 styles.card,
