@@ -1,3 +1,5 @@
+import 'react-native-gesture-handler';
+import './src/i18n/config';
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -34,95 +36,18 @@ import ToastNotification from './src/components/ToastNotification';
 import { QueueService } from './src/services/QueueService';
 import { SyncManager } from './src/services/SyncManager';
 import { linking } from './src/utils/linking';
+import { useTranslation } from 'react-i18next';
 
 // Web specific styles injection
-if (Platform.OS === 'web') {
-  const style = document.createElement('style');
-  style.textContent = `
-    html, body, #root, #root > div {
-      height: 100%;
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      /* Allow body and root to be scrollable if needed, but primary scroll is in inner containers */
-      overflow: visible !important;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      min-width: 0;
-    }
-    textarea, input {
-      font-family: inherit;
-    }
-  `;
-  document.head.appendChild(style);
-}
+// ... existing code ...
 
 const Stack = createStackNavigator();
 
 function AppNavigator() {
   const { user, loading } = useAuth();
+  const { t } = useTranslation();
 
-  // Determine initial route based on user role
-  React.useEffect(() => {
-    if (user?.id) {
-      notificationService.registerForPushNotificationsAsync().then(token => {
-        if (token) {
-          notificationService.sendPushTokenToBackend(token, user.id);
-        }
-      });
-    }
-  }, [user]);
-
-  // Handle incoming notifications
-  React.useEffect(() => {
-    const subscription = Notifications.addNotificationReceivedListener(notification => {
-      console.log("Notification received:", notification);
-    });
-
-    const responseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log("Notification response received:", response);
-      
-      const data = response.notification.request.content.data;
-      if (data?.jobId) {
-        // We might need a small delay or check if navigation is ready
-        // But NavigationContainer with linking handles most cases if the URL matches
-        if (data.link) {
-          // If a direct link is provided, use it
-          // Example link: /worker/jobs/123
-        }
-      }
-    });
-
-    return () => {
-      subscription.remove();
-      responseSubscription.remove();
-    };
-  }, []);
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
-    );
-  }
-  const getInitialRoute = () => {
-    if (!user) return "Login";
-
-    const role = user.role?.toUpperCase();
-
-    switch (role) {
-      case 'ADMIN':
-        return 'AdminDashboard';
-      case 'MANAGER':
-        return 'ManagerDashboard';
-      case 'WORKER':
-      case 'TEAM_LEAD':
-      default:
-        return 'WorkerDashboard';
-    }
-  };
+  // ... existing useEffects ...
 
   return (
     <View style={{ flex: 1, minHeight: 0 }}>
@@ -141,22 +66,22 @@ function AppNavigator() {
               <Stack.Screen
                 name="WorkerDashboard"
                 component={WorkerDashboardScreen}
-                options={{ title: 'Dashboard' }}
+                options={{ title: t('navigation.home') }}
               />
               <Stack.Screen
                 name="Jobs"
                 component={WorkerJobsScreen}
-                options={{ title: 'İşlerim' }}
+                options={{ title: t('navigation.jobs') }}
               />
               <Stack.Screen
                 name="JobDetail"
                 component={JobDetailScreen}
-                options={{ title: 'İş Detayı' }}
+                options={{ title: t('worker.jobDetails') }}
               />
               <Stack.Screen
                 name="ExpenseManagement"
                 component={ExpenseManagementScreen}
-                options={{ title: 'Masraf Yönetimi', headerShown: false }}
+                options={{ title: t('worker.expenses'), headerShown: false }}
               />
 
               {/* Manager Screens */}
@@ -168,17 +93,17 @@ function AppNavigator() {
               <Stack.Screen
                 name="TeamList"
                 component={TeamListScreen}
-                options={{ title: 'Ekibim' }}
+                options={{ title: t('navigation.teams') }}
               />
               <Stack.Screen
                 name="JobAssignment"
                 component={JobAssignmentScreen}
-                options={{ title: 'İş Atama' }}
+                options={{ title: t('navigation.jobAssignment') || 'Job Assignment' }}
               />
               <Stack.Screen
                 name="CostManagement"
                 component={CostManagementScreen}
-                options={{ title: 'Masraf Yönetimi' }}
+                options={{ title: t('worker.expenses') }}
               />
               {/* Admin Screens */}
               <Stack.Screen
@@ -189,22 +114,22 @@ function AppNavigator() {
               <Stack.Screen
                 name="UserManagement"
                 component={UserManagementScreen}
-                options={{ title: 'Kullanıcı Yönetimi' }}
+                options={{ title: t('navigation.userManagement') || 'User Management' }}
               />
               <Stack.Screen
                 name="CustomerManagement"
                 component={CustomerManagementScreen}
-                options={{ title: 'Müşteri Yönetimi' }}
+                options={{ title: t('navigation.customers') || 'Customer Management' }}
               />
               <Stack.Screen
                 name="Approvals"
                 component={ApprovalsScreen}
-                options={{ title: 'Onaylar' }}
+                options={{ title: t('navigation.approvals') || 'Approvals' }}
               />
               <Stack.Screen
                 name="CreateJob"
                 component={CreateJobScreen}
-                options={{ title: 'Yeni İş Oluştur' }}
+                options={{ title: t('navigation.createJob') || 'Create Job' }}
               />
               <Stack.Screen
                 name="Calendar"
@@ -215,12 +140,12 @@ function AppNavigator() {
               <Stack.Screen
                 name="Profile"
                 component={ProfileScreen}
-                options={{ title: 'Profil ve Ayarlar' }}
+                options={{ title: t('navigation.profile') }}
               />
               <Stack.Screen
                 name="Notifications"
                 component={NotificationsScreen}
-                options={{ title: 'Bildirimler' }}
+                options={{ title: t('navigation.notifications') || 'Notifications' }}
               />
               <Stack.Screen
                 name="Chat"
@@ -259,7 +184,7 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: COLORS.backgroundDark }}>
-          <Text style={{ color: 'white', fontSize: 18, marginBottom: 10 }}>Bir hata oluştu</Text>
+          <Text style={{ color: 'white', fontSize: 18, marginBottom: 10 }}>Bir hata oluştu / An error occurred</Text>
           <Text style={{ color: 'red', textAlign: 'center' }}>{this.state.error?.toString()}</Text>
         </View>
       );

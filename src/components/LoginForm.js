@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import CustomInput from './CustomInput';
@@ -8,6 +9,7 @@ import CustomButton from './CustomButton';
 import { API_BASE_URL } from '../services/api';
 
 const LoginForm = ({ onBack, onLoginSuccess }) => {
+    const { t } = useTranslation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -17,7 +19,7 @@ const LoginForm = ({ onBack, onLoginSuccess }) => {
 
     const handleLogin = async () => {
         if (!email || !password) {
-            Alert.alert('Hata', 'Lütfen e-posta ve şifre giriniz.');
+            Alert.alert(t('common.error'), t('auth.enterCredentials'));
             return;
         }
 
@@ -30,8 +32,8 @@ const LoginForm = ({ onBack, onLoginSuccess }) => {
         } else {
             console.error('Login Failed:', result);
             Alert.alert(
-                'Giriş Hatası',
-                `${result.error || 'Bir hata oluştu'}`
+                t('auth.errorTitle'),
+                `${result.error || t('common.error')}`
             );
         }
     };
@@ -40,16 +42,16 @@ const LoginForm = ({ onBack, onLoginSuccess }) => {
         <View style={styles.loginFormContainer}>
             <TouchableOpacity onPress={onBack} style={styles.backButton}>
                 <MaterialIcons name="arrow-back" size={24} color={theme.colors.primary} />
-                <Text style={{ color: theme.colors.primary, marginLeft: 5 }}>Geri</Text>
+                <Text style={{ color: theme.colors.primary, marginLeft: 5 }}>{t('common.back')}</Text>
             </TouchableOpacity>
 
-            <Text style={[styles.loginTitle, { color: isDark ? theme.colors.text : theme.colors.primary }]}>Giriş Yap</Text>
+            <Text style={[styles.loginTitle, { color: isDark ? theme.colors.text : theme.colors.primary }]}>{t('auth.login')}</Text>
             {__DEV__ && (
                 <Text style={styles.debugText}>API: {API_BASE_URL}</Text>
             )}
 
             <CustomInput
-                placeholder="E-posta"
+                placeholder={t('auth.email')}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -58,7 +60,7 @@ const LoginForm = ({ onBack, onLoginSuccess }) => {
             />
 
             <CustomInput
-                placeholder="Şifre"
+                placeholder={t('auth.password')}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -68,7 +70,7 @@ const LoginForm = ({ onBack, onLoginSuccess }) => {
             />
 
             <CustomButton
-                title="Giriş Yap"
+                title={t('auth.login')}
                 onPress={handleLogin}
                 loading={loading}
                 style={{ marginTop: 10 }}

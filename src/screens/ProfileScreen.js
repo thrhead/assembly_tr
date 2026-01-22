@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Switch, Alert, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import authService from '../services/auth.service';
@@ -8,8 +9,10 @@ import RoleBadge from '../components/RoleBadge';
 import GlassCard from '../components/ui/GlassCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../constants/theme';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 export default function ProfileScreen({ navigation }) {
+    const { t } = useTranslation();
     const { user, logout } = useAuth();
     const { theme, isDark, toggleTheme } = useTheme();
     const [oldPassword, setOldPassword] = useState('');
@@ -50,24 +53,24 @@ export default function ProfileScreen({ navigation }) {
 
     const handlePasswordChange = async () => {
         if (newPassword !== confirmPassword) {
-            Alert.alert('Hata', 'Yeni şifreler eşleşmiyor.');
+            Alert.alert(t('common.error'), t('profile.passwordMismatch'));
             return;
         }
 
         if (newPassword.length < 6) {
-            Alert.alert('Hata', 'Yeni şifre en az 6 karakter olmalıdır.');
+            Alert.alert(t('common.error'), t('profile.passwordTooShort'));
             return;
         }
 
         try {
             await authService.changePassword(oldPassword, newPassword);
-            Alert.alert('Başarılı', 'Şifreniz başarıyla değiştirildi.');
+            Alert.alert(t('common.success'), t('profile.passwordSuccess'));
             setOldPassword('');
             setNewPassword('');
             setConfirmPassword('');
         } catch (error) {
             console.error('Password change error:', error);
-            Alert.alert('Hata', error.message || 'Şifre değiştirilemedi.');
+            Alert.alert(t('common.error'), error.message || t('common.error'));
         }
     };
 
@@ -81,17 +84,17 @@ export default function ProfileScreen({ navigation }) {
         };
 
         if (Platform.OS === 'web') {
-            if (window.confirm('Çıkış yapmak istediğinize emin misiniz?')) {
+            if (window.confirm(t('profile.logoutConfirmDesc'))) {
                 performLogout();
             }
         } else {
             Alert.alert(
-                'Çıkış Yap',
-                'Çıkmak istediğinize emin misiniz?',
+                t('profile.logoutConfirmTitle'),
+                t('profile.logoutConfirmDesc'),
                 [
-                    { text: 'İptal', style: 'cancel' },
+                    { text: t('common.cancel'), style: 'cancel' },
                     {
-                        text: 'Çıkış Yap',
+                        text: t('navigation.logout'),
                         style: 'destructive',
                         onPress: performLogout
                     }
@@ -123,13 +126,12 @@ export default function ProfileScreen({ navigation }) {
 
             {/* Password Change Section */}
             <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Şifre Değiştir</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('profile.changePassword')}</Text>
                 <GlassCard style={styles.card} theme={theme}>
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.inputLabel, { color: theme.colors.subText }]}>Mevcut Şifre</Text>
+                        <Text style={[styles.inputLabel, { color: theme.colors.subText }]}>{t('profile.currentPassword')}</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]}
-                            placeholder="Mevcut şifrenizi girin"
+                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]}                            placeholder={t('profile.currentPasswordPlaceholder')}
                             placeholderTextColor={theme.colors.subText}
                             secureTextEntry
                             value={oldPassword}
@@ -137,10 +139,9 @@ export default function ProfileScreen({ navigation }) {
                         />
                     </View>
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.inputLabel, { color: theme.colors.subText }]}>Yeni Şifre</Text>
+                        <Text style={[styles.inputLabel, { color: theme.colors.subText }]}>{t('profile.newPassword')}</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]}
-                            placeholder="Yeni şifrenizi girin"
+                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]}                            placeholder={t('profile.newPasswordPlaceholder')}
                             placeholderTextColor={theme.colors.subText}
                             secureTextEntry
                             value={newPassword}
@@ -148,10 +149,9 @@ export default function ProfileScreen({ navigation }) {
                         />
                     </View>
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.inputLabel, { color: theme.colors.subText }]}>Yeni Şifre (Tekrar)</Text>
+                        <Text style={[styles.inputLabel, { color: theme.colors.subText }]}>{t('profile.confirmPassword')}</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]}
-                            placeholder="Yeni şifrenizi tekrar girin"
+                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]}                            placeholder={t('profile.confirmPasswordPlaceholder')}
                             placeholderTextColor={theme.colors.subText}
                             secureTextEntry
                             value={confirmPassword}
@@ -159,19 +159,27 @@ export default function ProfileScreen({ navigation }) {
                         />
                     </View>
                     <TouchableOpacity style={[styles.changePasswordButton, { backgroundColor: theme.colors.primary }]} onPress={handlePasswordChange}>
-                        <Text style={styles.changePasswordButtonText}>Şifreyi Değiştir</Text>
+                        <Text style={styles.changePasswordButtonText}>{t('profile.updatePassword')}</Text>
                     </TouchableOpacity>
+                </GlassCard>
+            </View>
+
+            {/* Language Switcher */}
+            <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('settings.language')}</Text>
+                <GlassCard style={styles.card} theme={theme}>
+                    <LanguageSwitcher />
                 </GlassCard>
             </View>
 
             {/* App Settings Section */}
             <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Uygulama Ayarları</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('profile.appSettings')}</Text>
                 <GlassCard style={styles.card} theme={theme}>
                     <View style={styles.settingRow}>
                         <View style={styles.settingInfo}>
-                            <Text style={[styles.settingTitle, { color: theme.colors.text }]}>Karanlık Mod (Dark Mode)</Text>
-                            <Text style={[styles.settingDescription, { color: theme.colors.subText }]}>Uygulama temasını değiştir</Text>
+                            <Text style={[styles.settingTitle, { color: theme.colors.text }]}>{t('profile.darkMode')}</Text>
+                            <Text style={[styles.settingDescription, { color: theme.colors.subText }]}>{t('profile.darkModeDesc')}</Text>
                         </View>
                         <Switch
                             value={isDark}
@@ -185,8 +193,8 @@ export default function ProfileScreen({ navigation }) {
 
                     <View style={styles.settingRow}>
                         <View style={styles.settingInfo}>
-                            <Text style={[styles.settingTitle, { color: theme.colors.text }]}>Bildirimler</Text>
-                            <Text style={[styles.settingDescription, { color: theme.colors.subText }]}>Anlık bildirimleri yönet</Text>
+                            <Text style={[styles.settingTitle, { color: theme.colors.text }]}>{t('profile.notifications')}</Text>
+                            <Text style={[styles.settingDescription, { color: theme.colors.subText }]}>{t('profile.notificationsDesc')}</Text>
                         </View>
                         <Switch
                             value={notificationsEnabled}
@@ -200,14 +208,14 @@ export default function ProfileScreen({ navigation }) {
 
             {/* About Section */}
             <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Hakkında</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('profile.about')}</Text>
                 <GlassCard style={styles.card} theme={theme}>
                     <View style={[styles.aboutRow, { borderBottomColor: theme.colors.border }]}>
-                        <Text style={[styles.aboutLabel, { color: theme.colors.subText }]}>Versiyon</Text>
+                        <Text style={[styles.aboutLabel, { color: theme.colors.subText }]}>{t('profile.version')}</Text>
                         <Text style={[styles.aboutValue, { color: theme.colors.text }]}>1.0.0</Text>
                     </View>
                     <View style={styles.aboutRow}>
-                        <Text style={[styles.aboutLabel, { color: theme.colors.subText }]}>Build</Text>
+                        <Text style={[styles.aboutLabel, { color: theme.colors.subText }]}>{t('profile.build')}</Text>
                         <Text style={[styles.aboutValue, { color: theme.colors.text }]}>100</Text>
                     </View>
                 </GlassCard>
@@ -216,7 +224,7 @@ export default function ProfileScreen({ navigation }) {
             {/* Logout Button */}
             <View style={styles.section}>
                 <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                    <Text style={styles.logoutButtonText}>🚪 Çıkış Yap</Text>
+                    <Text style={styles.logoutButtonText}>🚪 {t('navigation.logout')}</Text>
                 </TouchableOpacity>
             </View>
 

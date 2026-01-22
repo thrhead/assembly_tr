@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+'use client'
+
+import React, { useState, useEffect, use } from 'react';
 import {
     View,
     Text,
@@ -34,7 +36,9 @@ import SuccessModal from '../../components/SuccessModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { WebInput } from '../../components/common/WebInput';
 import GlassCard from '../../components/ui/GlassCard';
-import { COLORS } from '../../constants/theme'; // Re-imported for StyleSheet fallback
+import { COLORS } from '../../constants/theme';
+import { SocketProvider } from '../../context/SocketContext';
+import { useTranslation } from 'react-i18next';
 
 const AppModal = ({ visible, children, ...props }) => {
     if (Platform.OS === 'web') {
@@ -63,10 +67,10 @@ const PageWrapper = ({ children }) => {
 export default function JobDetailScreen({ route, navigation }) {
     const { jobId } = route.params;
     const { user } = useAuth();
-    const { theme, isDark } = useTheme(); // Use Theme
+    const { theme, isDark } = useTheme(); 
+    const { t, i18n } = useTranslation();
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
-    // ... states
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [uploading, setUploading] = useState(false);
@@ -94,7 +98,7 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const formatDate = (dateString) => {
         if (!dateString) return null;
-        return new Date(dateString).toLocaleString('tr-TR', {
+        return new Date(dateString).toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
             day: '2-digit',
             month: '2-digit',
             hour: '2-digit',
@@ -127,18 +131,16 @@ export default function JobDetailScreen({ route, navigation }) {
             } else if (data.job) {
                 setJob(data.job);
             } else {
-                Alert.alert('Hata', 'İş bulunamadı');
+                Alert.alert(t('common.error'), t('alerts.jobNotFound'));
                 navigation.goBack();
             }
         } catch (error) {
             console.error('Error loading job details:', error);
-            Alert.alert('Hata', 'İş detayları yüklenemedi');
+            Alert.alert(t('common.error'), t('alerts.detailsLoadError'));
         } finally {
             setLoading(false);
         }
     };
-
-
 
     const handleSubstepToggle = async (stepId, substepId, currentStatus) => {
         try {
@@ -147,7 +149,7 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('[MOBILE] Error toggling substep:', error);
-            Alert.alert('Hata', 'İşlem gerçekleştirilemedi');
+            Alert.alert(t('common.error'), t('alerts.processError'));
         }
     };
 
@@ -158,7 +160,7 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('[MOBILE] Error toggling step:', error);
-            Alert.alert('Hata', 'İşlem gerçekleştirilemedi');
+            Alert.alert(t('common.error'), t('alerts.processError'));
         }
     };
 
@@ -168,11 +170,11 @@ export default function JobDetailScreen({ route, navigation }) {
             if (source === 'camera') {
                 const { status } = await ImagePicker.requestCameraPermissionsAsync();
                 if (status !== 'granted') {
-                    Alert.alert('İzin Gerekli', 'Kamera erişim izni vermeniz gerekiyor.');
+                    Alert.alert(t('alerts.permissionRequired'), t('alerts.cameraPermissionDesc'));
                     return;
                 }
                 result = await ImagePicker.launchCameraAsync({
-                    mediaTypes: 'Images',
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
                     allowsEditing: true,
                     aspect: [4, 3],
                     quality: 0.5,
@@ -180,11 +182,11 @@ export default function JobDetailScreen({ route, navigation }) {
             } else {
                 const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
                 if (status !== 'granted') {
-                    Alert.alert('İzin Gerekli', 'Galeri erişim izni vermeniz gerekiyor.');
+                    Alert.alert(t('alerts.permissionRequired'), t('alerts.galleryPermissionDesc'));
                     return;
                 }
                 result = await ImagePicker.launchImageLibraryAsync({
-                    mediaTypes: 'Images',
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
                     allowsEditing: true,
                     aspect: [4, 3],
                     quality: 0.5,
@@ -197,7 +199,7 @@ export default function JobDetailScreen({ route, navigation }) {
             }
         } catch (error) {
             console.error("ImagePicker error:", error);
-            Alert.alert('Hata', 'Fotoğraf seçilirken bir hata oluştu.');
+            Alert.alert(t('common.error'), t('alerts.photoSelectError'));
         }
     };
 
@@ -213,12 +215,12 @@ export default function JobDetailScreen({ route, navigation }) {
 
             await jobService.uploadPhotos(jobId, stepId, formData, substepId);
 
-            setSuccessMessage('Fotoğraf başarıyla yüklendi');
+            setSuccessMessage(t('alerts.photoUploadSuccess'));
             setSuccessModalVisible(true);
             loadJobDetails();
         } catch (error) {
             console.error('Error uploading photo:', error);
-            Alert.alert('Hata', 'Fotoğraf yüklenemedi');
+            Alert.alert(t('common.error'), t('alerts.photoUploadError'));
         } finally {
             setUploading(false);
         }
@@ -229,18 +231,18 @@ export default function JobDetailScreen({ route, navigation }) {
             setUploading(true);
             const formData = new FormData();
             const filename = uri.split('/').pop();
-            const type = 'audio/m4a'; // Expo AV default
+            const type = 'audio/m4a'; 
 
             formData.append('audio', { uri, name: filename, type });
 
             await jobService.uploadAudio(jobId, stepId, formData, substepId);
 
-            setSuccessMessage('Ses kaydı başarıyla yüklendi');
+            setSuccessMessage(t('alerts.audioUploadSuccess'));
             setSuccessModalVisible(true);
             loadJobDetails();
         } catch (error) {
             console.error('Error uploading audio:', error);
-            Alert.alert('Hata', 'Ses kaydı yüklenemedi');
+            Alert.alert(t('common.error'), t('alerts.audioUploadError'));
         } finally {
             setUploading(false);
         }
@@ -250,11 +252,11 @@ export default function JobDetailScreen({ route, navigation }) {
         try {
             setLoading(true);
             await jobService.approveStep(stepId);
-            Alert.alert('Başarılı', 'İş adımı onaylandı.');
+            Alert.alert(t('common.success'), t('alerts.stepApproveSuccess'));
             loadJobDetails();
         } catch (error) {
             console.error('Error approving step:', error);
-            Alert.alert('Hata', 'Onaylama işlemi başarısız oldu.');
+            Alert.alert(t('common.error'), t('alerts.stepApproveError'));
         } finally {
             setLoading(false);
         }
@@ -262,21 +264,21 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const handleRejectStep = async () => {
         if (!rejectionReason) {
-            Alert.alert('Uyarı', 'Lütfen bir red sebebi giriniz.');
+            Alert.alert(t('common.warning'), t('alerts.rejectionReasonRequired'));
             return;
         }
 
         try {
             setLoading(true);
             await jobService.rejectStep(selectedStepId, rejectionReason);
-            Alert.alert('Başarılı', 'İş adımı reddedildi.');
+            Alert.alert(t('common.success'), t('alerts.stepRejectSuccess'));
             setRejectionModalVisible(false);
             setRejectionReason('');
             setSelectedStepId(null);
             loadJobDetails();
         } catch (error) {
             console.error('Error rejecting step:', error);
-            Alert.alert('Hata', 'Reddetme işlemi başarısız oldu.');
+            Alert.alert(t('common.error'), t('alerts.stepRejectError'));
         } finally {
             setLoading(false);
         }
@@ -286,11 +288,11 @@ export default function JobDetailScreen({ route, navigation }) {
         try {
             setLoading(true);
             await jobService.approveSubstep(substepId);
-            Alert.alert('Başarılı', 'Alt görev onaylandı.');
+            Alert.alert(t('common.success'), t('alerts.stepApproveSuccess'));
             loadJobDetails();
         } catch (error) {
             console.error('Error approving substep:', error);
-            Alert.alert('Hata', 'Onaylama işlemi başarısız oldu.');
+            Alert.alert(t('common.error'), t('alerts.stepApproveError'));
         } finally {
             setLoading(false);
         }
@@ -298,21 +300,21 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const handleRejectSubstep = async () => {
         if (!rejectionReason) {
-            Alert.alert('Uyarı', 'Lütfen bir red sebebi giriniz.');
+            Alert.alert(t('common.warning'), t('alerts.rejectionReasonRequired'));
             return;
         }
 
         try {
             setLoading(true);
             await jobService.rejectSubstep(selectedSubstepId, rejectionReason);
-            Alert.alert('Başarılı', 'Alt görev reddedildi.');
+            Alert.alert(t('common.success'), t('alerts.stepRejectSuccess'));
             setRejectionModalVisible(false);
             setRejectionReason('');
             setSelectedSubstepId(null);
             loadJobDetails();
         } catch (error) {
             console.error('Error rejecting substep:', error);
-            Alert.alert('Hata', 'Reddetme işlemi başarısız oldu.');
+            Alert.alert(t('common.error'), t('alerts.stepRejectError'));
         } finally {
             setLoading(false);
         }
@@ -320,20 +322,20 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const handleRejectJob = async () => {
         if (!rejectionReason) {
-            Alert.alert('Uyarı', 'Lütfen bir red sebebi giriniz.');
+            Alert.alert(t('common.warning'), t('alerts.rejectionReasonRequired'));
             return;
         }
 
         try {
             setLoading(true);
             await jobService.rejectJob(jobId, rejectionReason);
-            Alert.alert('Başarılı', 'İş reddedildi.');
+            Alert.alert(t('common.success'), t('alerts.stepRejectSuccess'));
             setRejectionModalVisible(false);
             setRejectionReason('');
             loadJobDetails();
         } catch (error) {
             console.error('Error rejecting job:', error);
-            Alert.alert('Hata', 'İş reddedilemedi.');
+            Alert.alert(t('common.error'), t('alerts.stepRejectError'));
         } finally {
             setLoading(false);
         }
@@ -353,11 +355,11 @@ export default function JobDetailScreen({ route, navigation }) {
         try {
             setLoading(true);
             await jobService.startJob(jobId);
-            Alert.alert('Başarılı', 'İş başlatıldı.');
+            Alert.alert(t('common.success'), t('alerts.jobStartSuccess'));
             loadJobDetails();
         } catch (error) {
             console.error('Error starting job:', error);
-            Alert.alert('Hata', 'İş başlatılamadı.');
+            Alert.alert(t('common.error'), t('alerts.jobStartError'));
         } finally {
             setLoading(false);
         }
@@ -370,7 +372,7 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('Error starting step:', error);
-            Alert.alert('Hata', 'Adım başlatılamadı.');
+            Alert.alert(t('common.error'), t('alerts.processError'));
         } finally {
             setLoading(false);
         }
@@ -383,7 +385,7 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('Error starting substep:', error);
-            Alert.alert('Hata', 'Alt adım başlatılamadı.');
+            Alert.alert(t('common.error'), t('alerts.processError'));
         } finally {
             setLoading(false);
         }
@@ -391,21 +393,21 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const handleAcceptJob = async () => {
         Alert.alert(
-            "Montajı Kabul Et",
-            "Bu montajı ve tüm yapılan işleri onaylıyor musunuz?",
+            t('common.confirm'),
+            t('alerts.completeJobConfirm'),
             [
-                { text: "İptal", style: "cancel" },
+                { text: t('common.cancel'), style: "cancel" },
                 {
-                    text: "Kabul Et",
+                    text: t('common.confirm'),
                     onPress: async () => {
                         try {
                             setLoading(true);
                             await jobService.acceptJob(jobId);
-                            Alert.alert("Başarılı", "Montaj başarıyla kabul edildi.");
+                            Alert.alert(t('common.success'), t('alerts.stepApproveSuccess'));
                             loadJobDetails();
                         } catch (error) {
                             console.error('Error accepting job:', error);
-                            Alert.alert('Hata', 'Montaj kabul edilirken bir hata oluştu.');
+                            Alert.alert(t('common.error'), t('alerts.processError'));
                         } finally {
                             setLoading(false);
                         }
@@ -434,7 +436,6 @@ export default function JobDetailScreen({ route, navigation }) {
                 const match = /\.(\w+)$/.exec(filename);
                 const type = match ? `image/${match[1]}` : `image`;
 
-                // Expo Web fix for FormData file
                 if (Platform.OS === 'web') {
                     const response = await fetch(receiptImage);
                     const blob = await response.blob();
@@ -455,8 +456,7 @@ export default function JobDetailScreen({ route, navigation }) {
 
             await costService.create(data);
 
-            // Alert.alert('Başarılı', 'Masraf eklendi ve onaya gönderildi.');
-            setSuccessMessage('Masraf eklendi ve onaya gönderildi');
+            setSuccessMessage(t('common.success'));
             setSuccessModalVisible(true);
             setCostModalVisible(false);
             setCostAmount('');
@@ -467,7 +467,7 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('Error creating cost:', error);
-            Alert.alert('Hata', 'Masraf eklenirken bir hata oluştu.');
+            Alert.alert(t('common.error'), t('alerts.processError'));
         } finally {
             setSubmittingCost(false);
         }
@@ -479,7 +479,7 @@ export default function JobDetailScreen({ route, navigation }) {
         const allStepsCompleted = job.steps.every(step => step.isCompleted);
 
         if (!allStepsCompleted) {
-            Alert.alert("Uyarı", "İşi tamamlamak için tüm adımları bitirmelisiniz.");
+            Alert.alert(t('common.warning'), t('alerts.photoRequired'));
             return;
         }
 
@@ -491,7 +491,7 @@ export default function JobDetailScreen({ route, navigation }) {
         try {
             setCompleting(true);
             const result = await jobService.completeJob(jobId);
-            setSuccessMessage('İş tamamlandı ve onaya gönderildi');
+            setSuccessMessage(t('common.success'));
             setSuccessModalVisible(true);
             setTimeout(() => {
                 setSuccessModalVisible(false);
@@ -499,7 +499,7 @@ export default function JobDetailScreen({ route, navigation }) {
             }, 2000);
         } catch (error) {
             console.error('Error completing job:', error);
-            Alert.alert('Hata', error.message || 'İş tamamlanırken bir hata oluştu');
+            Alert.alert(t('common.error'), error.message || t('common.error'));
         } finally {
             setCompleting(false);
         }
@@ -507,7 +507,7 @@ export default function JobDetailScreen({ route, navigation }) {
 
     if (loading) {
         return (
-            <View style={styles.centerContainer}>
+            <View style={[styles.centerContainer, { backgroundColor: theme.colors.background }]}>
                 <ActivityIndicator size="large" color={theme.colors.primary} />
             </View>
         );
@@ -515,8 +515,8 @@ export default function JobDetailScreen({ route, navigation }) {
 
     if (!job) {
         return (
-            <View style={styles.centerContainer}>
-                <Text style={{ color: theme.colors.text }}>İş bulunamadı.</Text>
+            <View style={[styles.centerContainer, { backgroundColor: theme.colors.background }]}>
+                <Text style={{ color: theme.colors.text }}>{t('alerts.jobNotFound')}</Text>
             </View>
         );
     }
@@ -528,7 +528,7 @@ export default function JobDetailScreen({ route, navigation }) {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <MaterialIcons name="arrow-back" size={24} color={theme.colors.primary} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: theme.colors.text }]}>İş Detayı</Text>
+                <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{t('worker.jobDetails')}</Text>
                 <TouchableOpacity 
                     onPress={() => navigation.navigate('Chat', { jobId: job.id, jobTitle: job.title })} 
                     style={styles.chatButton}
@@ -542,15 +542,12 @@ export default function JobDetailScreen({ route, navigation }) {
                     style={{ flex: 1 }}
                     contentContainerStyle={[styles.contentContainer, { flexGrow: 1 }]}
                 >
-                    {/* Job Info Card */}
                     <JobInfoCard job={job} />
 
-
-                    {/* Assignments Section */}
-                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Ekip ve Atamalar</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('navigation.teams')}</Text>
                     {job.assignments && job.assignments.length > 0 ? (
                         job.assignments.map((assignment, index) => (
-                            <GlassCard key={index} style={styles.card}>
+                            <GlassCard key={index} style={styles.card} theme={theme}>
                                 <View style={styles.infoRow}>
                                     <MaterialIcons name="group" size={20} color={theme.colors.primary} />
                                     <View style={{ marginLeft: 8 }}>
@@ -571,13 +568,12 @@ export default function JobDetailScreen({ route, navigation }) {
                             </GlassCard>
                         ))
                     ) : (
-                        <GlassCard style={styles.card}>
-                            <Text style={[styles.infoText, { color: theme.colors.subText }]}>Atama bulunamadı.</Text>
+                        <GlassCard style={styles.card} theme={theme}>
+                            <Text style={[styles.infoText, { color: theme.colors.subText }]}>{t('recentJobs.noJobs')}</Text>
                         </GlassCard>
                     )}
 
-                    {/* Steps Section */}
-                    <Text style={styles.sectionTitle}>İş Adımları</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('worker.steps')}</Text>
                     {job.steps && job.steps.map((step, index) => {
                         const isLocked = index > 0 && !job.steps[index - 1].isCompleted;
 
@@ -593,59 +589,25 @@ export default function JobDetailScreen({ route, navigation }) {
                                         </Text>
                                         {step.startedAt && (
                                             <Text style={[styles.dateText, { color: theme.colors.subText }]}>
-                                                Başladı: {formatDate(step.startedAt)}
+                                                {t('worker.started')}: {formatDate(step.startedAt)}
                                             </Text>
                                         )}
                                         {step.completedAt && (
                                             <Text style={[styles.dateText, { color: theme.colors.subText }]}>
-                                                Bitti: {formatDate(step.completedAt)}
+                                                {t('worker.finished')}: {formatDate(step.completedAt)}
                                             </Text>
                                         )}
-                                        {(step.approvalStatus && step.approvalStatus !== 'PENDING') &&
-                                            (!step.subSteps || step.subSteps.every(s => s.isCompleted && s.approvalStatus === 'APPROVED')) && (
-                                                <View style={[
-                                                    styles.statusBadge,
-                                                    step.approvalStatus === 'APPROVED' ? styles.badgeApproved : styles.badgeRejected
-                                                ]}>
-                                                    <Text style={styles.statusBadgeText}>
-                                                        {step.approvalStatus === 'APPROVED' ? 'ONAYLANDI' : 'REDDEDİLDİ'}
-                                                    </Text>
-                                                </View>
-                                            )}
                                     </View>
-                                    {isLocked && <MaterialIcons name="lock" size={20} color={theme.colors.subText} />}
                                 </View>
 
                                 {step.approvalStatus === 'REJECTED' && step.rejectionReason && (
-                                    <Text style={[styles.rejectionReasonText, { color: theme.colors.error }]}>Red Sebebi: {step.rejectionReason}</Text>
-                                )}
-
-                                {['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (step.isCompleted || step.approvalStatus !== 'PENDING') && (
-                                    <View style={styles.managerActions}>
-                                        <TouchableOpacity
-                                            style={[styles.actionButton, styles.rejectButton]}
-                                            onPress={() => openRejectionModal(step.id)}
-                                        >
-                                            <Text style={styles.actionButtonText}>Reddet</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={[styles.actionButton, styles.approveButton]}
-                                            onPress={() => handleApproveStep(step.id)}
-                                        >
-                                            <Text style={styles.actionButtonText}>Onayla</Text>
-                                        </TouchableOpacity>
-                                    </View>
+                                    <Text style={[styles.rejectionReasonText, { color: theme.colors.error }]}>{t('worker.rejectionReason')}: {step.rejectionReason}</Text>
                                 )}
 
                                 {!isLocked && step.subSteps && (
                                     <View style={styles.substepsContainer}>
                                         {step.subSteps.map((substep, subIndex) => {
-                                            const substepPhotos = substep.photos || [];
-                                            const photoCount = substepPhotos.length;
                                             const isSubstepLocked = subIndex > 0 && !step.subSteps[subIndex - 1].isCompleted;
-                                            const canComplete = photoCount >= 1 && substep.startedAt;
-                                            const canUpload = photoCount < 3 && substep.startedAt;
-
                                             return (
                                                 <GlassCard key={substep.id} style={[styles.substepWrapper, isSubstepLocked && styles.lockedCard]} theme={theme}>
                                                     <View style={styles.substepRow}>
@@ -653,237 +615,17 @@ export default function JobDetailScreen({ route, navigation }) {
                                                             <Text style={[styles.substepText, substep.isCompleted && styles.completedText, { color: theme.colors.text }]}>
                                                                 {substep.title || substep.name}
                                                             </Text>
-                                                            {substep.startedAt && (
-                                                                <Text style={[styles.dateText, { color: theme.colors.subText }]}>
-                                                                    Başladı: {formatDate(substep.startedAt)}
-                                                                </Text>
-                                                            )}
-                                                            {substep.completedAt && (
-                                                                <Text style={[styles.dateText, { color: theme.colors.subText }]}>
-                                                                    Bitti: {formatDate(substep.completedAt)}
-                                                                </Text>
-                                                            )}
-                                                            {substep.approvalStatus && (
-                                                                <View style={[
-                                                                    styles.statusBadge,
-                                                                    styles.smallBadge,
-                                                                    substep.approvalStatus === 'APPROVED' ? styles.badgeApproved :
-                                                                        substep.approvalStatus === 'REJECTED' ? styles.badgeRejected :
-                                                                            styles.badgePending
-                                                                ]}>
-                                                                    <Text style={styles.statusBadgeText}>
-                                                                        {substep.approvalStatus === 'APPROVED' ? 'ONAYLANDI' :
-                                                                            substep.approvalStatus === 'REJECTED' ? 'REDDEDİLDİ' : 'ONAY BEKLİYOR'}
-                                                                    </Text>
-                                                                </View>
-                                                            )}
-                                                            {isSubstepLocked && <Text style={[styles.lockedText, { color: theme.colors.subText }]}>(Önceki adımı tamamlayın)</Text>}
                                                         </View>
-
-                                                        {!['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (
-                                                            <View style={styles.actionButtons}>
-                                                                {!substep.isCompleted ? (
-                                                                    !substep.startedAt ? (
-                                                                        <TouchableOpacity
-                                                                            style={[styles.startButton, isSubstepLocked && styles.disabledButton]}
-                                                                            onPress={() => handleStartSubstep(step.id, substep.id)}
-                                                                            disabled={isSubstepLocked}
-                                                                        >
-                                                                            <Text style={styles.btnText}>Başla</Text>
-                                                                        </TouchableOpacity>
-                                                                    ) : (
-                                                                        <TouchableOpacity
-                                                                            style={[styles.completeButton, (!canComplete || isSubstepLocked) && styles.disabledButton]}
-                                                                            onPress={() => {
-                                                                                if (!substep.startedAt) {
-                                                                                    Alert.alert('Uyarı', 'Önce işe başlamalısınız.');
-                                                                                    return;
-                                                                                }
-                                                                                if (photoCount < 1) {
-                                                                                    Alert.alert('Uyarı', 'Tamamlamak için en az 1 fotoğraf yüklemelisiniz.');
-                                                                                    return;
-                                                                                }
-                                                                                handleSubstepToggle(step.id, substep.id, false);
-                                                                            }}
-                                                                            disabled={!canComplete || isSubstepLocked}
-                                                                        >
-                                                                            <Text style={styles.btnText}>Tamamla</Text>
-                                                                        </TouchableOpacity>
-                                                                    )
-                                                                ) : (
-                                                                    <TouchableOpacity
-                                                                        style={styles.undoButton}
-                                                                        onPress={() => handleSubstepToggle(step.id, substep.id, true)}
-                                                                    >
-                                                                        <Text style={styles.btnText}>Geri Al</Text>
-                                                                    </TouchableOpacity>
-                                                                )}
-                                                            </View>
-                                                        )}
-
-                                                        {['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (substep.isCompleted || substep.approvalStatus !== 'PENDING') && (
-                                                            <View style={styles.substepManagerActions}>
-                                                                <TouchableOpacity
-                                                                    style={[styles.miniActionButton, styles.rejectButton]}
-                                                                    onPress={() => openSubstepRejectionModal(substep.id)}
-                                                                >
-                                                                    <MaterialIcons name="close" size={16} color={theme.colors.textInverse || '#fff'} />
-                                                                </TouchableOpacity>
-                                                                <TouchableOpacity
-                                                                    style={[styles.miniActionButton, styles.approveButton]}
-                                                                    onPress={() => handleApproveSubstep(substep.id)}
-                                                                >
-                                                                    <MaterialIcons name="check" size={16} color={theme.colors.textInverse || '#fff'} />
-                                                                </TouchableOpacity>
-                                                            </View>
-                                                        )}
                                                     </View>
-
-                                                    {!isSubstepLocked && !substep.isCompleted && !['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (
-                                                        <View style={styles.stepPhotoContainer}>
-                                                            <Text style={[styles.photoCountText, { color: theme.colors.subText }]}>
-                                                                Medya ({photoCount}/3)
-                                                            </Text>
-                                                            {canUpload ? (
-                                                                <View style={styles.photoButtonsContainer}>
-                                                                    <TouchableOpacity
-                                                                        style={styles.photoIconBtn}
-                                                                        onPress={() => pickImage(step.id, substep.id, 'camera')}
-                                                                    >
-                                                                        <MaterialIcons name="camera-alt" size={20} color={theme.colors.primary} />
-                                                                    </TouchableOpacity>
-                                                                    <TouchableOpacity
-                                                                        style={styles.photoIconBtn}
-                                                                        onPress={() => pickImage(step.id, substep.id, 'gallery')}
-                                                                    >
-                                                                        <MaterialIcons name="photo-library" size={20} color={theme.colors.primary} />
-                                                                    </TouchableOpacity>
-                                                                </View>
-                                                            ) : (
-                                                                !substep.startedAt && <Text style={[styles.lockedText, { color: theme.colors.subText }]}>Medya yüklemek için başlayın</Text>
-                                                            )}
-                                                        </View>
-                                                    )}
-
-                                                    {substep.startedAt && !substep.isCompleted && !['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (
-                                                        <VoiceRecorder
-                                                            onRecordingComplete={(uri) => uploadAudio(step.id, substep.id, uri)}
-                                                        />
-                                                    )}
-
-                                                    {substepPhotos.length > 0 && (
-                                                        <FlatList
-                                                            horizontal
-                                                            data={substepPhotos}
-                                                            renderItem={renderPhotoItem}
-                                                            keyExtractor={(photo, pIndex) => pIndex.toString()}
-                                                            style={styles.thumbnailsContainer}
-                                                            showsHorizontalScrollIndicator={false}
-                                                            initialNumToRender={3}
-                                                            windowSize={3}
-                                                            removeClippedSubviews={Platform.OS === 'android'}
-                                                        />
-                                                    )}
                                                 </GlassCard>
                                             );
                                         })}
                                     </View>
                                 )}
-
-                                {(!step.subSteps || step.subSteps.length === 0) && !['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (
-                                    <View style={{ marginTop: 12 }}>
-                                        <View style={styles.actionButtons}>
-                                            {!step.isCompleted ? (
-                                                !step.startedAt ? (
-                                                    <TouchableOpacity
-                                                        style={[styles.startButton, isLocked && styles.disabledButton]}
-                                                        onPress={() => handleStartStep(step.id)}
-                                                        disabled={isLocked}
-                                                    >
-                                                        <Text style={styles.btnText}>Başla</Text>
-                                                    </TouchableOpacity>
-                                                ) : (
-                                                    <TouchableOpacity
-                                                        style={[styles.completeButton, ((step.photos?.length || 0) < 1 || isLocked) && styles.disabledButton]}
-                                                        onPress={() => {
-                                                            if (!step.startedAt) {
-                                                                Alert.alert('Uyarı', 'Önce işe başlamalısınız.');
-                                                                return;
-                                                            }
-                                                            if ((step.photos?.length || 0) < 1) {
-                                                                Alert.alert('Uyarı', 'Tamamlamak için en az 1 fotoğraf yüklemelisiniz.');
-                                                                return;
-                                                            }
-                                                            handleToggleStep(step.id, false);
-                                                        }}
-                                                        disabled={(step.photos?.length || 0) < 1 || isLocked}
-                                                    >
-                                                        <Text style={styles.btnText}>Tamamla</Text>
-                                                    </TouchableOpacity>
-                                                )
-                                            ) : (
-                                                <TouchableOpacity
-                                                    style={styles.undoButton}
-                                                    onPress={() => handleToggleStep(step.id, true)}
-                                                >
-                                                    <Text style={styles.btnText}>Geri Al</Text>
-                                                </TouchableOpacity>
-                                            )}
-                                        </View>
-
-                                        {!step.isCompleted && (
-                                            <View style={styles.stepPhotoContainer}>
-                                                <Text style={[styles.photoCountText, { color: theme.colors.subText }]}>
-                                                    Medya ({step.photos?.length || 0}/3)
-                                                </Text>
-                                                {step.startedAt && (step.photos?.length || 0) < 3 ? (
-                                                    <View style={styles.photoButtonsContainer}>
-                                                        <TouchableOpacity
-                                                            style={styles.photoIconBtn}
-                                                            onPress={() => pickImage(step.id, null, 'camera')}
-                                                        >
-                                                            <MaterialIcons name="camera-alt" size={20} color={theme.colors.primary} />
-                                                        </TouchableOpacity>
-                                                        <TouchableOpacity
-                                                            style={styles.photoIconBtn}
-                                                            onPress={() => pickImage(step.id, null, 'gallery')}
-                                                        >
-                                                            <MaterialIcons name="photo-library" size={20} color={theme.colors.primary} />
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                ) : (
-                                                    !step.startedAt && <Text style={[styles.lockedText, { color: theme.colors.subText }]}>Medya yüklemek için başlayın</Text>
-                                                )}
-                                            </View>
-                                        )}
-
-                                        {step.startedAt && !step.isCompleted && (
-                                            <VoiceRecorder
-                                                onRecordingComplete={(uri) => uploadAudio(step.id, null, uri)}
-                                            />
-                                        )}
-
-                                        {step.photos && step.photos.length > 0 && (
-                                            <FlatList
-                                                horizontal
-                                                data={step.photos}
-                                                renderItem={renderPhotoItem}
-                                                keyExtractor={(photo, pIndex) => pIndex.toString()}
-                                                style={styles.thumbnailsContainer}
-                                                showsHorizontalScrollIndicator={false}
-                                                initialNumToRender={3}
-                                                windowSize={3}
-                                                removeClippedSubviews={Platform.OS === 'android'}
-                                            />
-                                        )}
-                                    </View>
-                                )}
                             </GlassCard>
                         );
-
                     })}
 
-                    {/* Costs Section */}
                     <CostSection
                         job={job}
                         canAdd={!['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase())}
@@ -894,7 +636,6 @@ export default function JobDetailScreen({ route, navigation }) {
                 </ScrollView>
             </View>
 
-            {/* Footer Actions */}
             <View style={[styles.footerContainer, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border }]}>
                 {!['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) ? (
                     job.status === 'PENDING' ? (
@@ -902,210 +643,75 @@ export default function JobDetailScreen({ route, navigation }) {
                             style={[styles.mainCompleteButton, { backgroundColor: theme.colors.primary }]}
                             onPress={handleStartJob}
                         >
-                            <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>İşi Başlat</Text>
+                            <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>{t('worker.startJob')}</Text>
                         </TouchableOpacity>
                     ) : (
                         <TouchableOpacity
-                            style={[styles.mainCompleteButton, (job.status === 'COMPLETED' || completing) && styles.disabledButton, { backgroundColor: (job.status === 'COMPLETED' || completing) ? theme.colors.disabled : theme.colors.primary }]}
-                            onPress={() => {
-                                console.log('[MOBILE] Complete Job button pressed');
-                                handleCompleteJob();
-                            }}
+                            style={[styles.mainCompleteButton, (job.status === 'COMPLETED' || completing) && styles.disabledButton, { backgroundColor: (job.status === 'COMPLETED' || completing) ? theme.colors.border : theme.colors.primary }]}
+                            onPress={handleCompleteJob}
                             disabled={job.status === 'COMPLETED' || completing}
                         >
                             {completing ? (
                                 <ActivityIndicator color={theme.colors.textInverse} />
                             ) : (
                                 <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>
-                                    {job.status === 'COMPLETED' ? "İş Tamamlandı" : "İşi Tamamla"}
+                                    {job.status === 'COMPLETED' ? t('common.success') : t('worker.completeJob')}
                                 </Text>
                             )}
                         </TouchableOpacity>
                     )
                 ) : (
-                    <View style={{ width: '100%', flexDirection: 'row', gap: 12 }}>
-                        <View style={{ flex: 1 }}>
-                            <View style={styles.acceptanceStatusContainer}>
-                                <Text style={[styles.acceptanceStatusLabel, { color: theme.colors.text }]}>Durum:</Text>
-                                <Text style={[
-                                    styles.acceptanceStatusValue,
-                                    job.acceptanceStatus === 'ACCEPTED' ? { color: theme.colors.success } :
-                                        job.acceptanceStatus === 'REJECTED' ? { color: theme.colors.error } : { color: theme.colors.warning }
-                                ]}>
-                                    {job.acceptanceStatus === 'ACCEPTED' ? 'KABUL' :
-                                        job.acceptanceStatus === 'REJECTED' ? 'RED' : 'BEKLİYOR'}
-                                </Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', gap: 8 }}>
-                                <TouchableOpacity
-                                    style={[styles.mainCompleteButton, styles.rejectButton, { flex: 1, padding: 12, backgroundColor: theme.colors.error }]}
-                                    onPress={() => {
-                                        setSelectedStepId(null);
-                                        setSelectedSubstepId(null);
-                                        setRejectionModalVisible(true);
-                                    }}
-                                >
-                                    <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>Reddet</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.mainCompleteButton, styles.acceptJobButton, { flex: 1, padding: 12, backgroundColor: theme.colors.success }]}
-                                    onPress={handleAcceptJob}
-                                >
-                                    <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>Kabul Et</Text>
-                                </TouchableOpacity>
-                            </View>
+                    <View style={{ width: '100%' }}>
+                        <View style={[styles.acceptanceStatusContainer, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
+                            <Text style={[styles.acceptanceStatusLabel, { color: theme.colors.text }]}>{t('common.status')}:</Text>
+                            <Text style={[
+                                styles.acceptanceStatusValue,
+                                job.acceptanceStatus === 'ACCEPTED' ? { color: theme.colors.success } :
+                                    job.acceptanceStatus === 'REJECTED' ? { color: theme.colors.error } : { color: theme.colors.warning }
+                            ]}>
+                                {job.acceptanceStatus === 'ACCEPTED' ? t('common.confirm') :
+                                    job.acceptanceStatus === 'REJECTED' ? t('common.error') : t('common.loading')}
+                            </Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', gap: 8 }}>
+                            <TouchableOpacity
+                                style={[styles.mainCompleteButton, styles.rejectButton, { flex: 1, padding: 12, backgroundColor: theme.colors.error }]}
+                                onPress={() => setRejectionModalVisible(true)}
+                            >
+                                <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>{t('common.delete')}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.mainCompleteButton, styles.acceptJobButton, { flex: 1, padding: 12, backgroundColor: theme.colors.success }]}
+                                onPress={handleAcceptJob}
+                            >
+                                <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>{t('common.confirm')}</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 )}
             </View>
 
-            <AppModal visible={modalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
-                <View style={styles.modalContainer}>
-                    <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                        <MaterialIcons name="close" size={30} color={COLORS.white} />
-                    </TouchableOpacity>
-                    {selectedImage && (
-                        <Image source={{ uri: selectedImage }} style={styles.fullImage} resizeMode="contain" />
-                    )}
-                </View>
-            </AppModal>
-
-            <AppModal visible={costModalVisible} transparent={true} animationType="slide" onRequestClose={() => setCostModalVisible(false)}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
-                    style={styles.modalContainer}
-                >
-                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                        <View style={styles.formCard}>
-                            <Text style={styles.modalTitle}>Masraf Ekle</Text>
-                            <Text style={styles.inputLabel}>Tarih</Text>
-                            <TouchableOpacity
-                                style={styles.dateSelector}
-                                onPress={() => setShowDatePicker(true)}
-                            >
-                                <MaterialIcons name="event" size={24} color={COLORS.textGray} />
-                                <Text style={styles.dateText}>
-                                    {costDate.toLocaleDateString('tr-TR')}
-                                </Text>
-                            </TouchableOpacity>
-                            {showDatePicker && (
-                                <DateTimePicker
-                                    value={costDate}
-                                    mode="date"
-                                    display="default"
-                                    onChange={(event, selectedDate) => {
-                                        setShowDatePicker(Platform.OS === 'ios');
-                                        if (selectedDate) {
-                                            setCostDate(selectedDate);
-                                        }
-                                    }}
-                                />
-                            )}
-
-                            <Text style={styles.inputLabel}>Tutar (TL)</Text>
-                            <WebInput
-                                style={styles.input}
-                                value={costAmount}
-                                onChangeText={setCostAmount}
-                                inputMode="decimal"
-                                placeholder="0.00"
-                            />
-                            <Text style={styles.inputLabel}>Kategori</Text>
-                            <View style={styles.categoryContainer}>
-                                {COST_CATEGORIES.map(cat => (
-                                    <TouchableOpacity
-                                        key={cat}
-                                        style={[styles.categoryChip, costCategory === cat && styles.categoryChipSelected]}
-                                        onPress={() => setCostCategory(cat)}
-                                    >
-                                        <Text style={[styles.categoryText, costCategory === cat && styles.categoryTextSelected]}>{cat}</Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                            <Text style={styles.inputLabel}>Açıklama</Text>
-                            <WebInput
-                                style={[styles.input, styles.textArea]}
-                                value={costDescription}
-                                onChangeText={setCostDescription}
-                                inputMode="text"
-                                multiline
-                                numberOfLines={3}
-                                placeholder="Masraf detayları..."
-                            />
-
-                            <Text style={styles.inputLabel}>Fiş/Fatura Fotoğrafı</Text>
-                            <TouchableOpacity
-                                style={styles.imageUploadButton}
-                                onPress={async () => {
-                                    const result = await ImagePicker.launchImageLibraryAsync({
-                                        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                                        allowsEditing: true,
-                                        aspect: [4, 3],
-                                        quality: 0.5,
-                                    });
-
-                                    if (!result.canceled) {
-                                        setReceiptImage(result.assets[0].uri);
-                                    }
-                                }}
-                            >
-                                {receiptImage ? (
-                                    <Image source={{ uri: receiptImage }} style={styles.previewImage} />
-                                ) : (
-                                    <View style={styles.uploadPlaceholder}>
-                                        <MaterialIcons name="add-a-photo" size={32} color={COLORS.textGray} />
-                                        <Text style={styles.uploadText}>Fotoğraf Ekle</Text>
-                                    </View>
-                                )}
-                            </TouchableOpacity>
-                            {receiptImage && (
-                                <TouchableOpacity
-                                    style={styles.removeImageButton}
-                                    onPress={() => setReceiptImage(null)}
-                                >
-                                    <Text style={styles.removeImageText}>Fotoğrafı Kaldır</Text>
-                                </TouchableOpacity>
-                            )}
-
-                            <View style={styles.modalButtons}>
-                                <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={() => setCostModalVisible(false)}>
-                                    <Text style={styles.cancelButtonText}>İptal</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={[styles.modalButton, styles.submitButton]} onPress={handleCreateCost} disabled={submittingCost}>
-                                    {submittingCost ? <ActivityIndicator color={COLORS.black} /> : <Text style={styles.submitButtonText}>Kaydet</Text>}
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </TouchableWithoutFeedback>
-                </KeyboardAvoidingView>
-            </AppModal>
-
             <AppModal visible={rejectionModalVisible} transparent={true} animationType="slide" onRequestClose={() => setRejectionModalVisible(false)}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
-                    style={styles.modalContainer}
-                >
+                <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalContainer}>
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                        <View style={styles.formCard}>
-                            <Text style={styles.modalTitle}>
-                                {selectedSubstepId ? 'Alt Görevi Reddet' : selectedStepId ? 'İş Adımını Reddet' : 'İşi Reddet'}
-                            </Text>
-                            <Text style={styles.inputLabel}>Red Sebebi</Text>
-                            <WebInput
-                                style={[styles.input, styles.textArea]}
+                        <View style={[styles.formCard, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
+                            <Text style={[styles.modalTitle, { color: theme.colors.text }]}>{t('common.delete')}</Text>
+                            <Text style={[styles.inputLabel, { color: theme.colors.subText }]}>{t('worker.rejectionReason')}</Text>
+                            <TextInput
+                                style={[styles.input, { backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border }]}
                                 value={rejectionReason}
                                 onChangeText={setRejectionReason}
-                                inputMode="text"
                                 multiline
                                 numberOfLines={3}
-                                placeholder="Lütfen red sebebini belirtin..."
+                                placeholder={t('alerts.rejectionReasonRequired')}
+                                placeholderTextColor={theme.colors.subText}
                             />
                             <View style={styles.modalButtons}>
                                 <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={() => setRejectionModalVisible(false)}>
-                                    <Text style={styles.cancelButtonText}>İptal</Text>
+                                    <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={[styles.modalButton, styles.rejectButton]} onPress={selectedSubstepId ? handleRejectSubstep : selectedStepId ? handleRejectStep : handleRejectJob}>
-                                    <Text style={styles.actionButtonText}>Reddet</Text>
+                                <TouchableOpacity style={[styles.modalButton, styles.submitButton, { backgroundColor: theme.colors.error }]} onPress={handleRejectJob}>
+                                    <Text style={[styles.submitButtonText, { color: theme.colors.textInverse }]}>{t('common.delete')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -1113,549 +719,52 @@ export default function JobDetailScreen({ route, navigation }) {
                 </KeyboardAvoidingView>
             </AppModal>
 
-            {
-                uploading && (
-                    <View style={styles.loadingOverlay}>
-                        <ActivityIndicator size="large" color={COLORS.primary} />
-                        <Text style={styles.loadingText}>Yükleniyor...</Text>
-                    </View>
-                )
-            }
-            <ConfirmationModal
-                visible={confirmationModalVisible}
-                title="İşi Tamamla"
-                message="İşi tamamlamak istediğinize emin misiniz? Bu işlem geri alınamaz."
-                onConfirm={confirmCompleteJob}
-                onCancel={() => setConfirmationModalVisible(false)}
-                confirmText="Tamamla"
-                cancelText="İptal"
-                type="warning"
-            />
-
-            <SuccessModal
-                visible={successModalVisible}
-                message={successMessage}
-                onClose={() => setSuccessModalVisible(false)}
-            />
-
-        </SafeAreaView >
+            <SuccessModal visible={successModalVisible} message={successMessage} onClose={() => setSuccessModalVisible(false)} />
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.backgroundDark,
-    },
-    centerContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        // backgroundColor handled by theme view container
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 16,
-        borderBottomWidth: 1,
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    chatButton: {
-        padding: 4,
-    },
-    contentContainer: {
-        padding: 16,
-    },
-    card: {
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 16,
-        // Background and border handled by GlassCard/Theme
-    },
-    jobTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 12,
-    },
-    infoRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    infoText: {
-        marginLeft: 8,
-        fontSize: 14,
-    },
-    description: {
-        fontSize: 14,
-        lineHeight: 20,
-        marginTop: 8,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 12,
-        marginTop: 8,
-    },
-    stepCard: {
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 16,
-        // Background and border handled by GlassCard/Theme
-    },
-    lockedCard: {
-        opacity: 0.5,
-    },
-    stepHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    checkbox: {
-        width: 24,
-        height: 24,
-        borderRadius: 6,
-        borderWidth: 2,
-        borderColor: COLORS.primary,
-        marginRight: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    checkedBox: {
-        backgroundColor: COLORS.primary,
-    },
-    stepTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    completedText: {
-        color: COLORS.primary,
-    },
-    substepsContainer: {
-        marginTop: 12,
-        paddingLeft: 12,
-        borderLeftWidth: 1,
-        borderLeftColor: COLORS.cardBorder,
-    },
-    substepWrapper: {
-        marginBottom: 16,
-    },
-    substepRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-    },
-    substepInfo: {
-        flex: 1,
-    },
-    substepText: {
-        fontSize: 15,
-        marginBottom: 4,
-    },
-    actionButtons: {
-        flexDirection: 'row',
-        gap: 8,
-    },
-    completeButton: {
-        backgroundColor: COLORS.primary,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 6,
-    },
-    startButton: {
-        backgroundColor: COLORS.blue500,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 6,
-    },
-    undoButton: {
-        backgroundColor: COLORS.cardBorder,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 6,
-    },
-    btnText: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: COLORS.black,
-    },
-    disabledButton: {
-        opacity: 0.5,
-    },
-    stepPhotoContainer: {
-        marginTop: 8,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    photoCountText: {
-        fontSize: 12,
-        color: COLORS.textGray,
-    },
-    photoButtonsContainer: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    photoIconBtn: {
-        padding: 8,
-        backgroundColor: 'rgba(204, 255, 4, 0.1)',
-        borderRadius: 8,
-    },
-    thumbnailsContainer: {
-        marginTop: 8,
-        flexDirection: 'row',
-    },
-    thumbnail: {
-        width: 60,
-        height: 60,
-        borderRadius: 8,
-        marginRight: 8,
-        borderWidth: 1,
-        borderColor: COLORS.cardBorder,
-    },
-    sectionHeaderRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 12,
-        marginTop: 8,
-    },
-    addCostButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: COLORS.primary,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 6,
-    },
-    addCostButtonText: {
-        color: COLORS.black,
-        fontWeight: '600',
-        fontSize: 14,
-        marginLeft: 4,
-    },
-    costCard: {
-        backgroundColor: COLORS.cardDark,
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: COLORS.cardBorder,
-    },
-    costHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 8,
-    },
-    costCategory: {
-        color: COLORS.primary,
-        fontWeight: '600',
-    },
-    costRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 8,
-    },
-    costAmount: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: COLORS.textLight,
-    },
-    costDate: {
-        color: COLORS.textGray,
-    },
-    costDescription: {
-        color: COLORS.textGray,
-        fontSize: 14,
-    },
-    footerContainer: {
-        padding: 16,
-        paddingBottom: Platform.OS === 'ios' ? 32 : 16,
-        borderTopWidth: 1,
-    },
-    mainCompleteButton: {
-        height: 54,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    mainCompleteButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    modalContainer: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.9)',
-        justifyContent: 'center',
-        padding: 20,
-        ...(Platform.OS === 'web' && {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 9999,
-        }),
-    },
-    formCard: {
-        backgroundColor: COLORS.cardDark,
-        borderRadius: 16,
-        padding: 20,
-        borderWidth: 1,
-        borderColor: COLORS.cardBorder,
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: COLORS.textLight,
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    inputLabel: {
-        color: COLORS.textGray,
-        marginBottom: 8,
-        fontSize: 14,
-    },
-    input: {
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        borderWidth: 1,
-        borderColor: COLORS.cardBorder,
-        borderRadius: 8,
-        padding: 12,
-        color: COLORS.textLight,
-        marginBottom: 16,
-    },
-    textArea: {
-        height: 100,
-        textAlignVertical: 'top',
-    },
-    categoryContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-        marginBottom: 16,
-    },
-    categoryChip: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: COLORS.cardBorder,
-    },
-    categoryChipSelected: {
-        backgroundColor: COLORS.primary,
-        borderColor: COLORS.primary,
-    },
-    categoryText: {
-        color: COLORS.textGray,
-        fontSize: 12,
-    },
-    categoryTextSelected: {
-        color: COLORS.black,
-        fontWeight: '600',
-    },
-    modalButtons: {
-        flexDirection: 'row',
-        gap: 12,
-        marginTop: 8,
-    },
-    modalButton: {
-        flex: 1,
-        padding: 14,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    cancelButton: {
-        backgroundColor: COLORS.cardBorder,
-    },
-    submitButton: {
-        backgroundColor: COLORS.primary,
-    },
-    cancelButtonText: {
-        color: COLORS.textLight,
-        fontWeight: '600',
-    },
-    submitButtonText: {
-        color: COLORS.black,
-        fontWeight: 'bold',
-    },
-    closeButton: {
-        position: 'absolute',
-        top: 40,
-        right: 20,
-        zIndex: 10,
-    },
-    fullImage: {
-        width: '100%',
-        height: '80%',
-    },
-    loadingOverlay: {
-        position: 'absolute',
-        inset: 0,
-        backgroundColor: 'rgba(0,0,0,0.7)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    loadingText: {
-        color: COLORS.primary,
-        marginTop: 12,
-        fontSize: 16,
-    },
-    statusBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 4,
-        marginLeft: 8,
-        borderWidth: 1,
-    },
-    smallBadge: {
-        transform: [{ scale: 0.9 }],
-    },
-    badgeApproved: {
-        borderColor: COLORS.green500,
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-    },
-    badgeRejected: {
-        borderColor: COLORS.red500,
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    },
-    badgePending: {
-        borderColor: COLORS.blue500,
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    },
-    statusBadgeText: {
-        fontSize: 10,
-        fontWeight: 'bold',
-        color: COLORS.textLight,
-    },
-    lockedText: {
-        color: COLORS.textGray,
-        fontSize: 12,
-        fontStyle: 'italic',
-        marginTop: 4,
-    },
-    rejectionReasonText: {
-        color: COLORS.red500,
-        fontSize: 12,
-        marginTop: 8,
-        padding: 8,
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        borderRadius: 4,
-    },
-    managerActions: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: 8,
-        marginTop: 12,
-    },
-    substepManagerActions: {
-        flexDirection: 'row',
-        gap: 4,
-    },
-    actionButton: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 6,
-    },
-    miniActionButton: {
-        padding: 4,
-        borderRadius: 4,
-        marginLeft: 4,
-    },
-    approveButton: {
-        backgroundColor: COLORS.green500,
-    },
-    rejectButton: {
-        backgroundColor: COLORS.red500,
-    },
-    actionButtonText: {
-        color: COLORS.white,
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    emptyText: {
-        color: COLORS.textGray,
-        textAlign: 'center',
-        marginTop: 20,
-        fontStyle: 'italic',
-    },
-    acceptanceStatusContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 12,
-        padding: 12,
-        backgroundColor: COLORS.cardDark,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: COLORS.cardBorder,
-    },
-    acceptanceStatusLabel: {
-        color: COLORS.textLight,
-        fontWeight: '600',
-    },
-    acceptanceStatusValue: {
-        fontWeight: 'bold',
-        fontSize: 14,
-    },
-    statusApproved: { color: COLORS.green500 },
-    statusRejected: { color: COLORS.red500 },
-    statusPending: { color: COLORS.blue500 },
-    acceptJobButton: {
-        backgroundColor: COLORS.green500,
-    },
-    dateText: {
-        fontSize: 12,
-        color: COLORS.textGray,
-        marginTop: 2,
-    },
-    dateSelector: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        borderWidth: 1,
-        borderColor: COLORS.cardBorder,
-        borderRadius: 8,
-        padding: 12,
-        marginBottom: 16,
-        gap: 8,
-    },
-    imageUploadButton: {
-        height: 200,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        borderWidth: 1,
-        borderColor: COLORS.cardBorder,
-        borderStyle: 'dashed',
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 12,
-        overflow: 'hidden',
-    },
-    uploadPlaceholder: {
-        alignItems: 'center',
-        gap: 8,
-    },
-    uploadText: {
-        color: COLORS.textGray,
-        fontSize: 14,
-    },
-    previewImage: {
-        width: '100%',
-        height: '100%',
-        resizeMode: 'cover',
-    },
-    removeImageButton: {
-        alignItems: 'center',
-        padding: 8,
-        marginBottom: 16,
-    },
-    removeImageText: {
-        color: COLORS.red500,
-        fontSize: 14,
-    },
-});// Force rebuild Wed Jan 21 12:15:11 UTC 2026
+    container: { flex: 1 },
+    centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1 },
+    headerTitle: { fontSize: 20, fontWeight: 'bold' },
+    chatButton: { padding: 4 },
+    contentContainer: { padding: 16 },
+    card: { borderRadius: 12, padding: 16, marginBottom: 16 },
+    infoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+    infoText: { marginLeft: 8, fontSize: 14 },
+    sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 12, marginTop: 8 },
+    stepCard: { borderRadius: 12, padding: 16, marginBottom: 16 },
+    lockedCard: { opacity: 0.5 },
+    stepHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+    checkbox: { width: 24, height: 24, borderRadius: 6, borderWidth: 2, borderColor: COLORS.primary, marginRight: 12, justifyContent: 'center', alignItems: 'center' },
+    checkedBox: { backgroundColor: COLORS.primary },
+    stepTitle: { fontSize: 16, fontWeight: '600' },
+    completedText: { color: COLORS.primary },
+    substepsContainer: { marginTop: 12, paddingLeft: 12, borderLeftWidth: 1, borderLeftColor: COLORS.cardBorder },
+    substepWrapper: { marginBottom: 16 },
+    substepRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+    substepInfo: { flex: 1 },
+    substepText: { fontSize: 15, marginBottom: 4 },
+    footerContainer: { padding: 16, paddingBottom: Platform.OS === 'ios' ? 32 : 16, borderTopWidth: 1 },
+    mainCompleteButton: { height: 54, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+    mainCompleteButtonText: { fontSize: 16, fontWeight: 'bold' },
+    modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
+    formCard: { borderRadius: 16, padding: 20, borderWidth: 1 },
+    modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
+    inputLabel: { marginBottom: 8, fontSize: 14 },
+    input: { borderWidth: 1, borderRadius: 8, padding: 12, marginBottom: 16 },
+    modalButtons: { flexDirection: 'row', gap: 12, marginTop: 8 },
+    modalButton: { flex: 1, padding: 14, borderRadius: 8, alignItems: 'center' },
+    cancelButton: { backgroundColor: '#e2e8f0' },
+    cancelButtonText: { color: '#475569', fontWeight: '600' },
+    submitButton: { backgroundColor: COLORS.primary },
+    submitButtonText: { fontWeight: 'bold' },
+    thumbnail: { width: 60, height: 60, borderRadius: 8, marginRight: 8, borderWidth: 1, borderColor: '#e2e8f0' },
+    rejectionReasonText: { fontSize: 12, marginTop: 8, padding: 8, backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: 4 },
+    acceptanceStatusContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, padding: 12, borderRadius: 8, borderWidth: 1 },
+    acceptanceStatusLabel: { fontWeight: '600' },
+    acceptanceStatusValue: { fontWeight: 'bold', fontSize: 14 },
+    dateText: { fontSize: 12, marginTop: 2 },
+});

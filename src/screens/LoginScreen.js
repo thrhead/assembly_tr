@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import LoginForm from '../components/LoginForm';
 
 const { width, height } = Dimensions.get('window');
@@ -24,6 +25,7 @@ const { width, height } = Dimensions.get('window');
 export default function LoginScreen({ navigation }) {
   const [showLoginForm, setShowLoginForm] = useState(false);
   const { theme, isDark } = useTheme();
+  const { t } = useTranslation();
 
   const renderLanding = () => (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -72,7 +74,7 @@ export default function LoginScreen({ navigation }) {
                   <MaterialIcons name="analytics" size={40} color="#6366F1" />
                 </View>
                 <Text style={styles.appName}>SyncPro</Text>
-                <Text style={styles.appTagline}>Global Operations Interface</Text>
+                <Text style={styles.appTagline}>{t('auth.globalOperations')}</Text>
               </View>
             </View>
           </View>
@@ -89,37 +91,37 @@ export default function LoginScreen({ navigation }) {
       <View style={styles.bottomSection}>
         <View style={styles.textSection}>
           <Text style={[styles.mainTitle, { color: theme.colors.text }]}>
-            Smart Operations{'\n'}Starts Here.
+            {t('auth.mainTitle')}
           </Text>
           <Text style={[styles.subTitle, { color: theme.colors.subText }]}>
-            Digitize tracking, costs, and management for your field teams.
+            {t('auth.subTitle')}
           </Text>
         </View>
 
         <View style={styles.buttonSection}>
           <TouchableOpacity
             style={[styles.primaryButton, { backgroundColor: theme.colors.primary }]}
-            onPress={() => Alert.alert("Bilgi", "Kayıt olma özelliği henüz aktif değil.")}
+            onPress={() => Alert.alert(t('common.info'), t('auth.registerNotActive'))}
           >
-            <Text style={[styles.primaryButtonText, { color: '#fff' }]}>Get Started</Text>
+            <Text style={[styles.primaryButtonText, { color: '#fff' }]}>{t('auth.getStarted')}</Text>
             <MaterialIcons name="arrow-forward" size={20} color="#fff" />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.googleButton, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}
-            onPress={() => Alert.alert("Bilgi", "Google Login henüz aktif değil.")}
+            onPress={() => Alert.alert(t('common.info'), t('auth.googleLoginNotActive'))}
           >
             <View style={{ marginRight: 10 }}>
               {/* Simple Google G icon representation or placeholder */}
               <MaterialIcons name="public" size={20} color={theme.colors.subText} />
             </View>
-            <Text style={[styles.googleButtonText, { color: theme.colors.text }]}>Continue with Google</Text>
+            <Text style={[styles.googleButtonText, { color: theme.colors.text }]}>{t('auth.continueWithGoogle')}</Text>
           </TouchableOpacity>
 
           <View style={styles.signInContainer}>
-            <Text style={[styles.signInText, { color: theme.colors.subText }]}>Already have an account?</Text>
+            <Text style={[styles.signInText, { color: theme.colors.subText }]}>{t('auth.alreadyHaveAccount')}</Text>
             <TouchableOpacity onPress={() => setShowLoginForm(true)}>
-              <Text style={[styles.signInLink, { color: theme.colors.primary }]}>Sign In</Text>
+              <Text style={[styles.signInLink, { color: theme.colors.primary }]}>{t('auth.login')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -127,12 +129,12 @@ export default function LoginScreen({ navigation }) {
           <View style={styles.footerFeatures}>
             <View style={styles.featureItem}>
               <MaterialIcons name="verified-user" size={20} color={theme.colors.subText} />
-              <Text style={[styles.featureText, { color: theme.colors.subText }]}>SECURE</Text>
+              <Text style={[styles.featureText, { color: theme.colors.subText }]}>{t('auth.secure').toUpperCase()}</Text>
             </View>
             <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
             <View style={styles.featureItem}>
               <MaterialIcons name="cloud-done" size={20} color={theme.colors.subText} />
-              <Text style={[styles.featureText, { color: theme.colors.subText }]}>REAL-TIME</Text>
+              <Text style={[styles.featureText, { color: theme.colors.subText }]}>{t('auth.realtime').toUpperCase()}</Text>
             </View>
           </View>
         </View>
