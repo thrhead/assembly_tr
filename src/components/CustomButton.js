@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { COLORS } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 
@@ -27,21 +27,20 @@ const CustomButton = ({
     const white = theme ? theme.colors.textInverse || COLORS.white : COLORS.white;
     const black = theme ? theme.colors.textInverse || COLORS.black : COLORS.black;
 
-    const getBackgroundColor = () => {
+    const getBackgroundColor = (pressed) => {
         if (disabled) return slate700;
-        switch (variant) {
-            case 'primary': return primaryColor;
-            case 'outline': return 'transparent';
-            case 'danger': return errorColor;
-            case 'ghost': return 'transparent';
-            default: return primaryColor;
+        if (variant === 'outline' || variant === 'ghost') {
+            return pressed ? (theme?.id === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)') : 'transparent';
         }
+        
+        const baseColor = variant === 'danger' ? errorColor : primaryColor;
+        return pressed ? baseColor : baseColor; // Ideally darken on press, keeping simple for now or use opacity
     };
 
     const getTextColor = () => {
         if (disabled) return slate500;
         switch (variant) {
-            case 'primary': return theme?.id === 'dark' ? COLORS.black : COLORS.textLight; // Dark mode primary is usually bright, so black text. Light mode primary is blue, so white text.
+            case 'primary': return theme?.id === 'dark' ? COLORS.black : COLORS.textLight;
             case 'outline': return primaryColor;
             case 'danger': return white;
             case 'ghost': return slate400;
@@ -60,16 +59,18 @@ const CustomButton = ({
     };
 
     return (
-        <TouchableOpacity
-            style={[
+        <Pressable
+            onPress={onPress}
+            disabled={disabled || loading}
+            style={({ pressed }) => [
                 styles.button,
-                { backgroundColor: getBackgroundColor() },
+                { 
+                    backgroundColor: getBackgroundColor(pressed),
+                    opacity: pressed && (variant === 'primary' || variant === 'danger') ? 0.8 : 1
+                },
                 getBorder(),
                 style
             ]}
-            onPress={onPress}
-            disabled={disabled || loading}
-            activeOpacity={0.8}
         >
             {loading ? (
                 <ActivityIndicator color={getTextColor()} />
@@ -81,7 +82,7 @@ const CustomButton = ({
                     </Text>
                 </>
             )}
-        </TouchableOpacity>
+        </Pressable>
     );
 };
 

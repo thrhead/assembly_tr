@@ -124,6 +124,18 @@ const jobService = {
         return response.data;
     },
 
+    uploadAudio: async (jobId, stepId, formData, subStepId = null) => {
+        if (subStepId) {
+            formData.append('subStepId', subStepId);
+        }
+        const response = await api.post(`/api/worker/jobs/${jobId}/steps/${stepId}/audio`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+
     bulkImportJobs: async (formData) => {
         const response = await api.post('/api/admin/jobs/bulk-import', formData, {
             headers: {

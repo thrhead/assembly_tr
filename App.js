@@ -10,7 +10,6 @@ import { OfflineBanner } from './src/components/OfflineBanner';
 import { COLORS } from './src/constants/theme';
 import { ThemeProvider } from './src/context/ThemeContext';
 import LoginScreen from './src/screens/LoginScreen';
-import HomeScreen from './src/screens/HomeScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import WorkerDashboardScreen from './src/screens/worker/WorkerDashboardScreen';
 import WorkerJobsScreen from './src/screens/worker/WorkerJobsScreen';
@@ -227,13 +226,6 @@ function AppNavigator() {
                 name="Chat"
                 component={ChatScreen}
                 options={{ headerShown: false }}
-              />
-
-              {/* Legacy Home Screen */}
-              <Stack.Screen
-                name="Home"
-                component={HomeScreen}
-                options={{ title: 'Ana Sayfa' }}
               />
             </>
           ) : (

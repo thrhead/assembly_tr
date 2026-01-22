@@ -13,6 +13,7 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
+import VoiceRecorder from '../../common/VoiceRecorder';
 // Duplicate imports removed
 // import { COLORS } from '../../../constants/theme'; // Removed legacy
 import { CATEGORIES } from './ExpenseFilter';
@@ -66,6 +67,7 @@ export const CreateExpenseModal = ({ visible, onClose, onSubmit, projects, defau
         date: new Date()
     });
     const [receiptImage, setReceiptImage] = useState(null);
+    const [audioUri, setAudioUri] = useState(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
 
     // Update jobId when default changes if not set
@@ -76,7 +78,7 @@ export const CreateExpenseModal = ({ visible, onClose, onSubmit, projects, defau
     }, [defaultJobId]);
 
     const handleSubmit = async () => {
-        const success = await onSubmit(formData, receiptImage);
+        const success = await onSubmit(formData, receiptImage, audioUri);
         if (success) {
             handleClose();
         }
@@ -92,6 +94,7 @@ export const CreateExpenseModal = ({ visible, onClose, onSubmit, projects, defau
             date: new Date()
         });
         setReceiptImage(null);
+        setAudioUri(null);
         onClose();
     };
 
@@ -202,6 +205,15 @@ export const CreateExpenseModal = ({ visible, onClose, onSubmit, projects, defau
                             numberOfLines={3}
                             value={formData.description}
                             onChangeText={(text) => setFormData({ ...formData, description: text })}
+                        />
+                    </View>
+
+                    <View style={styles.formGroup}>
+                        <Text style={[styles.label, { color: theme.colors.subText }]}>Sesli Not (Opsiyonel)</Text>
+                        <VoiceRecorder
+                            onRecordingComplete={setAudioUri}
+                            onDelete={() => setAudioUri(null)}
+                            existingAudioUrl={audioUri}
                         />
                     </View>
 

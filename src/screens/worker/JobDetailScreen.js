@@ -29,6 +29,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { getValidImageUrl } from '../../utils';
 import JobInfoCard from '../../components/job-detail/JobInfoCard';
 import CostSection from '../../components/job-detail/CostSection';
+import VoiceRecorder from '../../components/common/VoiceRecorder';
 import SuccessModal from '../../components/SuccessModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { WebInput } from '../../components/common/WebInput';
@@ -218,6 +219,28 @@ export default function JobDetailScreen({ route, navigation }) {
         } catch (error) {
             console.error('Error uploading photo:', error);
             Alert.alert('Hata', 'Fotoğraf yüklenemedi');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const uploadAudio = async (stepId, substepId, uri) => {
+        try {
+            setUploading(true);
+            const formData = new FormData();
+            const filename = uri.split('/').pop();
+            const type = 'audio/m4a'; // Expo AV default
+
+            formData.append('audio', { uri, name: filename, type });
+
+            await jobService.uploadAudio(jobId, stepId, formData, substepId);
+
+            setSuccessMessage('Ses kaydı başarıyla yüklendi');
+            setSuccessModalVisible(true);
+            loadJobDetails();
+        } catch (error) {
+            console.error('Error uploading audio:', error);
+            Alert.alert('Hata', 'Ses kaydı yüklenemedi');
         } finally {
             setUploading(false);
         }
@@ -719,7 +742,7 @@ export default function JobDetailScreen({ route, navigation }) {
                                                     {!isSubstepLocked && !substep.isCompleted && !['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (
                                                         <View style={styles.stepPhotoContainer}>
                                                             <Text style={[styles.photoCountText, { color: theme.colors.subText }]}>
-                                                                Fotoğraflar ({photoCount}/3)
+                                                                Medya ({photoCount}/3)
                                                             </Text>
                                                             {canUpload ? (
                                                                 <View style={styles.photoButtonsContainer}>
@@ -737,9 +760,15 @@ export default function JobDetailScreen({ route, navigation }) {
                                                                     </TouchableOpacity>
                                                                 </View>
                                                             ) : (
-                                                                !substep.startedAt && <Text style={[styles.lockedText, { color: theme.colors.subText }]}>Fotoğraf yüklemek için başlayın</Text>
+                                                                !substep.startedAt && <Text style={[styles.lockedText, { color: theme.colors.subText }]}>Medya yüklemek için başlayın</Text>
                                                             )}
                                                         </View>
+                                                    )}
+
+                                                    {substep.startedAt && !substep.isCompleted && !['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (
+                                                        <VoiceRecorder
+                                                            onRecordingComplete={(uri) => uploadAudio(step.id, substep.id, uri)}
+                                                        />
                                                     )}
 
                                                     {substepPhotos.length > 0 && (
@@ -805,7 +834,7 @@ export default function JobDetailScreen({ route, navigation }) {
                                         {!step.isCompleted && (
                                             <View style={styles.stepPhotoContainer}>
                                                 <Text style={[styles.photoCountText, { color: theme.colors.subText }]}>
-                                                    Fotoğraflar ({step.photos?.length || 0}/3)
+                                                    Medya ({step.photos?.length || 0}/3)
                                                 </Text>
                                                 {step.startedAt && (step.photos?.length || 0) < 3 ? (
                                                     <View style={styles.photoButtonsContainer}>
@@ -823,9 +852,15 @@ export default function JobDetailScreen({ route, navigation }) {
                                                         </TouchableOpacity>
                                                     </View>
                                                 ) : (
-                                                    !step.startedAt && <Text style={[styles.lockedText, { color: theme.colors.subText }]}>Fotoğraf yüklemek için başlayın</Text>
+                                                    !step.startedAt && <Text style={[styles.lockedText, { color: theme.colors.subText }]}>Medya yüklemek için başlayın</Text>
                                                 )}
                                             </View>
+                                        )}
+
+                                        {step.startedAt && !step.isCompleted && (
+                                            <VoiceRecorder
+                                                onRecordingComplete={(uri) => uploadAudio(step.id, null, uri)}
+                                            />
                                         )}
 
                                         {step.photos && step.photos.length > 0 && (
