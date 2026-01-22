@@ -72,11 +72,11 @@ const notificationService = {
         if (!token || !userId) return;
         try {
             console.log("Sending push token to backend for user:", userId);
-            // Corrected URL: /api/users/{id}
-            await api.put(`/api/users/${userId}`, {
-                pushToken: token
+            // Updated to use the new dedicated push token endpoint
+            await api.post('/api/user/push-token', {
+                token
             });
-            console.log("Push token updated successfully");
+            console.log("Push token registered successfully");
         } catch (error) {
             console.error("Error sending push token", error);
         }
