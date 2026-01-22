@@ -36,7 +36,7 @@ const { width } = Dimensions.get('window');
 
 // Dynamic Glass Card Component
 const GlassCard = ({ children, style, onPress, theme }) => (
-    <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
+    <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
         <View style={[
             styles.glassCard,
             {
@@ -362,8 +362,8 @@ const styles = StyleSheet.create({
     roleContainer: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, alignSelf: 'flex-start' },
     roleText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.5 },
     headerIcons: { flexDirection: 'row', gap: 12 },
-    iconButton: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
-    notificationBadge: { position: 'absolute', top: 10, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: '#ef4444', borderWidth: 1, borderColor: '#fff' },
+    iconButton: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
+    notificationBadge: { position: 'absolute', top: 12, right: 12, width: 8, height: 8, borderRadius: 4, backgroundColor: '#ef4444', borderWidth: 1, borderColor: '#fff' },
     dateText: { fontSize: 13, marginTop: 4, fontWeight: '500' },
     sectionContainer: { marginBottom: 28, paddingHorizontal: 16 },
     sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },

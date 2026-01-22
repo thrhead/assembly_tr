@@ -22,6 +22,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { MaterialIcons } from '@expo/vector-icons';
 import jobService from '../../services/job.service';
@@ -36,6 +37,7 @@ import SuccessModal from '../../components/SuccessModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { WebInput } from '../../components/common/WebInput';
 import GlassCard from '../../components/ui/GlassCard';
+import SignaturePad from '../../components/SignaturePad';
 import { COLORS } from '../../constants/theme';
 import { SocketProvider } from '../../context/SocketContext';
 import { useTranslation } from 'react-i18next';
@@ -77,6 +79,7 @@ export default function JobDetailScreen({ route, navigation }) {
     const [successModalVisible, setSuccessModalVisible] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
+    const [signatureModalVisible, setSignatureModalVisible] = useState(false);
 
     // Cost State
     const [costModalVisible, setCostModalVisible] = useState(false);
@@ -483,14 +486,42 @@ export default function JobDetailScreen({ route, navigation }) {
             return;
         }
 
+        // Trigger Signature Capture instead of immediate confirmation
+        setSignatureModalVisible(true);
+    };
+
+    const handleSaveSignature = async (signatureBase64) => {
+        setSignatureModalVisible(false);
         setConfirmationModalVisible(true);
+        
+        let location = null;
+        try {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status === 'granted') {
+                const currentPosition = await Location.getCurrentPositionAsync({});
+                location = {
+                    latitude: currentPosition.coords.latitude,
+                    longitude: currentPosition.coords.longitude
+                };
+            }
+        } catch (error) {
+            console.error('Error getting location for signature:', error);
+        }
+
+        // Store signature and coordinates to be sent with completion
+        setJob(prev => ({ 
+            ...prev, 
+            signature: signatureBase64,
+            signatureCoords: location
+        }));
     };
 
     const confirmCompleteJob = async () => {
         setConfirmationModalVisible(false);
         try {
             setCompleting(true);
-            const result = await jobService.completeJob(jobId);
+            // Pass signature and coords to completeJob
+            const result = await jobService.completeJob(jobId, job.signature, job.signatureCoords);
             setSuccessMessage(t('common.success'));
             setSuccessModalVisible(true);
             setTimeout(() => {
@@ -720,6 +751,13 @@ export default function JobDetailScreen({ route, navigation }) {
             </AppModal>
 
             <SuccessModal visible={successModalVisible} message={successMessage} onClose={() => setSuccessModalVisible(false)} />
+            
+            <SignaturePad 
+                visible={signatureModalVisible}
+                theme={theme}
+                onSave={handleSaveSignature}
+                onCancel={() => setSignatureModalVisible(false)}
+            />
         </SafeAreaView>
     );
 }

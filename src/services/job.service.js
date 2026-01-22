@@ -49,8 +49,12 @@ const jobService = {
         return response.data;
     },
 
-    completeJob: async (jobId) => {
-        const response = await api.post(`/api/worker/jobs/${jobId}/complete`);
+    completeJob: async (jobId, signature, coords) => {
+        const response = await api.post(`/api/worker/jobs/${jobId}/complete`, { 
+            signature,
+            signatureLatitude: coords?.latitude,
+            signatureLongitude: coords?.longitude
+        });
         return response.data;
     },
 

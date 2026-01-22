@@ -74,8 +74,8 @@ export const darkTheme = {
         background: COLORS.backgroundDark,
         text: COLORS.white,
         subText: COLORS.slate400,
-        primary: COLORS.primary, // Neon Green
-        secondary: COLORS.green500,
+        primary: COLORS.electricBlue, // Aligned with light theme for brand consistency
+        secondary: COLORS.emeraldStatus,
         tertiary: COLORS.amber500,
         card: "rgba(255, 255, 255, 0.05)",
         cardBorder: "rgba(255, 255, 255, 0.1)", // Legacy key
