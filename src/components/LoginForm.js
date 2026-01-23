@@ -78,8 +78,8 @@ const LoginForm = ({ onBack, onLoginSuccess }) => {
 
             {__DEV__ && (
                 <View style={styles.hintContainer}>
-                    <Text style={[styles.hint, { color: theme.colors.subText }]}>Admin: admin@montaj.com / admin123</Text>
-                    <Text style={[styles.hint, { color: theme.colors.subText }]}>Worker: worker@montaj.com / worker123</Text>
+                    <Text style={[styles.hint, { color: theme.colors.subText }]}>{t('auth.adminHint')}</Text>
+                    <Text style={[styles.hint, { color: theme.colors.subText }]}>{t('auth.workerHint')}</Text>
                 </View>
             )}
         </View>

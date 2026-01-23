@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, StatusBar, Alert, Platform, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,6 +14,7 @@ import RecentJobsList from '../../components/admin/RecentJobsList'; // Same here
 import DashboardBottomNav from '../../components/admin/DashboardBottomNav';
 
 export default function AdminDashboardScreen({ navigation }) {
+    const { t } = useTranslation();
     const { user, logout } = useAuth();
     const { theme, toggleTheme, isDark } = useTheme();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -40,17 +42,17 @@ export default function AdminDashboardScreen({ navigation }) {
         };
 
         if (Platform.OS === 'web') {
-            if (window.confirm('Çıkış yapmak istediğinize emin misiniz?')) {
+            if (window.confirm(t('profile.logoutConfirmDesc'))) {
                 performLogout();
             }
         } else {
             Alert.alert(
-                'Çıkış Yap',
-                'Çıkmak istediğinize emin misiniz?',
+                t('profile.logoutConfirmTitle'),
+                t('profile.logoutConfirmDesc'),
                 [
-                    { text: 'İptal', style: 'cancel' },
+                    { text: t('common.cancel'), style: 'cancel' },
                     {
-                        text: 'Çıkış Yap',
+                        text: t('profile.logoutConfirmTitle'),
                         style: 'destructive',
                         onPress: performLogout
                     }
@@ -61,15 +63,15 @@ export default function AdminDashboardScreen({ navigation }) {
 
     // Navigation Items Data
     const navItems = [
-        { id: 'users', title: 'Kullanıcılar', icon: 'people', route: 'UserManagement', color: theme.colors.primary },
-        { id: 'customers', title: 'Müşteriler', icon: 'business', route: 'CustomerManagement', color: theme.colors.tertiary },
-        { id: 'teams', title: 'Ekip Yönetimi', icon: 'groups', route: 'TeamManagement', color: theme.colors.secondary },
-        { id: 'jobs', title: 'İşler', icon: 'work', route: 'Jobs', color: '#f97316' }, // Orange
-        { id: 'approvals', title: 'Onaylar', icon: 'fact-check', route: 'Approvals', color: '#14b8a6' }, // Teal
-        { id: 'costs', title: 'Maliyetler', icon: 'attach-money', route: 'CostManagement', color: '#22c55e' }, // Green
-        { id: 'calendar', title: 'Takvim', icon: 'calendar-today', route: 'Calendar', color: '#a855f7' }, // Purple
-        { id: 'planning', title: 'Planlama', icon: 'trending-up', route: 'AdvancedPlanning', color: theme.colors.primary },
-        { id: 'reports', title: 'Raporlar', icon: 'bar-chart', route: 'Reports', color: '#3b82f6' }, // Blue
+        { id: 'users', title: t('navigation.userManagement'), icon: 'people', route: 'UserManagement', color: theme.colors.primary },
+        { id: 'customers', title: t('navigation.customers'), icon: 'business', route: 'CustomerManagement', color: theme.colors.tertiary },
+        { id: 'teams', title: t('navigation.teams'), icon: 'groups', route: 'TeamManagement', color: theme.colors.secondary },
+        { id: 'jobs', title: t('navigation.jobs'), icon: 'work', route: 'Jobs', color: '#f97316' }, // Orange
+        { id: 'approvals', title: t('navigation.approvals'), icon: 'fact-check', route: 'Approvals', color: '#14b8a6' }, // Teal
+        { id: 'costs', title: t('worker.expenses'), icon: 'attach-money', route: 'CostManagement', color: '#22c55e' }, // Green
+        { id: 'calendar', title: t('navigation.calendar') || 'Calendar', icon: 'calendar-today', route: 'Calendar', color: '#a855f7' }, // Purple
+        { id: 'planning', title: t('navigation.planning') || 'Planning', icon: 'trending-up', route: 'AdvancedPlanning', color: theme.colors.primary },
+        { id: 'reports', title: t('navigation.reports') || 'Reports', icon: 'bar-chart', route: 'Reports', color: '#3b82f6' }, // Blue
     ];
 
     const handleNavPress = (route) => {
@@ -117,7 +119,7 @@ export default function AdminDashboardScreen({ navigation }) {
                             <View style={styles.headerContainer}>
                                 <View style={styles.headerContent}>
                                     <View style={styles.userInfo}>
-                                        <Text style={[styles.welcomeLabel, { color: theme.colors.subText }]}>Hoşgeldiniz,</Text>
+                                        <Text style={[styles.welcomeLabel, { color: theme.colors.subText }]}>{t('auth.welcome')},</Text>
                                         <Text style={[styles.userName, { color: theme.colors.text }]}>{user?.name || 'Admin'}</Text>
                                     </View>
 
@@ -148,7 +150,7 @@ export default function AdminDashboardScreen({ navigation }) {
 
                                 {/* Navigation Grid */}
                                 <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Menü</Text>
+                                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Menu</Text>
                                     <View style={styles.navGrid}>
                                         {navItems.map((item) => (
                                             <View key={item.id} style={styles.navItemWrapper}>
@@ -167,27 +169,27 @@ export default function AdminDashboardScreen({ navigation }) {
 
                                 {/* Quick Actions */}
                                 <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Hızlı İşlemler</Text>
+                                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Quick Actions</Text>
                                     <View style={styles.quickActions}>
                                         <GlassCard theme={theme} style={{ flex: 1, padding: 16, alignItems: 'center', gap: 8 }} onPress={() => navigation.navigate('CreateJob')}>
                                             <View style={{ padding: 12, borderRadius: 12, backgroundColor: 'rgba(6, 182, 212, 0.1)' }}>
                                                 <MaterialIcons name="add-task" size={28} color="#06b6d4" />
                                             </View>
-                                            <Text style={{ color: theme.colors.text, fontWeight: '600' }}>Yeni İş</Text>
+                                            <Text style={{ color: theme.colors.text, fontWeight: '600' }}>{t('navigation.createJob')}</Text>
                                         </GlassCard>
 
                                         <GlassCard theme={theme} style={{ flex: 1, padding: 16, alignItems: 'center', gap: 8 }} onPress={() => navigation.navigate('UserManagement', { openCreate: true })}>
                                             <View style={{ padding: 12, borderRadius: 12, backgroundColor: 'rgba(236, 72, 153, 0.1)' }}>
                                                 <MaterialIcons name="person-add" size={28} color="#ec4899" />
                                             </View>
-                                            <Text style={{ color: theme.colors.text, fontWeight: '600' }}>Yeni Kullanıcı</Text>
+                                            <Text style={{ color: theme.colors.text, fontWeight: '600' }}>{t('navigation.userManagement')}</Text>
                                         </GlassCard>
 
                                         <GlassCard theme={theme} style={{ flex: 1, padding: 16, alignItems: 'center', gap: 8 }} onPress={() => navigation.navigate('CustomerManagement', { openCreate: true })}>
                                             <View style={{ padding: 12, borderRadius: 12, backgroundColor: 'rgba(20, 184, 166, 0.1)' }}>
                                                 <MaterialIcons name="business" size={28} color="#14b8a6" />
                                             </View>
-                                            <Text style={{ color: theme.colors.text, fontWeight: '600' }}>Yeni Müşteri</Text>
+                                            <Text style={{ color: theme.colors.text, fontWeight: '600' }}>{t('navigation.customers')}</Text>
                                         </GlassCard>
                                     </View>
                                 </View>
@@ -195,9 +197,9 @@ export default function AdminDashboardScreen({ navigation }) {
                                 {/* List Header Section Title */}
                                 <View style={[styles.section, { paddingBottom: 0 }]}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Text style={[styles.sectionTitle, { color: theme.colors.text, marginBottom: 0 }]}>Son İşler</Text>
+                                        <Text style={[styles.sectionTitle, { color: theme.colors.text, marginBottom: 0 }]}>{t('admin.recentJobs') || 'Recent Jobs'}</Text>
                                         <TouchableOpacity onPress={() => navigation.navigate('Jobs')}>
-                                            <Text style={{ fontSize: 12, fontWeight: '600', color: theme.colors.primary }}>Tümü</Text>
+                                            <Text style={{ fontSize: 12, fontWeight: '600', color: theme.colors.primary }}>{t('common.all') || 'All'}</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
@@ -243,7 +245,7 @@ export default function AdminDashboardScreen({ navigation }) {
                     )}
                     ListEmptyComponent={
                         <View style={{ padding: 16, alignItems: 'center' }}>
-                            <Text style={{ color: theme.colors.subText, fontStyle: 'italic' }}>Henüz iş bulunmuyor.</Text>
+                            <Text style={{ color: theme.colors.subText, fontStyle: 'italic' }}>{t('admin.noJobs') || 'No jobs found.'}</Text>
                         </View>
                     }
                 />

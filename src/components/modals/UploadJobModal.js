@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, Alert, Linking } from 'react-native';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import * as DocumentPicker from 'expo-document-picker';
 import { COLORS } from '../../constants/theme';
 import { API_BASE_URL } from '../../services/api';
 
 const UploadJobModal = ({ visible, onClose }) => {
+    const { t } = useTranslation();
 
     const handlePickDocument = async (type) => {
         try {
@@ -15,7 +17,7 @@ const UploadJobModal = ({ visible, onClose }) => {
             });
 
             if (result.assets && result.assets.length > 0) {
-                Alert.alert('Bilgi', 'Excel yükleme özelliği backend ile bağlanacak.');
+                Alert.alert(t('common.info'), 'Excel yükleme özelliği backend ile bağlanacak.');
                 onClose();
             }
         } catch (err) {
@@ -32,14 +34,14 @@ const UploadJobModal = ({ visible, onClose }) => {
         >
             <View style={styles.modalOverlay}>
                 <View style={[styles.modalContent, { width: '80%' }]}>
-                    <Text style={styles.modalTitle}>Excel Yükleme</Text>
+                    <Text style={styles.modalTitle}>{t('jobs.excelUpload')}</Text>
                     <TouchableOpacity style={[styles.selectorButton, { marginBottom: 12, justifyContent: 'center' }]} onPress={() => handlePickDocument('job')}>
                         <MaterialIcons name="file-upload" size={24} color={COLORS.neonGreen} style={{ marginRight: 10 }} />
-                        <Text style={styles.selectorButtonText}>Toplu İş Yükle (Excel)</Text>
+                        <Text style={styles.selectorButtonText}>{t('jobs.uploadBulk')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.selectorButton, { marginBottom: 12, justifyContent: 'center' }]} onPress={() => handlePickDocument('template')}>
                         <MaterialIcons name="file-upload" size={24} color={COLORS.blue500} style={{ marginRight: 10 }} />
-                        <Text style={styles.selectorButtonText}>Şablon Yükle (Excel)</Text>
+                        <Text style={styles.selectorButtonText}>{t('jobs.uploadTemplate')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -48,16 +50,16 @@ const UploadJobModal = ({ visible, onClose }) => {
                             const url = `${API_BASE_URL}/api/admin/templates/sample`;
                             Linking.openURL(url).catch(err => {
                                 console.error("Couldn't load page", err);
-                                Alert.alert('Hata', 'Şablon indirme linki açılamadı.');
+                                Alert.alert(t('common.error'), t('jobs.createError')); // Fallback error
                             });
                         }}
                     >
                         <MaterialIcons name="file-download" size={24} color={COLORS.textLight} style={{ marginRight: 10 }} />
-                        <Text style={styles.selectorButtonText}>Örnek Şablon İndir</Text>
+                        <Text style={styles.selectorButtonText}>{t('jobs.downloadSample')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={[styles.cancelButton, { marginTop: 20 }]} onPress={onClose}>
-                        <Text style={styles.cancelButtonText}>İptal</Text>
+                        <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>

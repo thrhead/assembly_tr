@@ -22,7 +22,7 @@ const SelectionModal = ({ visible, onClose, title, items, onSelect, selectedId, 
                             const isSelected = item.id ? selectedId === item.id : selectedId === item;
                             return (
                                 <TouchableOpacity
-                                    key={index}
+                                    key={item.id || index}
                                     style={[styles.modalItem, { borderBottomColor: colors.border }]}
                                     onPress={() => {
                                         onSelect(item);
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     modalContent: {
-        backgroundColor: theme.colors.card,
+        backgroundColor: COLORS.cardDark || '#1e293b',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         maxHeight: '80%',

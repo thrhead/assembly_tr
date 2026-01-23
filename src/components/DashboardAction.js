@@ -1,8 +1,10 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { COLORS } from '../constants/theme';
 
 const DashboardAction = ({ icon, label, onPress, isActive = true, disabled = false, comingSoon = false }) => {
+    const { t } = useTranslation();
     return (
         <TouchableOpacity
             style={[
@@ -16,7 +18,7 @@ const DashboardAction = ({ icon, label, onPress, isActive = true, disabled = fal
         >
             {typeof icon === 'string' ? <Text style={styles.icon}>{icon}</Text> : icon}
             <Text style={styles.label}>{label}</Text>
-            {comingSoon && <Text style={styles.comingSoon}>Yakında</Text>}
+            {comingSoon && <Text style={styles.comingSoon}>{t('jobs.comingSoon')}</Text>}
         </TouchableOpacity>
     );
 };

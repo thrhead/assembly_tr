@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useTranslation } from 'react-i18next';
 import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/theme';
 
 const DateFilter = ({ startDate, endDate, onStartDateChange, onEndDateChange, theme }) => {
+    const { t, i18n } = useTranslation();
     const colors = theme ? theme.colors : COLORS;
     const [showStart, setShowStart] = useState(false);
     const [showEnd, setShowEnd] = useState(false);
@@ -24,14 +26,14 @@ const DateFilter = ({ startDate, endDate, onStartDateChange, onEndDateChange, th
     };
 
     const formatDate = (date) => {
-        if (!date) return 'Tarih Seç';
-        return date.toLocaleDateString('tr-TR');
+        if (!date) return t('common.search'); // Or a "Select Date" key
+        return date.toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US');
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.dateButtonContainer}>
-                <Text style={[styles.label, { color: colors.subText }]}>Başlangıç</Text>
+                <Text style={[styles.label, { color: colors.subText }]}>{t('jobs.start')}</Text>
                 <TouchableOpacity
                     style={[styles.dateButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
                     onPress={() => setShowStart(true)}
@@ -42,7 +44,7 @@ const DateFilter = ({ startDate, endDate, onStartDateChange, onEndDateChange, th
             </View>
 
             <View style={styles.dateButtonContainer}>
-                <Text style={[styles.label, { color: colors.subText }]}>Bitiş</Text>
+                <Text style={[styles.label, { color: colors.subText }]}>{t('jobs.end')}</Text>
                 <TouchableOpacity
                     style={[styles.dateButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
                     onPress={() => setShowEnd(true)}

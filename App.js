@@ -150,6 +150,16 @@ function AppNavigator() {
                 component={ReportsScreen}
                 options={{ title: 'Analiz & Raporlar' }}
               />
+              <Stack.Screen
+                name="TeamManagement"
+                component={TeamManagementScreen}
+                options={{ title: t('navigation.teams') }}
+              />
+              <Stack.Screen
+                name="TeamDetail"
+                component={TeamDetailScreen}
+                options={{ title: t('navigation.teamDetails') || 'Team Details' }}
+              />
               {/* Profile Screen */}
               <Stack.Screen
                 name="Profile"

@@ -37,9 +37,9 @@ const DashboardStatsGrid = ({ statsData }) => {
         <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Genel Durum</Text>
             <View style={styles.statsGrid}>
-                {stats.map((stat, index) => (
+                {stats.map((stat) => (
                     <StatCard
-                        key={index}
+                        key={stat.title}
                         label={stat.title}
                         value={stat.value}
                         icon={stat.icon}

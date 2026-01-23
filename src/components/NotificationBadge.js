@@ -10,7 +10,7 @@ const NotificationBadge = ({ onPress, color = '#000' }) => {
         <TouchableOpacity 
             style={styles.container} 
             onPress={onPress}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
         >
             <Ionicons name="notifications-outline" size={24} color={color} />
             {unreadCount > 0 && (
@@ -26,7 +26,7 @@ const NotificationBadge = ({ onPress, color = '#000' }) => {
 
 const styles = StyleSheet.create({
     container: {
-        padding: 8,
+        padding: 10,
         position: 'relative',
     },
     badge: {

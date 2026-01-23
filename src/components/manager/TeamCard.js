@@ -1,10 +1,12 @@
 import React, { memo } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/theme';
 
 const TeamCard = ({ item, onEdit, onDelete, isAdmin, theme }) => {
+    const { t } = useTranslation();
     return (
         <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
             <View style={styles.cardHeader}>
@@ -38,24 +40,24 @@ const TeamCard = ({ item, onEdit, onDelete, isAdmin, theme }) => {
             </View>
 
             <View style={[styles.teamSection, { borderTopColor: theme.colors.border }]}>
-                <Text style={[styles.sectionTitle, { color: theme.colors.primary }]}>Ekip Lideri:</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.primary }]}>{t('manager.teamLeader')}:</Text>
                 <Text style={[styles.sectionText, { color: theme.colors.text }]}>
-                    {item.lead?.name || 'Atanmamış'}
+                    {item.lead?.name || t('manager.unassigned')}
                 </Text>
             </View>
 
             <View style={[styles.teamSection, { borderTopColor: theme.colors.border }]}>
-                <Text style={[styles.sectionTitle, { color: theme.colors.primary }]}>Ekip Üyeleri ({item.members?.length || 0}):</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.primary }]}>{t('manager.teamMembers')} ({item.members?.length || 0}):</Text>
                 {item.members && item.members.length > 0 ? (
                     <View style={styles.membersList}>
                         {item.members.map((member) => (
                             <Text key={member.id} style={[styles.memberItem, { color: theme.colors.text }]}>
-                                • {member.user.name} ({member.user.role === 'WORKER' ? 'İşçi' : 'Ekip Lideri'})
+                                • {member.user.name} ({member.user.role === 'WORKER' ? t('manager.worker') : t('manager.leader')})
                             </Text>
                         ))}
                     </View>
                 ) : (
-                    <Text style={[styles.emptyMembersText, { color: theme.colors.subText }]}>Henüz üye eklenmemiş</Text>
+                    <Text style={[styles.emptyMembersText, { color: theme.colors.subText }]}>{t('manager.noMembers')}</Text>
                 )}
             </View>
         </View>

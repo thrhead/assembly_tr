@@ -11,9 +11,18 @@ const RecentJobsList = ({ jobs = [], onJobPress, onViewAll }) => {
         <View style={styles.section}>
             <View style={styles.sectionHeader}>
                 <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Son İşler</Text>
-                <TouchableOpacity onPress={onViewAll}>
+                <TouchableOpacity onPress={onViewAll} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}>
                     <Text style={[styles.seeAllText, { color: theme.colors.primary }]}>Tümü</Text>
                 </TouchableOpacity>
+--
+    recentIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
             </View>
             <View style={styles.recentList}>
                 {jobsList.length === 0 ? (

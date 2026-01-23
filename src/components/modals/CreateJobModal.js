@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, Alert, ScrollView, FlatList } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { COLORS } from '../../constants/theme';
 import jobService from '../../services/job.service';
@@ -9,6 +10,7 @@ import customerService from '../../services/customer.service';
 import teamService from '../../services/team.service';
 
 export default function CreateJobModal({ visible, onClose, onSuccess }) {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -74,7 +76,7 @@ export default function CreateJobModal({ visible, onClose, onSuccess }) {
 
     const handleCreateJob = async () => {
         if (!formData.title || !formData.customerId) {
-            Alert.alert('Hata', 'Lütfen başlık ve müşteri seçin.');
+            Alert.alert(t('common.error'), t('jobs.validationError'));
             return;
         }
 
@@ -83,7 +85,7 @@ export default function CreateJobModal({ visible, onClose, onSuccess }) {
             resetForm();
             onSuccess();
         } catch (error) {
-            Alert.alert('Hata', 'İş oluşturulurken bir hata oluştu.');
+            Alert.alert(t('common.error'), t('jobs.createError'));
             console.error(error);
         }
     };
@@ -93,7 +95,7 @@ export default function CreateJobModal({ visible, onClose, onSuccess }) {
         setSelectionModalVisible(true);
 
         if (target === 'customer') {
-            setSelectionTitle('Müşteri Seç');
+            setSelectionTitle(t('jobs.selectCustomer'));
             if (customers.length === 0) {
                 try {
                     const custData = await customerService.getAll();
@@ -103,7 +105,7 @@ export default function CreateJobModal({ visible, onClose, onSuccess }) {
                         label: c.company || c.companyName,
                         sub: c.user?.name || c.contactPerson
                     })));
-                } catch (e) { Alert.alert('Hata', 'Müşteri listesi yüklenemedi.'); }
+                } catch (e) { Alert.alert(t('common.error'), t('jobs.fetchError')); }
             } else {
                 setSelectionItems(customers.map(c => ({
                     id: c.id,
@@ -113,29 +115,29 @@ export default function CreateJobModal({ visible, onClose, onSuccess }) {
             }
 
         } else if (target === 'team') {
-            setSelectionTitle('Ekip Seç');
+            setSelectionTitle(t('jobs.selectTeam'));
             if (teams.length === 0) {
                 try {
                     const teamData = await teamService.getAll();
                     if (Array.isArray(teamData)) setTeams(teamData);
-                    const options = [{ id: null, label: 'Henüz Atama Yapma' }, ...teamData.map(t => ({ id: t.id, label: t.name }))];
+                    const options = [{ id: null, label: t('jobs.noAssignment') }, ...teamData.map(t => ({ id: t.id, label: t.name }))];
                     setSelectionItems(options);
-                } catch (e) { Alert.alert('Hata', 'Ekip listesi yüklenemedi.'); }
+                } catch (e) { Alert.alert(t('common.error'), t('jobs.fetchError')); }
             } else {
-                const options = [{ id: null, label: 'Henüz Atama Yapma' }, ...teams.map(t => ({ id: t.id, label: t.name }))];
+                const options = [{ id: null, label: t('jobs.noAssignment') }, ...teams.map(t => ({ id: t.id, label: t.name }))];
                 setSelectionItems(options);
             }
 
         } else if (target === 'priority') {
-            setSelectionTitle('Öncelik Seç');
+            setSelectionTitle(t('jobs.selectPriority'));
             setSelectionItems([
-                { id: 'LOW', label: 'Düşük' },
-                { id: 'MEDIUM', label: 'Orta' },
-                { id: 'HIGH', label: 'Yüksek' },
-                { id: 'URGENT', label: 'Acil' }
+                { id: 'LOW', label: t('jobs.low') },
+                { id: 'MEDIUM', label: t('jobs.medium') },
+                { id: 'HIGH', label: t('jobs.high') },
+                { id: 'URGENT', label: t('jobs.urgent') }
             ]);
         } else if (target === 'template') {
-            setSelectionTitle('Şablon Seç');
+            setSelectionTitle(t('jobs.selectTemplate'));
             if (templates.length === 0) {
                 try {
                     const tmplData = await templateService.getAll();
@@ -194,75 +196,75 @@ export default function CreateJobModal({ visible, onClose, onSuccess }) {
         >
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Yeni İş Oluştur</Text>
+                    <Text style={styles.modalTitle}>{t('jobs.createTitle')}</Text>
                     <ScrollView style={{ maxHeight: 500 }}>
-                        <Text style={styles.label}>İş Şablonu (Opsiyonel)</Text>
+                        <Text style={styles.label}>{t('jobs.template')} {t('jobs.optional')}</Text>
                         <TouchableOpacity style={styles.selectorButton} onPress={() => openSelection('template')}>
-                            <Text style={styles.selectorButtonText}>{formData.templateName || 'Şablon Seç'}</Text>
+                            <Text style={styles.selectorButtonText}>{formData.templateName || t('jobs.selectTemplate')}</Text>
                             <MaterialIcons name="arrow-drop-down" size={24} color="#aaa" />
                         </TouchableOpacity>
 
-                        <Text style={styles.label}>İş Başlığı *</Text>
+                        <Text style={styles.label}>{t('jobs.jobTitle')} *</Text>
                         <TextInput
                             style={styles.input}
                             value={formData.title}
                             onChangeText={(text) => setFormData(prev => ({ ...prev, title: text }))}
-                            placeholder="Örn: Klima Montajı"
+                            placeholder={t('jobs.titlePlaceholder')}
                             placeholderTextColor="#666"
                         />
 
-                        <Text style={styles.label}>Müşteri *</Text>
+                        <Text style={styles.label}>{t('jobs.customer')} *</Text>
                         <TouchableOpacity style={styles.selectorButton} onPress={() => openSelection('customer')}>
-                            <Text style={styles.selectorButtonText}>{formData.customerName || 'Müşteri Seç'}</Text>
+                            <Text style={styles.selectorButtonText}>{formData.customerName || t('jobs.selectCustomer')}</Text>
                             <MaterialIcons name="arrow-drop-down" size={24} color="#aaa" />
                         </TouchableOpacity>
 
-                        <Text style={styles.label}>Atanacak Ekip (Opsiyonel)</Text>
+                        <Text style={styles.label}>{t('jobs.assignTeam')} {t('jobs.optional')}</Text>
                         <TouchableOpacity style={styles.selectorButton} onPress={() => openSelection('team')}>
-                            <Text style={styles.selectorButtonText}>{formData.teamName || 'Ekip Seç'}</Text>
+                            <Text style={styles.selectorButtonText}>{formData.teamName || t('jobs.selectTeam')}</Text>
                             <MaterialIcons name="arrow-drop-down" size={24} color="#aaa" />
                         </TouchableOpacity>
 
-                        <Text style={styles.label}>Öncelik</Text>
+                        <Text style={styles.label}>{t('jobs.priority')}</Text>
                         <TouchableOpacity style={styles.selectorButton} onPress={() => openSelection('priority')}>
                             <Text style={styles.selectorButtonText}>
-                                {formData.priority === 'LOW' ? 'Düşük' :
-                                    formData.priority === 'MEDIUM' ? 'Orta' :
-                                        formData.priority === 'HIGH' ? 'Yüksek' : 'Acil'}
+                                {formData.priority === 'LOW' ? t('jobs.low') :
+                                    formData.priority === 'MEDIUM' ? t('jobs.medium') :
+                                        formData.priority === 'HIGH' ? t('jobs.high') : t('jobs.urgent')}
                             </Text>
                             <MaterialIcons name="arrow-drop-down" size={24} color="#aaa" />
                         </TouchableOpacity>
 
                         <View style={{ flexDirection: 'row', gap: 10 }}>
                             <View style={{ flex: 1 }}>
-                                <Text style={styles.label}>Başlangıç</Text>
+                                <Text style={styles.label}>{t('jobs.start')}</Text>
                                 <TouchableOpacity style={styles.selectorButton} onPress={() => { setDateTarget('start'); setShowDatePicker(true); }}>
                                     <Text style={styles.selectorButtonText}>{formData.scheduledDate.toLocaleDateString()}</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={{ flex: 1 }}>
-                                <Text style={styles.label}>Bitiş</Text>
+                                <Text style={styles.label}>{t('jobs.end')}</Text>
                                 <TouchableOpacity style={styles.selectorButton} onPress={() => { setDateTarget('end'); setShowDatePicker(true); }}>
                                     <Text style={styles.selectorButtonText}>{formData.scheduledEndDate.toLocaleDateString()}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
 
-                        <Text style={styles.label}>Konum</Text>
+                        <Text style={styles.label}>{t('jobs.location')}</Text>
                         <TextInput
                             style={styles.input}
                             value={formData.location}
                             onChangeText={(text) => setFormData(prev => ({ ...prev, location: text }))}
-                            placeholder="Adres..."
+                            placeholder={t('jobs.addressPlaceholder')}
                             placeholderTextColor="#666"
                         />
 
-                        <Text style={styles.label}>Açıklama</Text>
+                        <Text style={styles.label}>{t('jobs.description')}</Text>
                         <TextInput
                             style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
                             value={formData.description}
                             onChangeText={(text) => setFormData(prev => ({ ...prev, description: text }))}
-                            placeholder="İş detayları..."
+                            placeholder={t('jobs.descriptionPlaceholder')}
                             placeholderTextColor="#666"
                             multiline
                         />
@@ -270,10 +272,10 @@ export default function CreateJobModal({ visible, onClose, onSuccess }) {
 
                     <View style={styles.modalButtons}>
                         <TouchableOpacity style={styles.cancelButton} onPress={() => { onClose(); resetForm(); }}>
-                            <Text style={styles.cancelButtonText}>İptal</Text>
+                            <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.saveButton} onPress={handleCreateJob}>
-                            <Text style={styles.saveButtonText}>Oluştur</Text>
+                            <Text style={styles.saveButtonText}>{t('jobs.create')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

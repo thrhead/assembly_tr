@@ -44,7 +44,7 @@ const ChecklistManager = ({
                 </View>
             ) : (
                 steps.map((step, index) => (
-                    <View key={index} style={[styles.stepCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <View key={step.id || step.tempId || index} style={[styles.stepCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                         <View style={styles.stepHeader}>
                             <Text style={[styles.stepIndex, { color: colors.subText }]}>{index + 1}.</Text>
                             <View style={{ flex: 1 }}>
@@ -90,7 +90,7 @@ const ChecklistManager = ({
                         {/* Substeps */}
                         <View style={[styles.subStepsContainer, { borderLeftColor: colors.border }]}>
                             {step.subSteps?.map((subStep, subIndex) => (
-                                <View key={subIndex} style={styles.subStepRow}>
+                                <View key={subStep.id || subStep.tempId || subIndex} style={styles.subStepRow}>
                                     <MaterialIcons name="subdirectory-arrow-right" size={16} color={colors.subText || COLORS.slate500} />
                                     <View style={{ flex: 1, marginLeft: 8 }}>
                                         <CustomInput
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     iconButton: {
-        padding: 4,
+        padding: 12,
         marginLeft: 4,
     },
     disabledIcon: {
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     removeSubButton: {
-        padding: 4,
+        padding: 14,
     },
     addSubStepButton: {
         flexDirection: 'row',

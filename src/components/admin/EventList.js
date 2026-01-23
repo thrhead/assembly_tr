@@ -21,9 +21,9 @@ const EventList = ({ selectedDate, events, onEventPress, theme }) => {
                 {events.length === 0 ? (
                     <Text style={[styles.noEvents, { color: textSub }]}>Bu tarihte planlanmış iş yok</Text>
                 ) : (
-                    events.map((event, index) => (
+                    events.map((event) => (
                         <TouchableOpacity
-                            key={`${event.id}-${index}`}
+                            key={event.id}
                             style={[
                                 styles.eventCard,
                                 {

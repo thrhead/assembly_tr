@@ -1,16 +1,19 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { COLORS } from '../../constants/theme';
 
 const BudgetCard = ({ stats, theme }) => {
+    const { t, i18n } = useTranslation();
     const colors = theme ? theme.colors : COLORS;
     const progress = stats.total > 0 ? Math.min((stats.used / stats.total) * 100, 100) : 0;
+    const currency = i18n.language === 'tr' ? '₺' : '$';
 
     return (
         <View style={[styles.budgetCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.budgetHeader}>
-                <Text style={[styles.budgetLabel, { color: colors.text }]}>Toplam Kullanılan Bütçe</Text>
-                <Text style={[styles.budgetAmount, { color: colors.text }]}>₺{stats.used.toFixed(2)}</Text>
+                <Text style={[styles.budgetLabel, { color: colors.text }]}>{t('manager.budgetUsage')}</Text>
+                <Text style={[styles.budgetAmount, { color: colors.text }]}>{currency}{stats.used.toFixed(2)}</Text>
             </View>
             <View style={[styles.progressBar, { backgroundColor: colors.surface }]}>
                 <View
@@ -18,8 +21,8 @@ const BudgetCard = ({ stats, theme }) => {
                 />
             </View>
             <View style={styles.budgetFooter}>
-                <Text style={[styles.budgetSecondary, { color: colors.subText }]}>₺{stats.remaining.toFixed(2)} Kalan</Text>
-                <Text style={[styles.budgetSecondary, { color: colors.subText }]}>₺{stats.total.toFixed(2)} Toplam</Text>
+                <Text style={[styles.budgetSecondary, { color: colors.subText }]}>{currency}{stats.remaining.toFixed(2)} {t('manager.remaining')}</Text>
+                <Text style={[styles.budgetSecondary, { color: colors.subText }]}>{currency}{stats.total.toFixed(2)} {t('manager.total')}</Text>
             </View>
         </View>
     );
