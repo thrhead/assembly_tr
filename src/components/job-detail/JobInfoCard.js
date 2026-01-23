@@ -1,56 +1,103 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Svg, Circle, Text as SvgText } from 'react-native-svg';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import { formatDate } from '../../utils';
 import GlassCard from '../ui/GlassCard';
+
+const CircularProgress = ({ progress, size = 60, strokeWidth = 6, theme }) => {
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (progress / 100) * circumference;
+
+    const getColor = (percent) => {
+        if (percent === 100) return theme.colors.success || '#10B981';
+        if (percent > 30) return theme.colors.primary || '#3b82f6';
+        return '#f97316'; // orange-500
+    };
+
+    return (
+        <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+            <Svg width={size} height={size} style={{ transform: [{ rotate: '-90deg' }] }}>
+                <Circle
+                    cx={size / 2}
+                    cy={size / 2}
+                    r={radius}
+                    stroke={theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
+                    strokeWidth={strokeWidth}
+                    fill="transparent"
+                />
+                <Circle
+                    cx={size / 2}
+                    cy={size / 2}
+                    r={radius}
+                    stroke={getColor(progress)}
+                    strokeWidth={strokeWidth}
+                    strokeDasharray={`${circumference} ${circumference}`}
+                    strokeDashoffset={offset}
+                    strokeLinecap="round"
+                    fill="transparent"
+                />
+            </Svg>
+            <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
+                <Text style={{ fontSize: size * 0.22, fontWeight: 'bold', color: theme.colors.text }}>
+                    {Math.round(progress)}%
+                </Text>
+            </View>
+        </View>
+    );
+};
 
 const JobInfoCard = ({ job }) => {
     const { theme } = useTheme();
 
     if (!job) return null;
 
+    const totalSteps = job.steps?.length || 0;
+    const completedSteps = job.steps?.filter(s => s.isCompleted).length || 0;
+    const progress = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
+
     return (
         <GlassCard style={styles.card} theme={theme}>
-            <Text style={[styles.jobTitle, { color: theme.colors.text }]}>{job.title}</Text>
-            <View style={styles.infoRow}>
-                <MaterialIcons name="business" size={16} color={theme.colors.subText} />
-                <Text style={[styles.infoText, { color: theme.colors.subText }]}>Müşteri: {job.customer?.name || 'Müşteri'}</Text>
+            <View style={styles.headerRow}>
+                <View style={{ flex: 1 }}>
+                    <Text style={[styles.jobTitle, { color: theme.colors.text }]}>{job.title}</Text>
+                    <View style={styles.infoRow}>
+                        <MaterialIcons name="business" size={16} color={theme.colors.subText} />
+                        <Text style={[styles.infoText, { color: theme.colors.subText }]}>{job.customer?.company || job.customer?.name || 'Müşteri'}</Text>
+                    </View>
+                </View>
+                <CircularProgress progress={progress} theme={theme} />
             </View>
+
+            <View style={styles.separator} />
+            
             <View style={styles.infoRow}>
                 <MaterialIcons name="description" size={16} color={theme.colors.subText} />
-                <Text style={[styles.description, { color: theme.colors.subText }]}>{job.description}</Text>
+                <Text style={[styles.description, { color: theme.colors.subText }]}>{job.description || 'Açıklama yok'}</Text>
             </View>
-            {job.status === 'IN_PROGRESS' && job.startedAt && job.steps && job.steps.length > 0 && (
+
+            {job.status === 'IN_PROGRESS' && job.startedAt && totalSteps > 0 && (
                 <View style={styles.estimationContainer}>
-                    <View style={styles.separator} />
                     <View style={styles.infoRow}>
                         <MaterialIcons name="timer" size={16} color={theme.colors.primary} />
                         <Text style={[styles.infoText, { color: theme.colors.text, fontWeight: '600' }]}>
                             Tahmini Bitiş: {(() => {
-                                const completed = job.steps.filter(s => s.isCompleted).length;
-                                if (completed === 0) return 'Hesaplanıyor...';
+                                if (completedSteps === 0) return 'Hesaplanıyor...';
                                 const start = new Date(job.startedAt).getTime();
                                 const now = new Date().getTime();
                                 const elapsed = now - start;
-                                const progress = completed / job.steps.length;
-                                const totalEst = elapsed / progress;
+                                const progressRatio = completedSteps / totalSteps;
+                                const totalEst = elapsed / progressRatio;
                                 const finishDate = new Date(start + totalEst);
                                 return finishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                             })()}
                         </Text>
                     </View>
-                    <View style={styles.progressBarBg}>
-                        <View
-                            style={[
-                                styles.progressBarFill,
-                                {
-                                    backgroundColor: theme.colors.primary,
-                                    width: `${(job.steps.filter(s => s.isCompleted).length / job.steps.length) * 100}%`
-                                }
-                            ]}
-                        />
-                    </View>
+                    <Text style={{ fontSize: 10, color: theme.colors.subText, marginLeft: 24 }}>
+                        {completedSteps}/{totalSteps} Adım Tamamlandı
+                    </Text>
                 </View>
             )}
         </GlassCard>
@@ -62,15 +109,21 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 16,
     },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
     jobTitle: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'bold',
-        marginBottom: 12,
+        marginBottom: 4,
     },
     infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 6,
     },
     infoText: {
         marginLeft: 8,
@@ -79,25 +132,18 @@ const styles = StyleSheet.create({
     description: {
         fontSize: 14,
         lineHeight: 20,
-        marginTop: 8,
+        marginTop: 4,
     },
     estimationContainer: {
         marginTop: 12,
+        padding: 10,
+        backgroundColor: 'rgba(0,0,0,0.02)',
+        borderRadius: 8,
     },
     separator: {
         height: 1,
         backgroundColor: 'rgba(0,0,0,0.05)',
-        marginBottom: 12,
-    },
-    progressBarBg: {
-        height: 6,
-        backgroundColor: 'rgba(0,0,0,0.05)',
-        borderRadius: 3,
-        marginTop: 8,
-        overflow: 'hidden',
-    },
-    progressBarFill: {
-        height: '100%',
+        marginVertical: 12,
     },
 });
 
