@@ -151,6 +151,20 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const handleSubstepToggle = async (stepId, substepId, currentStatus) => {
         try {
+            // Eğer tamamlanmaya çalışılıyorsa (yani şu an tamamlanmamışsa) fotoğraf kontrolü yap
+            if (!currentStatus) {
+                const step = job.steps.find(s => s.id === stepId);
+                const substep = step?.subSteps.find(ss => ss.id === substepId);
+
+                if (substep && (!substep.photos || substep.photos.length === 0)) {
+                    Alert.alert(
+                        t('common.warning'),
+                        "Bu adımı tamamlamak için en az bir fotoğraf eklemelisiniz."
+                    );
+                    return;
+                }
+            }
+
             const isCompleted = !currentStatus;
             await jobService.toggleSubstep(jobId, stepId, substepId, isCompleted);
             loadJobDetails();
@@ -162,6 +176,24 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const handleToggleStep = async (stepId, currentStatus) => {
         try {
+            // Eğer tamamlanmaya çalışılıyorsa (yani şu an tamamlanmamışsa) fotoğraf kontrolü yap
+            if (!currentStatus) {
+                const step = job.steps.find(s => s.id === stepId);
+
+                // Alt adımları varsa ana adımın fotoğrafına bakmaya gerek yok, alt adımların kendi kontrolü var.
+                // Ancak burada "Adım" seviyesinde bir fotoğraf isteniyorsa:
+                if (step && (!step.photos || step.photos.length === 0)) {
+                    // Eğer alt adımları varsa ve hepsi tamamlandıysa, belki ana adıma fotoğraf gerekmez? 
+                    // Ancak kullanıcı "yapıyı en az 1 fotoğraf eklemeden ilerletemesin" dedi.
+                    // Güvenli taraf: Her adımın (ana veya alt) kendi kanıtı olmalı.
+                    Alert.alert(
+                        t('common.warning'),
+                        "Bu adımı tamamlamak için en az bir fotoğraf eklemelisiniz."
+                    );
+                    return;
+                }
+            }
+
             const isCompleted = !currentStatus;
             await jobService.toggleStep(jobId, stepId, isCompleted);
             loadJobDetails();
