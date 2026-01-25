@@ -116,7 +116,22 @@ const jobService = {
     },
 
     // Mutations - Photos & Files
-    uploadPhotos: async (jobId, stepId, formData, subStepId = null) => {
+    uploadPhotos: async (jobId, stepId, formData, subStepId = null, base64 = null) => {
+        if (base64) {
+            // JSON/Base64 Upload Strategy (Robust)
+            const payload = {
+                photo: base64,
+                subStepId: subStepId || null
+            };
+            const response = await api.post(`/api/worker/jobs/${jobId}/steps/${stepId}/photos`, payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            return response.data;
+        }
+
+        // Fallback or legacy way (FormData)
         if (subStepId) {
             formData.append('subStepId', subStepId);
         }

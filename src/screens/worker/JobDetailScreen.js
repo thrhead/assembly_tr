@@ -243,7 +243,8 @@ export default function JobDetailScreen({ route, navigation }) {
                     mediaTypes: mediaTypes,
                     allowsEditing: true,
                     aspect: [4, 3],
-                    quality: 0.3, // Reduced for Vercel 4.5MB limit
+                    quality: 0.3,
+                    base64: true, // Request Base64
                 });
             } else {
                 const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -255,13 +256,15 @@ export default function JobDetailScreen({ route, navigation }) {
                     mediaTypes: mediaTypes,
                     allowsEditing: true,
                     aspect: [4, 3],
-                    quality: 0.3, // Reduced for Vercel 4.5MB limit
+                    quality: 0.3,
+                    base64: true, // Request Base64
                 });
             }
 
             if (!result.canceled) {
                 const uri = result.assets[0].uri;
-                uploadPhoto(stepId, substepId, uri);
+                const base64 = result.assets[0].base64;
+                uploadPhoto(stepId, substepId, uri, base64);
             }
         } catch (error) {
             console.error("ImagePicker error:", error);
@@ -269,7 +272,7 @@ export default function JobDetailScreen({ route, navigation }) {
         }
     };
 
-    const uploadPhoto = async (stepId, substepId, uri) => {
+    const uploadPhoto = async (stepId, substepId, uri, base64) => {
         try {
             setUploading(true);
             const formData = new FormData();
@@ -282,7 +285,7 @@ export default function JobDetailScreen({ route, navigation }) {
 
             formData.append('photo', { uri, name: filename, type });
 
-            await jobService.uploadPhotos(jobId, stepId, formData, substepId);
+            await jobService.uploadPhotos(jobId, stepId, formData, substepId, base64);
 
             setSuccessMessage(t('alerts.photoUploadSuccess'));
             setSuccessModalVisible(true);
