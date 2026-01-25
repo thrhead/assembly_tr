@@ -641,13 +641,27 @@ Assembly Tracker Ltd. Şti.
                         return (
                             <GlassCard key={step.id} style={[styles.stepCard, isLocked && styles.lockedCard]} theme={theme}>
                                 <View style={styles.stepHeader}>
-                                    <View style={[styles.checkbox, step.isCompleted && styles.checkedBox]}>
+                                    <TouchableOpacity
+                                        style={[styles.checkbox, step.isCompleted && styles.checkedBox]}
+                                        onPress={() => handleToggleStep(step.id, step.isCompleted)}
+                                        disabled={isLocked}
+                                    >
                                         {step.isCompleted && <MaterialIcons name="check" size={16} color="#FFFFFF" />}
-                                    </View>
+                                    </TouchableOpacity>
                                     <View style={{ flex: 1 }}>
-                                        <Text style={[styles.stepTitle, step.isCompleted && styles.completedText, { color: theme.colors.text }]}>
-                                            {step.title || step.name}
-                                        </Text>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Text style={[styles.stepTitle, step.isCompleted && styles.completedText, { color: theme.colors.text }]}>
+                                                {step.title || step.name}
+                                            </Text>
+                                            {!isLocked && !step.isCompleted && (
+                                                <TouchableOpacity
+                                                    onPress={() => pickImage(step.id, null, 'camera')}
+                                                    style={styles.actionButton}
+                                                >
+                                                    <MaterialIcons name="add-a-photo" size={20} color={theme.colors.primary} />
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
                                         {step.startedAt && (
                                             <Text style={[styles.dateText, { color: theme.colors.subText }]}>
                                                 {t('worker.started')}: {formatDate(step.startedAt)}
@@ -668,6 +682,17 @@ Assembly Tracker Ltd. Şti.
                                                 )}
                                             </View>
                                         )}
+
+                                        {step.photos && step.photos.length > 0 && (
+                                            <FlatList
+                                                data={step.photos}
+                                                renderItem={renderPhotoItem}
+                                                keyExtractor={(p, i) => i.toString()}
+                                                horizontal
+                                                showsHorizontalScrollIndicator={false}
+                                                style={{ marginTop: 8 }}
+                                            />
+                                        )}
                                     </View>
                                 </View>
 
@@ -682,10 +707,35 @@ Assembly Tracker Ltd. Şti.
                                             return (
                                                 <GlassCard key={substep.id} style={[styles.substepWrapper, isSubstepLocked && styles.lockedCard]} theme={theme}>
                                                     <View style={styles.substepRow}>
+                                                        <TouchableOpacity
+                                                            style={[styles.checkbox, { width: 20, height: 20 }, substep.isCompleted && styles.checkedBox]}
+                                                            onPress={() => handleSubstepToggle(step.id, substep.id, substep.isCompleted)}
+                                                            disabled={isSubstepLocked}
+                                                        >
+                                                            {substep.isCompleted && <MaterialIcons name="check" size={14} color="#FFFFFF" />}
+                                                        </TouchableOpacity>
                                                         <View style={styles.substepInfo}>
-                                                            <Text style={[styles.substepText, substep.isCompleted && styles.completedText, { color: theme.colors.text }]}>
-                                                                {substep.title || substep.name}
-                                                            </Text>
+                                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <Text style={[styles.substepText, substep.isCompleted && styles.completedText, { color: theme.colors.text }]}>
+                                                                    {substep.title || substep.name}
+                                                                </Text>
+                                                                {!isSubstepLocked && !substep.isCompleted && (
+                                                                    <TouchableOpacity
+                                                                        onPress={() => pickImage(step.id, substep.id, 'camera')}
+                                                                    >
+                                                                        <MaterialIcons name="add-a-photo" size={18} color={theme.colors.primary} />
+                                                                    </TouchableOpacity>
+                                                                )}
+                                                            </View>
+                                                            {substep.photos && substep.photos.length > 0 && (
+                                                                <FlatList
+                                                                    data={substep.photos}
+                                                                    renderItem={renderPhotoItem}
+                                                                    keyExtractor={(p, i) => i.toString()}
+                                                                    horizontal
+                                                                    showsHorizontalScrollIndicator={false}
+                                                                />
+                                                            )}
                                                         </View>
                                                     </View>
                                                 </GlassCard>

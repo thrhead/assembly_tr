@@ -22,8 +22,8 @@ const getBaseUrl = () => {
 
     // Hardcoded LAN IP for physical device testing in development
     if (__DEV__) {
-        // This value is updated automatically by start_tunnel_auto.ps1 or can be local IP
-        return 'https://adjustment-wilderness-midnight-recordings.trycloudflare.com';
+        // Updated to use the current verified local IP
+        return 'http://192.168.1.173:3000';
     }
 
     // Fallback for production if no env var is set

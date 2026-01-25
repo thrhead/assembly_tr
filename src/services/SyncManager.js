@@ -1,6 +1,7 @@
 import { QueueService } from './QueueService';
 import api from './api';
 import NetInfo from '@react-native-community/netinfo';
+import { AppState } from 'react-native';
 import { ToastService } from './ToastService';
 
 export const SyncManager = {
@@ -12,12 +13,26 @@ export const SyncManager = {
       SyncManager.unsubscribe();
     }
 
+    // Network connection listener
     SyncManager.unsubscribe = NetInfo.addEventListener(state => {
       if (state.isConnected && state.isInternetReachable) {
         console.log('[SyncManager] Connection restored. Triggering sync...');
         SyncManager.sync();
       }
     });
+
+    // App state listener (foreground/background)
+    SyncManager.appStateSubscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        console.log('[SyncManager] App returned to foreground. checking sync...');
+        SyncManager.sync();
+      }
+    });
+  },
+
+  destroy: () => {
+    if (SyncManager.unsubscribe) SyncManager.unsubscribe();
+    if (SyncManager.appStateSubscription) SyncManager.appStateSubscription.remove();
   },
 
   sync: async () => {
@@ -49,7 +64,7 @@ export const SyncManager = {
 
         try {
           console.log(`[SyncManager] Processing item: ${item.type} ${item.url}`);
-          
+
           let response;
           const config = { headers: item.headers };
 
@@ -69,23 +84,23 @@ export const SyncManager = {
           }
 
           if (response && (response.status >= 200 && response.status < 300)) {
-             console.log(`[SyncManager] Item ${item.id} synced successfully.`);
-             await QueueService.removeItem(item.id);
-             successCount++;
+            console.log(`[SyncManager] Item ${item.id} synced successfully.`);
+            await QueueService.removeItem(item.id);
+            successCount++;
           }
         } catch (error) {
           console.error(`[SyncManager] Failed to sync item ${item.id}:`, error.message);
           item.retryCount += 1;
           await QueueService.updateItem(item);
-          
+
           if (item.retryCount >= 3) {
-             ToastService.show('Senkronizasyon Hatası', 'Bazı veriler sunucuya gönderilemedi.', 'error');
+            ToastService.show('Senkronizasyon Hatası', 'Bazı veriler sunucuya gönderilemedi.', 'error');
           }
         }
       }
 
       if (successCount > 0) {
-          ToastService.show('Senkronizasyon Tamamlandı', `${successCount} işlem sunucuya gönderildi.`, 'success');
+        ToastService.show('Senkronizasyon Tamamlandı', `${successCount} işlem sunucuya gönderildi.`, 'success');
       }
 
     } catch (error) {
@@ -93,7 +108,7 @@ export const SyncManager = {
     } finally {
       SyncManager.isSyncing = false;
     }
-    
+
     return true;
   }
 };
