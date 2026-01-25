@@ -163,9 +163,17 @@ export default function JobDetailScreen({ route, navigation }) {
                     photoCount: substep?.photos?.length
                 });
 
-                // NOT: substep.photos API'den gelen veriye göre şekillenir.
-                // Eğer fotoğraf dizisi yoksa veya boşsa İZİN VERME.
-                if (!substep?.photos || substep.photos.length === 0) {
+
+                const hasPhotos = substep?.photos && Array.isArray(substep.photos) && substep.photos.length > 0;
+
+                console.log('[Mobile] Substup Toggle Check:', {
+                    substepId,
+                    hasPhotos,
+                    photosRaw: substep?.photos,
+                    photoCount: substep?.photos?.length
+                });
+
+                if (!hasPhotos) {
                     Alert.alert(
                         t('common.warning'),
                         "Bu alt iş emrini tamamlamak için ÖNCE fotoğraf yüklemelisiniz. Lütfen yandaki kamera ikonuna tıklayarak fotoğraf ekleyin."
