@@ -261,7 +261,10 @@ export default function JobDetailScreen({ route, navigation }) {
             const formData = new FormData();
             const filename = uri.split('/').pop();
             const match = /\.(\w+)$/.exec(filename);
-            const type = match ? `image/${match[1]}` : `image`;
+            let type = match ? `image/${match[1]}` : `image/jpeg`;
+
+            // Fix common mime type issues
+            if (type === 'image/jpg') type = 'image/jpeg';
 
             formData.append('photo', { uri, name: filename, type });
 
