@@ -186,27 +186,12 @@ export default function JobDetailScreen({ route, navigation }) {
                 const step = job.steps.find(s => s.id === stepId);
                 const substep = step?.subSteps.find(ss => ss.id === substepId);
 
-
-                console.log('[Mobile] Checking photos for substep:', {
-                    substepId,
-                    hasPhotosArray: !!substep?.photos,
-                    photoCount: substep?.photos?.length
-                });
-
-
                 const hasPhotos = substep?.photos && Array.isArray(substep.photos) && substep.photos.length > 0;
-
-                console.log('[Mobile] Substup Toggle Check:', {
-                    substepId,
-                    hasPhotos,
-                    photosRaw: substep?.photos,
-                    photoCount: substep?.photos?.length
-                });
 
                 if (!hasPhotos) {
                     Alert.alert(
                         t('common.warning'),
-                        "Bu alt iş emrini tamamlamak için ÖNCE fotoğraf yüklemelisiniz. Lütfen yandaki kamera ikonuna tıklayarak fotoğraf ekleyin."
+                        "bu iş emrini kapatabilmeniz için öncelikle en az 1 adet fotoğraf yüklemeniz gerekmektedir"
                     );
                     return;
                 }
@@ -446,6 +431,32 @@ export default function JobDetailScreen({ route, navigation }) {
         }
     };
 
+    const handleDeleteJob = async () => {
+        Alert.alert(
+            t('common.delete'),
+            t('common.confirmDelete') || "Bu işi tamamen silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+            [
+                { text: t('common.cancel'), style: 'cancel' },
+                {
+                    text: t('common.delete'),
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            setLoading(true);
+                            await jobService.deleteJob(jobId);
+                            navigation.goBack();
+                        } catch (error) {
+                            console.error('Error deleting job:', error);
+                            Alert.alert(t('common.error'), "İş silinemedi.");
+                        } finally {
+                            setLoading(false);
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     const openRejectionModal = (stepId) => {
         setSelectedStepId(stepId);
         setRejectionModalVisible(true);
@@ -588,11 +599,20 @@ export default function JobDetailScreen({ route, navigation }) {
             return;
         }
 
-        const allStepsCompleted = job.steps.length === 0 || job.steps.every(step => step.isCompleted);
-        console.log('[Mobile] All steps completed:', allStepsCompleted);
+        // Tüm ana adımların ve bağlı tüm alt adımların (sub-steps) tamamlanmış olması gerekir
+        const allStepsCompleted = job.steps.length > 0 && job.steps.every(step => {
+            const anaAdimTamam = step.isCompleted;
+            const altAdimlarTamam = !step.subSteps || step.subSteps.length === 0 || step.subSteps.every(ss => ss.isCompleted);
+            return anaAdimTamam && altAdimlarTamam;
+        });
+
+        console.log('[Mobile] All steps and sub-steps completed:', allStepsCompleted);
 
         if (!allStepsCompleted) {
-            Alert.alert(t('common.warning'), t('alerts.photoRequired') || "Lütfen tüm adımları tamamlayın.");
+            Alert.alert(
+                t('common.warning'), 
+                "bu montajı tamamlayarak kapatmak için tüm alt iş emirlerini tamamlamanız gerekiyor"
+            );
             return;
         }
 
@@ -714,6 +734,14 @@ Assembly Tracker Ltd. Şti.
                 <View style={{ flexDirection: 'row', gap: 12 }}>
                     {['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (
                         <>
+                            {user?.role?.toUpperCase() === 'ADMIN' && (
+                                <TouchableOpacity 
+                                    onPress={handleDeleteJob} 
+                                    style={styles.chatButton}
+                                >
+                                    <MaterialIcons name="delete" size={24} color={theme.colors.error} />
+                                </TouchableOpacity>
+                            )}
                             <TouchableOpacity 
                                 onPress={() => navigation.navigate('EditJob', { job })} 
                                 style={styles.chatButton}
