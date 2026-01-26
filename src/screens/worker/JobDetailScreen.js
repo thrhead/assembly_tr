@@ -587,8 +587,50 @@ export default function JobDetailScreen({ route, navigation }) {
             return;
         }
 
-        // Trigger Signature Capture instead of immediate confirmation
-        setSignatureModalVisible(true);
+        // Make signature optional
+        Alert.alert(
+            t('common.confirm'),
+            "İşi bitirmek üzeresiniz. Müşteri imzası almak ister misiniz?",
+            [
+                {
+                    text: "İmzasız Bitir",
+                    onPress: () => {
+                        setJob(prev => ({ ...prev, signature: null, signatureCoords: null }));
+                        setConfirmationModalVisible(true);
+                    }
+                },
+                {
+                    text: "İmza Al",
+                    onPress: () => setSignatureModalVisible(true)
+                },
+                {
+                    text: t('common.cancel'),
+                    style: "cancel"
+                }
+            ]
+        );
+    };
+
+    const handleConfirmComplete = async () => {
+        try {
+            setCompleting(true);
+            setConfirmationModalVisible(false);
+
+            await jobService.completeJob(
+                jobId,
+                job.signature || null,
+                job.signatureCoords || null
+            );
+
+            setSuccessMessage("İş başarıyla bitirildi ve admin onayına gönderildi.");
+            setSuccessModalVisible(true);
+            loadJobDetails();
+        } catch (error) {
+            console.error('Error completing job:', error);
+            Alert.alert(t('common.error'), "İş tamamlanırken bir hata oluştu.");
+        } finally {
+            setCompleting(false);
+        }
     };
 
     const handleSaveSignature = async (signatureBase64) => {
@@ -987,6 +1029,17 @@ Assembly Tracker Ltd. Şti.
             </AppModal>
 
             <SuccessModal visible={successModalVisible} message={successMessage} onClose={() => setSuccessModalVisible(false)} />
+
+            <ConfirmationModal
+                visible={confirmationModalVisible}
+                title="İşi Bitir"
+                message="Tüm adımların tamamlandığını ve işin bittiğini onaylıyor musunuz? Bu işlem geri alınamaz."
+                onConfirm={handleConfirmComplete}
+                onCancel={() => setConfirmationModalVisible(false)}
+                confirmText="Evet, Bitir"
+                cancelText="Vazgeç"
+                theme={theme}
+            />
 
             <SignaturePad
                 visible={signatureModalVisible}
