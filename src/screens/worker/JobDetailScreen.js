@@ -713,9 +713,17 @@ Assembly Tracker Ltd. Şti.
                 <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{t('worker.jobDetails')}</Text>
                 <View style={{ flexDirection: 'row', gap: 12 }}>
                     {['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (
-                        <TouchableOpacity onPress={handleExportProforma} style={styles.chatButton}>
-                            <MaterialIcons name="description" size={24} color={theme.colors.primary} />
-                        </TouchableOpacity>
+                        <>
+                            <TouchableOpacity 
+                                onPress={() => navigation.navigate('EditJob', { job })} 
+                                style={styles.chatButton}
+                            >
+                                <MaterialIcons name="edit" size={24} color={theme.colors.primary} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleExportProforma} style={styles.chatButton}>
+                                <MaterialIcons name="description" size={24} color={theme.colors.primary} />
+                            </TouchableOpacity>
+                        </>
                     )}
                     <TouchableOpacity
                         onPress={() => navigation.navigate('Chat', { jobId: job.id, jobTitle: job.title })}
