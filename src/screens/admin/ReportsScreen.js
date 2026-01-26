@@ -242,28 +242,3 @@ const styles = StyleSheet.create({
 });
 
 export default ReportsScreen;
-
-
-const styles = StyleSheet.create({
-    container: { flex: 1 },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    header: { padding: 20, paddingTop: 40 },
-    title: { fontSize: 24, fontWeight: 'bold' },
-    tabContainer: { flexDirection: 'row', paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.05)' },
-    tab: { paddingVertical: 12, marginRight: 24 },
-    tabText: { fontSize: 16, fontWeight: '600' },
-    content: { padding: 20 },
-    statsGrid: { flexDirection: 'row', gap: 12, marginBottom: 16 },
-    statCard: { flex: 1, padding: 16, alignItems: 'center' },
-    statVal: { fontSize: 20, fontWeight: 'bold', marginVertical: 4 },
-    statLabel: { fontSize: 12 },
-    chartCard: { padding: 16, marginBottom: 16 },
-    cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
-    cardTitle: { fontSize: 16, fontWeight: 'bold' },
-    teamList: { gap: 12 },
-    teamRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.05)', pb: 8 },
-    teamName: { fontSize: 14 },
-    teamVal: { fontSize: 14, fontWeight: 'bold' }
-});
-
-export default ReportsScreen;
