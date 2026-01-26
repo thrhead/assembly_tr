@@ -84,6 +84,7 @@ export default function JobDetailScreen({ route, navigation }) {
     const [successMessage, setSuccessMessage] = useState('');
     const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
     const [signatureModalVisible, setSignatureModalVisible] = useState(false);
+    const [choiceModalVisible, setChoiceModalVisible] = useState(false);
 
     // Cost State
     const [costModalVisible, setCostModalVisible] = useState(false);
@@ -595,33 +596,8 @@ export default function JobDetailScreen({ route, navigation }) {
             return;
         }
 
-        // Make signature optional
-        console.log('[Mobile] Showing optional signature alert');
-        Alert.alert(
-            t('common.confirm'),
-            "İşi bitirmek üzeresiniz. Müşteri imzası almak ister misiniz?",
-            [
-                {
-                    text: "İmzasız Bitir",
-                    onPress: () => {
-                        console.log('[Mobile] Selected: Finish without signature');
-                        setJob(prev => ({ ...prev, signature: null, signatureCoords: null }));
-                        setConfirmationModalVisible(true);
-                    }
-                },
-                {
-                    text: "İmza Al",
-                    onPress: () => {
-                        console.log('[Mobile] Selected: Take signature');
-                        setSignatureModalVisible(true);
-                    }
-                },
-                {
-                    text: t('common.cancel'),
-                    style: "cancel"
-                }
-            ]
-        );
+        // Use custom modal instead of Alert.alert for web compatibility
+        setChoiceModalVisible(true);
     };
 
     const handleConfirmComplete = async () => {
@@ -1048,6 +1024,44 @@ Assembly Tracker Ltd. Şti.
             </AppModal>
 
             <SuccessModal visible={successModalVisible} message={successMessage} onClose={() => setSuccessModalVisible(false)} />
+
+            <AppModal visible={choiceModalVisible} transparent={true} animationType="slide">
+                <View style={styles.modalContainer}>
+                    <View style={[styles.formCard, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
+                        <Text style={[styles.modalTitle, { color: theme.colors.text }]}>İşi Bitir</Text>
+                        <Text style={{ color: theme.colors.subText, textAlign: 'center', marginBottom: 24, fontSize: 16 }}>
+                            Müşteri imzası almak ister misiniz?
+                        </Text>
+                        <View style={{ gap: 12 }}>
+                            <TouchableOpacity 
+                                style={[styles.modalButton, { backgroundColor: theme.colors.primary, paddingVertical: 16 }]}
+                                onPress={() => {
+                                    setChoiceModalVisible(false);
+                                    setSignatureModalVisible(true);
+                                }}
+                            >
+                                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>İmza Al</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                style={[styles.modalButton, { backgroundColor: theme.colors.secondary, paddingVertical: 16 }]}
+                                onPress={() => {
+                                    setChoiceModalVisible(false);
+                                    setJob(prev => ({ ...prev, signature: null, signatureCoords: null }));
+                                    setConfirmationModalVisible(true);
+                                }}
+                            >
+                                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>İmzasız Bitir</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                style={[styles.modalButton, styles.cancelButton, { paddingVertical: 16 }]}
+                                onPress={() => setChoiceModalVisible(false)}
+                            >
+                                <Text style={[styles.cancelButtonText, { fontSize: 16 }]}>Vazgeç</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </AppModal>
 
             <ConfirmationModal
                 visible={confirmationModalVisible}
