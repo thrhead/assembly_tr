@@ -1,9 +1,13 @@
 import React from 'react';
 import { TextInput, Platform, StyleSheet } from 'react-native';
-import { COLORS } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 export const WebInput = ({ style, value, onChangeText, placeholder, inputMode, ...props }) => {
+    const { theme } = useTheme();
+
     if (Platform.OS === 'web') {
+        const flattenedStyle = StyleSheet.flatten(style) || {};
+
         return (
             <input
                 type={inputMode === 'decimal' ? 'number' : 'text'}
@@ -13,17 +17,18 @@ export const WebInput = ({ style, value, onChangeText, placeholder, inputMode, .
                 onChange={(e) => onChangeText(e.target.value)}
                 placeholder={placeholder}
                 style={{
-                    backgroundColor: 'rgba(255,255,255,0.05)', // Hardcoded COLORS.cardBorder equivalent
+                    backgroundColor: theme?.colors?.surface || 'rgba(255,255,255,0.05)',
                     borderRadius: '12px',
                     padding: '16px',
-                    color: '#FFF', // COLORS.textLight equivalent
+                    color: theme?.colors?.text || '#FFF',
                     fontSize: '16px',
-                    border: '1px solid rgba(255,255,255,0.1)',
+                    border: `1px solid ${theme?.colors?.border || 'rgba(255,255,255,0.1)'}`,
                     width: '100%',
                     boxSizing: 'border-box',
                     outline: 'none',
                     fontFamily: 'inherit',
-                    marginBottom: '16px' // Common margin
+                    marginBottom: '16px',
+                    ...flattenedStyle
                 }}
             />
         );
@@ -34,7 +39,7 @@ export const WebInput = ({ style, value, onChangeText, placeholder, inputMode, .
             value={value}
             onChangeText={onChangeText}
             placeholder={placeholder}
-            placeholderTextColor={COLORS.textGray}
+            placeholderTextColor={theme?.colors?.subText || '#9ca3af'}
             {...props}
         />
     );

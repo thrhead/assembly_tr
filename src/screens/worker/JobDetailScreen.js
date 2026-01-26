@@ -38,6 +38,7 @@ import SuccessModal from '../../components/SuccessModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { WebInput } from '../../components/common/WebInput';
 import GlassCard from '../../components/ui/GlassCard';
+import { CreateExpenseModal } from '../../components/worker/expense/CreateExpenseModal';
 import SignaturePad from '../../components/SignaturePad';
 import { COLORS } from '../../constants/theme';
 import { SocketProvider } from '../../context/SocketContext';
@@ -532,24 +533,25 @@ export default function JobDetailScreen({ route, navigation }) {
         );
     };
 
-    const handleCreateCost = async () => {
+    const createExpense = async (formData, receiptImage, audioUri) => {
         try {
             setSubmittingCost(true);
+            const finalDescription = formData.description
+                ? `${formData.title} - ${formData.description}`
+                : formData.title;
 
-            let data;
+            const data = new FormData();
+            data.append('jobId', formData.jobId);
+            data.append('amount', parseFloat(formData.amount).toString());
+            data.append('currency', 'TRY');
+            data.append('category', formData.category);
+            data.append('description', finalDescription);
+            data.append('date', formData.date.toISOString());
 
             if (receiptImage) {
-                data = new FormData();
-                data.append('jobId', job.id);
-                data.append('amount', costAmount);
-                data.append('category', costCategory);
-                data.append('description', costDescription);
-                data.append('date', costDate.toISOString());
-                data.append('currency', 'TRY');
-
                 const filename = receiptImage.split('/').pop();
                 const match = /\.(\w+)$/.exec(filename);
-                const type = match ? `image/${match[1]}` : `image`;
+                const type = match ? `image/${match[1]}` : 'image/jpeg';
 
                 if (Platform.OS === 'web') {
                     const response = await fetch(receiptImage);
@@ -558,15 +560,18 @@ export default function JobDetailScreen({ route, navigation }) {
                 } else {
                     data.append('receipt', { uri: receiptImage, name: filename, type });
                 }
-            } else {
-                data = {
-                    jobId: job.id,
-                    amount: parseFloat(costAmount),
-                    category: costCategory,
-                    description: costDescription,
-                    date: costDate.toISOString(),
-                    currency: 'TRY'
-                };
+            }
+
+            if (audioUri) {
+                const filename = audioUri.split('/').pop();
+                const type = 'audio/m4a';
+                if (Platform.OS === 'web') {
+                    const response = await fetch(audioUri);
+                    const blob = await response.blob();
+                    data.append('audio', blob, filename);
+                } else {
+                    data.append('audio', { uri: audioUri, name: filename, type });
+                }
             }
 
             await costService.create(data);
@@ -574,15 +579,12 @@ export default function JobDetailScreen({ route, navigation }) {
             setSuccessMessage(t('common.success'));
             setSuccessModalVisible(true);
             setCostModalVisible(false);
-            setCostAmount('');
-            setCostDescription('');
-            setCostCategory('Yemek');
-            setCostDate(new Date());
-            setReceiptImage(null);
             loadJobDetails();
+            return true;
         } catch (error) {
             console.error('Error creating cost:', error);
             Alert.alert(t('common.error'), t('alerts.processError'));
+            return false;
         } finally {
             setSubmittingCost(false);
         }
@@ -767,6 +769,12 @@ Assembly Tracker Ltd. Şti.
                     contentContainerStyle={[styles.contentContainer, { flexGrow: 1 }]}
                 >
                     <JobInfoCard job={job} />
+
+                    <CostSection
+                        job={job}
+                        canAdd={['WORKER', 'TEAM_LEAD'].includes(user?.role?.toUpperCase())}
+                        onAddPress={() => setCostModalVisible(true)}
+                    />
 
                     <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('navigation.teams')}</Text>
                     {job.assignments && job.assignments.length > 0 ? (
@@ -1106,6 +1114,15 @@ Assembly Tracker Ltd. Şti.
                 onCancel={() => setConfirmationModalVisible(false)}
                 confirmText="Evet, Bitir"
                 cancelText="Vazgeç"
+                theme={theme}
+            />
+
+            <CreateExpenseModal
+                visible={costModalVisible}
+                onClose={() => setCostModalVisible(false)}
+                onSubmit={createExpense}
+                projects={null}
+                defaultJobId={jobId}
                 theme={theme}
             />
 

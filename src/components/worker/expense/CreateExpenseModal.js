@@ -40,7 +40,7 @@ const WebInput = ({ style, value, onChangeText, placeholder, inputMode, theme, .
                     boxSizing: 'border-box',
                     outline: 'none',
                     fontFamily: 'inherit',
-                    ...style // Allow overrides
+                    ...StyleSheet.flatten(style)
                 }}
             />
         );
