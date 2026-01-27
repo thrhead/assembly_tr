@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, Animated } from 'react-native';
 import { LayoutGrid, Users, Plus, ListTodo, UserCircle } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 const DashboardBottomNav = ({ navigation, activeTab = 'Dashboard' }) => {
     const { theme, isDark } = useTheme();
     const { t } = useTranslation();
+    const [focusedTab, setFocusedTab] = useState(null);
 
     // Scale animation refs for each item
     const animatedValues = {
@@ -55,9 +56,21 @@ const DashboardBottomNav = ({ navigation, activeTab = 'Dashboard' }) => {
                         return (
                             <TouchableOpacity
                                 key={item.id}
-                                style={[styles.centerButton, { backgroundColor: theme.colors.primary }]}
+                                style={[
+                                    styles.centerButton, 
+                                    { backgroundColor: theme.colors.primary },
+                                    focusedTab === item.id && {
+                                        borderColor: theme.colors.textInverse || '#fff',
+                                        borderWidth: 2,
+                                        transform: [{ scale: 1.1 }]
+                                    }
+                                ]}
                                 onPress={() => navigation.navigate(item.route)}
                                 activeOpacity={0.8}
+                                onFocus={() => setFocusedTab(item.id)}
+                                onBlur={() => setFocusedTab(null)}
+                                accessibilityRole="button"
+                                accessibilityLabel="Quick Add Job"
                             >
                                 <item.icon size={32} color={isDark ? '#000' : '#fff'} />
                             </TouchableOpacity>
@@ -66,13 +79,24 @@ const DashboardBottomNav = ({ navigation, activeTab = 'Dashboard' }) => {
 
                     const isActive = activeTab === item.id;
                     const Icon = item.icon;
+                    const isFocused = focusedTab === item.id;
 
                     return (
                         <TouchableOpacity
                             key={item.id}
-                            style={styles.navItem}
+                            style={[
+                                styles.navItem,
+                                isFocused && {
+                                    backgroundColor: theme.colors.primary + '15', // 15 = ~8% opacity
+                                    borderRadius: 8
+                                }
+                            ]}
                             onPress={() => item.route && navigation.navigate(item.route)}
                             activeOpacity={0.6}
+                            onFocus={() => setFocusedTab(item.id)}
+                            onBlur={() => setFocusedTab(null)}
+                            accessibilityRole="button"
+                            accessibilityLabel={item.title}
                         >
                             <Animated.View style={{ transform: [{ scale: animatedValues[item.id] || 1 }] }}>
                                 <Icon

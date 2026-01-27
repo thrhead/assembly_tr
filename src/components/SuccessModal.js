@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { Modal, View, Text, StyleSheet, Animated, Easing, TouchableOpacity, Dimensions } from 'react-native';
 import { Check, X } from 'lucide-react-native';
+import { useTheme } from '../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
 const SuccessModal = ({ visible, type = 'success', message, onClose }) => {
+    const { theme } = useTheme();
     const scaleValue = useRef(new Animated.Value(0)).current;
     const opacityValue = useRef(new Animated.Value(0)).current;
 
@@ -33,7 +35,7 @@ const SuccessModal = ({ visible, type = 'success', message, onClose }) => {
 
     const isSuccess = type === 'success';
     const Icon = isSuccess ? Check : X;
-    const color = isSuccess ? '#39FF14' : '#FF3B30'; // Neon Green or Red
+    const color = isSuccess ? theme.colors.secondary : theme.colors.error; 
 
     return (
         <Modal transparent visible={visible} animationType="none">
@@ -42,26 +44,28 @@ const SuccessModal = ({ visible, type = 'success', message, onClose }) => {
                     style={[
                         styles.container,
                         {
+                            backgroundColor: theme.colors.card,
+                            borderColor: theme.colors.border,
                             opacity: opacityValue,
                             transform: [{ scale: scaleValue }],
                         },
                     ]}
                 >
-                    <View style={[styles.iconContainer, { borderColor: color }]}>
+                    <View style={[styles.iconContainer, { borderColor: color, backgroundColor: theme.isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.05)' }]}>
                         <Icon size={48} color={color} strokeWidth={3} />
                     </View>
 
-                    <Text style={styles.title}>
+                    <Text style={[styles.title, { color: theme.colors.text }]}>
                         {isSuccess ? 'Başarılı!' : 'Hata!'}
                     </Text>
 
-                    <Text style={styles.message}>{message}</Text>
+                    <Text style={[styles.message, { color: theme.colors.subText }]}>{message}</Text>
 
                     <TouchableOpacity
                         style={[styles.button, { backgroundColor: color }]}
                         onPress={onClose}
                     >
-                        <Text style={[styles.buttonText, { color: isSuccess ? '#000' : '#FFF' }]}>
+                        <Text style={[styles.buttonText, { color: theme.colors.textInverse }]}>
                             Tamam
                         </Text>
                     </TouchableOpacity>

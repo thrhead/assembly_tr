@@ -52,7 +52,7 @@ const GlassCard = ({ children, style, onPress, theme }) => (
 
 export default function WorkerDashboardScreen({ navigation }) {
     const { user, logout } = useAuth();
-    const { theme, toggleTheme, isDark } = useTheme();
+    const { theme, toggleTheme, isDark, prefersReducedMotion } = useTheme();
 
     // State
     const [stats, setStats] = useState({
@@ -66,7 +66,9 @@ export default function WorkerDashboardScreen({ navigation }) {
     const [activeFilter, setActiveFilter] = useState('ALL');
 
     const handleFilterChange = (filter) => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        if (!prefersReducedMotion) {
+            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        }
         setActiveFilter(filter);
     };
 

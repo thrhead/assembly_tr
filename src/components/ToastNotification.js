@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Animated, TouchableOpacity, Platform } from 're
 import { useSocket } from '../context/SocketContext';
 import { Ionicons } from '@expo/vector-icons';
 import { ToastService } from '../services/ToastService';
+import { Z_INDEX } from '../constants/theme';
 
 const ToastNotification = () => {
     const { socket } = useSocket();
@@ -113,7 +114,7 @@ const styles = StyleSheet.create({
         top: 0,
         left: 20,
         right: 20,
-        zIndex: 9999,
+        zIndex: Z_INDEX.toast,
         elevation: 5,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },

@@ -74,7 +74,11 @@ const TeamDetailScreen = ({ route, navigation }) => {
         <View style={[styles.memberCard, { backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }]}>
             <View style={styles.memberInfo}>
                 {item.user.avatarUrl ? (
-                    <Image source={{ uri: item.user.avatarUrl }} style={styles.avatar} />
+                    <Image 
+                        source={{ uri: item.user.avatarUrl }} 
+                        style={styles.avatar} 
+                        accessibilityLabel={`${item.user.name}'s avatar`}
+                    />
                 ) : (
                     <View style={[styles.avatarPlaceholder, { backgroundColor: theme.colors.background }]}>
                         <User size={24} color={theme.colors.subText} />

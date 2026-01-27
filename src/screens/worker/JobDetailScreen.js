@@ -40,7 +40,7 @@ import { WebInput } from '../../components/common/WebInput';
 import GlassCard from '../../components/ui/GlassCard';
 import { CreateExpenseModal } from '../../components/worker/expense/CreateExpenseModal';
 import SignaturePad from '../../components/SignaturePad';
-import { COLORS } from '../../constants/theme';
+import { COLORS, Z_INDEX } from '../../constants/theme';
 import { SocketProvider } from '../../context/SocketContext';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -51,7 +51,7 @@ const AppModal = ({ visible, children, ...props }) => {
     if (Platform.OS === 'web') {
         if (!visible) return null;
         return (
-            <View style={[StyleSheet.absoluteFill, { zIndex: 9999 }]}>
+            <View style={[StyleSheet.absoluteFill, { zIndex: Z_INDEX.modal }]}>
                 {children}
             </View>
         );
@@ -155,7 +155,11 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const renderPhotoItem = React.useCallback(({ item }) => (
         <TouchableOpacity onPress={() => openImageModal(item)}>
-            <Image source={{ uri: getValidImageUrl(item.url || item) }} style={styles.thumbnail} />
+            <Image 
+                source={{ uri: getValidImageUrl(item.url || item) }} 
+                style={styles.thumbnail} 
+                accessibilityLabel="Job photo"
+            />
         </TouchableOpacity>
     ), [theme]);
 

@@ -1,9 +1,23 @@
 import React, { memo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS } from '../../constants/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const NotificationItem = ({ item, onPress, theme }) => {
     const colors = theme ? theme.colors : COLORS;
+
+    const getIconConfig = (type) => {
+        switch (type) {
+            case 'SUCCESS':
+                return { name: 'check-circle', color: colors.success || '#10B981' };
+            case 'ERROR':
+                return { name: 'error', color: colors.error || '#EF4444' };
+            default:
+                return { name: 'info', color: colors.info || '#3B82F6' };
+        }
+    };
+
+    const iconConfig = getIconConfig(item.type);
 
     return (
         <TouchableOpacity
@@ -15,9 +29,7 @@ const NotificationItem = ({ item, onPress, theme }) => {
             onPress={() => onPress(item)}
         >
             <View style={styles.iconContainer}>
-                <Text style={styles.icon}>
-                    {item.type === 'SUCCESS' ? '✅' : item.type === 'ERROR' ? '❌' : 'ℹ️'}
-                </Text>
+                <MaterialIcons name={iconConfig.name} size={28} color={iconConfig.color} />
             </View>
             <View style={styles.content}>
                 <Text style={[styles.title, { color: colors.text }]}>{item.title}</Text>
@@ -47,9 +59,6 @@ const styles = StyleSheet.create({
     iconContainer: {
         marginRight: 12,
         justifyContent: 'center',
-    },
-    icon: {
-        fontSize: 24,
     },
     content: {
         flex: 1,

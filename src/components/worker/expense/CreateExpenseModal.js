@@ -235,7 +235,11 @@ export const CreateExpenseModal = ({ visible, onClose, onSubmit, projects, defau
                             }}
                         >
                             {receiptImage ? (
-                                <Image source={{ uri: receiptImage }} style={styles.previewImage} />
+                                <Image 
+                                    source={{ uri: receiptImage }} 
+                                    style={styles.previewImage} 
+                                    accessibilityLabel="Receipt preview"
+                                />
                             ) : (
                                 <View style={styles.uploadPlaceholder}>
                                     <MaterialIcons name="add-a-photo" size={32} color={theme.colors.subText} />

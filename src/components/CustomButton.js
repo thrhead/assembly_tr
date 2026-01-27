@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, Text, StyleSheet, ActivityIndicator, Platform } from 'react-native';
 import { COLORS } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 
@@ -17,6 +17,7 @@ const CustomButton = ({
 }) => {
     const { theme: contextTheme } = useTheme();
     const theme = propTheme || contextTheme;
+    const [isFocused, setIsFocused] = useState(false);
 
     // Fallback values
     const primaryColor = theme ? theme.colors.primary : COLORS.primary;
@@ -61,14 +62,26 @@ const CustomButton = ({
     return (
         <Pressable
             onPress={onPress}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             disabled={disabled || loading}
+            accessibilityRole="button"
+            accessibilityLabel={title}
             style={({ pressed }) => [
                 styles.button,
                 { 
                     backgroundColor: getBackgroundColor(pressed),
-                    opacity: pressed && (variant === 'primary' || variant === 'danger') ? 0.8 : 1
+                    opacity: pressed && (variant === 'primary' || variant === 'danger') ? 0.8 : 1,
+                    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {})
                 },
                 getBorder(),
+                isFocused && {
+                    borderColor: primaryColor,
+                    borderWidth: 2,
+                    // Ensure border is visible even for filled buttons if needed, or use outline style
+                    // For primary buttons, maybe a shadow or ring effect is better, but border is safest for now
+                    transform: [{ scale: 1.02 }]
+                },
                 style
             ]}
         >

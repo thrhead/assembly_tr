@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { COLORS } from '../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -23,16 +23,24 @@ const CustomInput = ({
     const { theme: contextTheme } = useTheme();
     const theme = propTheme || contextTheme;
     const colors = theme ? theme.colors : COLORS;
+    const [isFocused, setIsFocused] = useState(false);
 
     return (
         <View style={[styles.container, style]}>
             {label && <Text style={[styles.label, { color: colors.subText || colors.slate400 }]}>{label}</Text>}
-            <View style={[styles.inputContainer, { backgroundColor: theme ? colors.card : 'rgba(255,255,255,0.05)', borderColor: theme ? colors.border : colors.slate700 }, error && styles.errorBorder]}>
+            <View style={[
+                styles.inputContainer, 
+                { 
+                    backgroundColor: theme ? colors.card : 'rgba(255,255,255,0.05)', 
+                    borderColor: error ? (colors.error || colors.red500) : (isFocused ? (colors.primary || COLORS.primary) : (theme ? colors.border : colors.slate700)),
+                    borderWidth: isFocused || error ? 2 : 1
+                }
+            ]}>
                 {icon && (
                     <MaterialIcons
                         name={icon}
                         size={20}
-                        color={colors.subText || colors.slate500}
+                        color={isFocused ? (colors.primary || COLORS.primary) : (colors.subText || colors.slate500)}
                         style={styles.icon}
                     />
                 )}
@@ -46,9 +54,17 @@ const CustomInput = ({
                     keyboardType={keyboardType}
                     autoCapitalize={autoCapitalize}
                     editable={editable}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
+                    accessibilityLabel={label || placeholder}
                 />
                 {rightIcon && (
-                    <TouchableOpacity onPress={onRightIconPress} style={styles.rightIcon}>
+                    <TouchableOpacity 
+                        onPress={onRightIconPress} 
+                        style={styles.rightIcon}
+                        accessibilityRole="button"
+                        accessibilityLabel={rightIcon}
+                    >
                         <MaterialIcons
                             name={rightIcon}
                             size={20}

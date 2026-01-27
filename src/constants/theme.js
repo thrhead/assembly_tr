@@ -123,3 +123,20 @@ export const SPACING = {
     l: 24,
     xl: 32,
 };
+
+export const Z_INDEX = {
+    base: 0,
+    elevated: 10,
+    dropdown: 50,
+    sticky: 100,
+    overlay: 200,
+    modal: 300,
+    toast: 1000,
+};
+
+export const BREAKPOINTS = {
+    mobile: 0,
+    tablet: 768,
+    desktop: 1024,
+    wide: 1280,
+};

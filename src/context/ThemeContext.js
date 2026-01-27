@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { AccessibilityInfo } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lightTheme, darkTheme, COLORS, SHADOWS, RADIUS, SPACING } from '../constants/theme';
+import { lightTheme, darkTheme, COLORS, SHADOWS, RADIUS, SPACING, Z_INDEX, BREAKPOINTS } from '../constants/theme';
 
 const THEME_STORAGE_KEY = '@app_theme';
 
@@ -11,6 +12,7 @@ const ThemeContext = createContext(null);
 export const ThemeProvider = ({ children }) => {
     const [themeId, setThemeId] = useState('light'); // default to light
     const [isLoading, setIsLoading] = useState(true);
+    const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
     // Load saved theme on mount
     useEffect(() => {
@@ -27,6 +29,34 @@ export const ThemeProvider = ({ children }) => {
             }
         };
         loadTheme();
+    }, []);
+
+    // Listen for Motion Preference
+    useEffect(() => {
+        const checkMotionPreference = async () => {
+            if (AccessibilityInfo.isReduceMotionEnabled) {
+                const isEnabled = await AccessibilityInfo.isReduceMotionEnabled();
+                setPrefersReducedMotion(isEnabled);
+            }
+        };
+
+        checkMotionPreference();
+
+        const subscription = AccessibilityInfo.addEventListener(
+            'reduceMotionChanged',
+            (isEnabled) => {
+                setPrefersReducedMotion(isEnabled);
+            }
+        );
+
+        return () => {
+             // Clean up subscription if method exists (older RN versions might differ)
+             if (subscription && subscription.remove) {
+                 subscription.remove();
+             } else if (AccessibilityInfo.removeEventListener) {
+                 AccessibilityInfo.removeEventListener('reduceMotionChanged', setPrefersReducedMotion);
+             }
+        };
     }, []);
 
     // Toggle theme function
@@ -66,12 +96,15 @@ export const ThemeProvider = ({ children }) => {
         toggleTheme,
         setTheme,
         isLoading,
+        prefersReducedMotion,
         // Expose shared constants
         COLORS,
         SHADOWS,
         RADIUS,
         SPACING,
-    }), [theme, themeId, isLoading]);
+        Z_INDEX,
+        BREAKPOINTS
+    }), [theme, themeId, isLoading, prefersReducedMotion]);
 
     return (
         <ThemeContext.Provider value={value}>

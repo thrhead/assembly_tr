@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { Modal, View, Text, StyleSheet, Animated, TouchableOpacity, Dimensions } from 'react-native';
 import { AlertTriangle } from 'lucide-react-native';
+import { useTheme } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 const ConfirmationModal = ({ visible, title, message, onConfirm, onCancel, confirmText = 'Evet', cancelText = 'İptal', type = 'warning' }) => {
+    const { theme } = useTheme();
     const scaleValue = useRef(new Animated.Value(0)).current;
     const opacityValue = useRef(new Animated.Value(0)).current;
 
@@ -31,7 +33,7 @@ const ConfirmationModal = ({ visible, title, message, onConfirm, onCancel, confi
 
     if (!visible) return null;
 
-    const color = type === 'danger' ? '#FF3B30' : '#FFCC00'; // Red or Yellow
+    const color = type === 'danger' ? theme.colors.error : theme.colors.tertiary; // Red or Warning
 
     return (
         <Modal transparent visible={visible} animationType="none" onRequestClose={onCancel}>
@@ -40,31 +42,33 @@ const ConfirmationModal = ({ visible, title, message, onConfirm, onCancel, confi
                     style={[
                         styles.container,
                         {
+                            backgroundColor: theme.colors.card,
+                            borderColor: theme.colors.border,
                             opacity: opacityValue,
                             transform: [{ scale: scaleValue }],
                         },
                     ]}
                 >
-                    <View style={[styles.iconContainer, { borderColor: color }]}>
+                    <View style={[styles.iconContainer, { borderColor: color, backgroundColor: theme.isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.05)' }]}>
                         <AlertTriangle size={48} color={color} strokeWidth={3} />
                     </View>
 
-                    <Text style={styles.title}>{title}</Text>
-                    <Text style={styles.message}>{message}</Text>
+                    <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
+                    <Text style={[styles.message, { color: theme.colors.subText }]}>{message}</Text>
 
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
-                            style={[styles.button, styles.cancelButton]}
+                            style={[styles.button, styles.cancelButton, { borderColor: theme.colors.border, backgroundColor: 'transparent' }]}
                             onPress={onCancel}
                         >
-                            <Text style={styles.cancelButtonText}>{cancelText}</Text>
+                            <Text style={[styles.cancelButtonText, { color: theme.colors.text }]}>{cancelText}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             style={[styles.button, { backgroundColor: color }]}
                             onPress={onConfirm}
                         >
-                            <Text style={[styles.buttonText, { color: '#000' }]}>
+                            <Text style={[styles.buttonText, { color: theme.colors.textInverse }]}>
                                 {confirmText}
                             </Text>
                         </TouchableOpacity>

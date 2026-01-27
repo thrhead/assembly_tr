@@ -29,6 +29,12 @@ const JobCard = ({ job, onPress, style }) => {
                         { backgroundColor: isDark ? 'rgba(204, 255, 4, 0.1)' : 'rgba(45, 91, 255, 0.1)' } :
                         { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.1)' }
                 ]}>
+                    <MaterialIcons 
+                        name={isInProgress ? "radio-button-checked" : "schedule"} 
+                        size={12} 
+                        color={isInProgress ? theme.colors.primary : theme.colors.tertiary}
+                        style={{ marginRight: 4 }} 
+                    />
                     <Text style={[
                         styles.statusText,
                         isInProgress ?
@@ -81,6 +87,8 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     statusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 8,

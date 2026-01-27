@@ -59,6 +59,19 @@ if (Platform.OS === 'web') {
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
+    
+    /* UI/UX Pro Max additions */
+    button, 
+    [role="button"], 
+    input[type="checkbox"],
+    [data-focusable="true"] {
+      cursor: pointer !important;
+    }
+    
+    *:focus-visible {
+      outline: 2px solid #3B82F6;
+      outline-offset: 2px;
+    }
   `;
   document.head.append(style);
 }
