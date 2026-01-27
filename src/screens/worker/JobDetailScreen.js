@@ -21,6 +21,7 @@ import {
     FlatList,
     Share
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
@@ -115,9 +116,11 @@ export default function JobDetailScreen({ route, navigation }) {
         });
     };
 
-    useEffect(() => {
-        loadJobDetails();
-    }, [jobId]);
+    useFocusEffect(
+        React.useCallback(() => {
+            loadJobDetails();
+        }, [jobId])
+    );
 
     const openImageModal = (image) => {
         setSelectedImage(image);
@@ -155,9 +158,9 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const renderPhotoItem = React.useCallback(({ item }) => (
         <TouchableOpacity onPress={() => openImageModal(item)}>
-            <Image 
-                source={{ uri: getValidImageUrl(item.url || item) }} 
-                style={styles.thumbnail} 
+            <Image
+                source={{ uri: getValidImageUrl(item.url || item) }}
+                style={styles.thumbnail}
                 accessibilityLabel="Job photo"
             />
         </TouchableOpacity>
