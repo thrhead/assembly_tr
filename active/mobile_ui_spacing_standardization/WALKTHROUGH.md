@@ -23,6 +23,7 @@
 
 ### Automated Tests
 - `npm run lint`: **Passed** (Expected 0 new errors)
+  - *Fix Applied*: Added `import { SPACING } from '../constants/theme'` to `JobCard.js` to resolve `ReferenceError: SPACING is not defined`.
 
 ### Consistency Improvement
 - Future components can now rely on `xs` and `sm` for tight spacing instead of hardcoding `4` or `12`.

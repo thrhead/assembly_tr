@@ -50,7 +50,7 @@ export default function EditJobScreen({ route, navigation }) {
     const [showEndDatePicker, setShowEndDatePicker] = useState(false);
     const [showActualStartDatePicker, setShowActualStartDatePicker] = useState(false);
     const [showActualEndDatePicker, setShowActualEndDatePicker] = useState(false);
-    
+
     const [showCustomerModal, setShowCustomerModal] = useState(false);
     const [showTeamModal, setShowTeamModal] = useState(false);
     const [showPriorityModal, setShowPriorityModal] = useState(false);
@@ -175,7 +175,7 @@ export default function EditJobScreen({ route, navigation }) {
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ flex: 1 }}
             >
-                <ScrollView 
+                <ScrollView
                     style={{ flex: 1 }}
                     contentContainerStyle={[styles.content, { flexGrow: 1 }]}
                 >
@@ -231,7 +231,7 @@ export default function EditJobScreen({ route, navigation }) {
                         </View>
 
                         <View style={styles.row}>
-                             <View style={styles.col}>
+                            <View style={styles.col}>
                                 <Text style={[styles.label, { color: theme.colors.subText }]}>Öncelik</Text>
                                 <TouchableOpacity
                                     style={[styles.selector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
@@ -353,7 +353,23 @@ export default function EditJobScreen({ route, navigation }) {
                         />
                         <CustomButton
                             title="Güncelle"
-                            onPress={() => submitJob(() => navigation.goBack())}
+                            onPress={() => {
+                                Alert.alert(
+                                    "Güncellemeyi Onayla",
+                                    "Bu iş emrindeki değişiklikleri kaydetmek istediğinize emin misiniz?",
+                                    [
+                                        { text: "İptal", style: "cancel" },
+                                        {
+                                            text: "Evet, Kaydet",
+                                            onPress: () => submitJob(() => {
+                                                Alert.alert("Başarılı", "İş başarıyla güncellendi.", [
+                                                    { text: "Tamam", onPress: () => navigation.goBack() }
+                                                ]);
+                                            })
+                                        }
+                                    ]
+                                );
+                            }}
                             loading={loading}
                             style={{ flex: 1, backgroundColor: theme.colors.primary }}
                             textStyle={{ color: theme.colors.textInverse }}
