@@ -42,39 +42,11 @@ import { QueueService } from './src/services/QueueService';
 import { SyncManager } from './src/services/SyncManager';
 import { linking } from './src/utils/linking';
 import { useTranslation } from 'react-i18next';
+import { MaterialIcons } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 // Web specific styles injection
-if (Platform.OS === 'web') {
-  const style = document.createElement('style');
-  style.textContent = `
-    html, body, #root {
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      margin: 0;
-      padding: 0;
-    }
-    #root > div {
-      height: 100%;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    
-    /* UI/UX Pro Max additions */
-    button, 
-    [role="button"], 
-    input[type="checkbox"],
-    [data-focusable="true"] {
-      cursor: pointer !important;
-    }
-    
-    *:focus-visible {
-      outline: 2px solid #3B82F6;
-      outline-offset: 2px;
-    }
-  `;
-  document.head.append(style);
-}
+// ... (rest of web styles)
 
 const Stack = createStackNavigator();
 
@@ -102,17 +74,40 @@ function AppNavigator() {
     );
   }
 
+  const dashboardScreens = ['AdminDashboard', 'ManagerDashboard', 'WorkerDashboard', 'Login'];
+
   return (
     <View style={{ flex: 1, height: '100%' }}>
       <NavigationContainer linking={linking}>
         <Stack.Navigator
           initialRouteName={getInitialRoute(user)}
           detachInactiveScreens={false}
-          screenOptions={{
+          screenOptions={({ navigation, route }) => ({
             animationEnabled: false,
-            headerShown: true
-          }}
+            headerShown: true,
+            headerLeft: (props) => {
+              // Don't show back button on dashboard screens
+              if (dashboardScreens.includes(route.name)) return null;
+
+              return (
+                <TouchableOpacity
+                  onPress={() => {
+                    if (navigation.canGoBack()) {
+                      navigation.goBack();
+                    } else {
+                      // Fallback for PWA refresh
+                      navigation.navigate(getInitialRoute(user));
+                    }
+                  }}
+                  style={{ marginLeft: 16, padding: 4 }}
+                >
+                  <MaterialIcons name="arrow-back" size={24} color={COLORS.primary} />
+                </TouchableOpacity>
+              );
+            }
+          })}
         >
+
           {user ? (
             <>
               {/* Worker Screens */}
@@ -129,7 +124,7 @@ function AppNavigator() {
               <Stack.Screen
                 name="JobDetail"
                 component={JobDetailScreen}
-                options={{ title: t('worker.jobDetails') }}
+                options={{ title: t('worker.jobDetails'), headerShown: false }}
               />
               <Stack.Screen
                 name="ExpenseManagement"
@@ -187,7 +182,7 @@ function AppNavigator() {
               <Stack.Screen
                 name="EditJob"
                 component={EditJobScreen}
-                options={{ title: 'İşi Düzenle' }}
+                options={{ title: 'İşi Düzenle', headerShown: false }}
               />
               <Stack.Screen
                 name="Calendar"
