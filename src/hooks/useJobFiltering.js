@@ -22,11 +22,11 @@ export const useJobFiltering = (jobs) => {
         } else if (selectedFilter === 'Bekleyen') {
             result = result.filter(j => j.status === 'PENDING');
         } else if (selectedFilter === 'Onay Bekleyen') {
-            result = result.filter(j => j.status === 'COMPLETED' && j.acceptanceStatus === 'PENDING');
+            result = result.filter(j => j.status === 'PENDING_APPROVAL');
         } else if (selectedFilter === 'Onaylanan') {
-            result = result.filter(j => j.acceptanceStatus === 'ACCEPTED');
+            result = result.filter(j => j.status === 'COMPLETED' && j.acceptanceStatus === 'ACCEPTED');
         } else if (selectedFilter === 'Tamamlanan') {
-            result = result.filter(j => j.status === 'COMPLETED');
+            result = result.filter(j => j.status === 'COMPLETED' || j.status === 'PENDING_APPROVAL');
         }
 
         // Search Filter
