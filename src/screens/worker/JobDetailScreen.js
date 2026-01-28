@@ -777,252 +777,255 @@ Assembly Tracker Ltd. Şti.
                     <Text style={{ color: theme.colors.text }}>{t('alerts.jobNotFound')}</Text>
                 </View>
             ) : (
-                <View style={{ flex: 1, minHeight: 0 }}>
-                    <ScrollView
-                        style={{ flex: 1 }}
-                        contentContainerStyle={[styles.contentContainer, { flexGrow: 1 }]}
-                    >
-                        <JobInfoCard job={job} />
+                <>
+                    <View style={{ flex: 1, minHeight: 0 }}>
+                        <ScrollView
+                            style={{ flex: 1 }}
+                            contentContainerStyle={[styles.contentContainer, { flexGrow: 1 }]}
+                        >
+                            <JobInfoCard job={job} />
 
-                        <CostSection
-                            job={job}
-                            canAdd={['WORKER', 'TEAM_LEAD'].includes(user?.role?.toUpperCase())}
-                            onAddPress={() => setCostModalVisible(true)}
-                        />
+                            <CostSection
+                                job={job}
+                                canAdd={['WORKER', 'TEAM_LEAD'].includes(user?.role?.toUpperCase())}
+                                onAddPress={() => setCostModalVisible(true)}
+                            />
 
-                        <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('navigation.teams')}</Text>
-                        {job.assignments && job.assignments.length > 0 ? (
-                            job.assignments.map((assignment, index) => (
-                                <GlassCard key={index} style={styles.card} theme={theme}>
-                                    <View style={styles.infoRow}>
-                                        <MaterialIcons name="group" size={20} color={theme.colors.primary} />
-                                        <View style={{ marginLeft: 8 }}>
-                                            {assignment.team ? (
-                                                <>
-                                                    <Text style={[styles.infoText, { fontWeight: 'bold', color: theme.colors.text }]}>{assignment.team.name}</Text>
-                                                    {assignment.team.members && assignment.team.members.length > 0 && (
-                                                        <Text style={[styles.infoText, { fontSize: 12, color: theme.colors.subText, marginTop: 4 }]}>
-                                                            {assignment.team.members.map(m => m.user?.name).filter(Boolean).join(', ')}
-                                                        </Text>
-                                                    )}
-                                                </>
-                                            ) : (
-                                                <Text style={[styles.infoText, { color: theme.colors.text }]}>{assignment.worker?.name}</Text>
-                                            )}
-                                        </View>
-                                    </View>
-                                </GlassCard>
-                            ))
-                        ) : (
-                            <GlassCard style={styles.card} theme={theme}>
-                                <Text style={[styles.infoText, { color: theme.colors.subText }]}>{t('recentJobs.noJobs')}</Text>
-                            </GlassCard>
-                        )}
-
-                        <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('worker.steps')}</Text>
-                        {job.steps && job.steps.map((step, index) => {
-                            const isLocked = index > 0 && !job.steps[index - 1].isCompleted;
-
-                            return (
-                                <GlassCard key={step.id} style={[styles.stepCard, isLocked && styles.lockedCard]} theme={theme}>
-                                <View style={styles.stepHeader}>
-                                    <TouchableOpacity
-                                        style={[styles.checkbox, step.isCompleted && styles.checkedBox]}
-                                        onPress={() => handleToggleStep(step.id, step.isCompleted)}
-                                        disabled={isLocked || user?.role?.toUpperCase() === 'ADMIN'}
-                                    >
-                                        {step.isCompleted && <MaterialIcons name="check" size={16} color="#FFFFFF" />}
-                                    </TouchableOpacity>
-                                    <View style={{ flex: 1 }}>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <Text style={[styles.stepTitle, step.isCompleted && styles.completedText, { color: theme.colors.text }]}>
-                                                {step.title || step.name}
-                                            </Text>
-                                        </View>
-                                        {step.startedAt && (
-                                            <Text style={[styles.dateText, { color: theme.colors.subText }]}>
-                                                {t('worker.started')}: {formatDate(step.startedAt)}
-                                            </Text>
-                                        )}
-                                        {step.completedAt && (
-                                            <View>
-                                                <Text style={[styles.dateText, { color: theme.colors.subText }]}>
-                                                    {t('worker.finished')}: {formatDate(step.completedAt)}
-                                                </Text>
-                                                {(step.latitude && step.longitude) && (
-                                                    <View style={styles.metadataTag}>
-                                                        <MaterialIcons name="location-pin" size={12} color={theme.colors.subText} />
-                                                        <Text style={[styles.metadataText, { color: theme.colors.subText }]}>
-                                                            {step.latitude.toFixed(4)}, {step.longitude.toFixed(4)}
-                                                        </Text>
-                                                    </View>
+                            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('navigation.teams')}</Text>
+                            {job.assignments && job.assignments.length > 0 ? (
+                                job.assignments.map((assignment, index) => (
+                                    <GlassCard key={index} style={styles.card} theme={theme}>
+                                        <View style={styles.infoRow}>
+                                            <MaterialIcons name="group" size={20} color={theme.colors.primary} />
+                                            <View style={{ marginLeft: 8 }}>
+                                                {assignment.team ? (
+                                                    <>
+                                                        <Text style={[styles.infoText, { fontWeight: 'bold', color: theme.colors.text }]}>{assignment.team.name}</Text>
+                                                        {assignment.team.members && assignment.team.members.length > 0 && (
+                                                            <Text style={[styles.infoText, { fontSize: 12, color: theme.colors.subText, marginTop: 4 }]}>
+                                                                {assignment.team.members.map(m => m.user?.name).filter(Boolean).join(', ')}
+                                                            </Text>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <Text style={[styles.infoText, { color: theme.colors.text }]}>{assignment.worker?.name}</Text>
                                                 )}
                                             </View>
-                                        )}
+                                        </View>
+                                    </GlassCard>
+                                ))
+                            ) : (
+                                <GlassCard style={styles.card} theme={theme}>
+                                    <Text style={[styles.infoText, { color: theme.colors.subText }]}>{t('recentJobs.noJobs')}</Text>
+                                </GlassCard>
+                            )}
 
-                                        {step.photos && step.photos.length > 0 && (
-                                            <FlatList
-                                                data={step.photos}
-                                                renderItem={renderPhotoItem}
-                                                keyExtractor={(p, i) => i.toString()}
-                                                horizontal
-                                                showsHorizontalScrollIndicator={false}
-                                                style={{ marginTop: 8 }}
-                                            />
-                                        )}
-                                    </View>
-                                </View>
+                            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('worker.steps')}</Text>
+                            {job.steps && job.steps.map((step, index) => {
+                                const isLocked = index > 0 && !job.steps[index - 1].isCompleted;
 
-                                {step.approvalStatus === 'REJECTED' && step.rejectionReason && (
-                                    <Text style={[styles.rejectionReasonText, { color: theme.colors.error }]}>{t('worker.rejectionReason')}: {step.rejectionReason}</Text>
-                                )}
-
-                                {!isLocked && step.subSteps && (
-                                    <View style={styles.substepsContainer}>
-                                        {step.subSteps.map((substep, subIndex) => {
-                                            const isSubstepLocked = subIndex > 0 && !step.subSteps[subIndex - 1].isCompleted;
-                                            return (
-                                                <GlassCard key={substep.id} style={[styles.substepWrapper, isSubstepLocked && styles.lockedCard]} theme={theme}>
-                                                    <View style={styles.substepRow}>
-                                                        <TouchableOpacity
-                                                            style={[styles.checkbox, { width: 20, height: 20 }, substep.isCompleted && styles.checkedBox]}
-                                                            onPress={() => handleSubstepToggle(step.id, substep.id, substep.isCompleted)}
-                                                            disabled={isSubstepLocked || user?.role?.toUpperCase() === 'ADMIN'}
-                                                        >
-                                                            {substep.isCompleted && <MaterialIcons name="check" size={14} color="#FFFFFF" />}
-                                                        </TouchableOpacity>
-                                                        <View style={styles.substepInfo}>
-                                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                                <Text style={[styles.substepTitle, substep.isCompleted && styles.completedText, { color: theme.colors.text, flex: 1 }]}>
-                                                                    {substep.title}
+                                return (
+                                    <GlassCard key={step.id} style={[styles.stepCard, isLocked && styles.lockedCard]} theme={theme}>
+                                        <View style={styles.stepHeader}>
+                                            <TouchableOpacity
+                                                style={[styles.checkbox, step.isCompleted && styles.checkedBox]}
+                                                onPress={() => handleToggleStep(step.id, step.isCompleted)}
+                                                disabled={isLocked || user?.role?.toUpperCase() === 'ADMIN'}
+                                            >
+                                                {step.isCompleted && <MaterialIcons name="check" size={16} color="#FFFFFF" />}
+                                            </TouchableOpacity>
+                                            <View style={{ flex: 1 }}>
+                                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Text style={[styles.stepTitle, step.isCompleted && styles.completedText, { color: theme.colors.text }]}>
+                                                        {step.title || step.name}
+                                                    </Text>
+                                                </View>
+                                                {step.startedAt && (
+                                                    <Text style={[styles.dateText, { color: theme.colors.subText }]}>
+                                                        {t('worker.started')}: {formatDate(step.startedAt)}
+                                                    </Text>
+                                                )}
+                                                {step.completedAt && (
+                                                    <View>
+                                                        <Text style={[styles.dateText, { color: theme.colors.subText }]}>
+                                                            {t('worker.finished')}: {formatDate(step.completedAt)}
+                                                        </Text>
+                                                        {(step.latitude && step.longitude) && (
+                                                            <View style={styles.metadataTag}>
+                                                                <MaterialIcons name="location-pin" size={12} color={theme.colors.subText} />
+                                                                <Text style={[styles.metadataText, { color: theme.colors.subText }]}>
+                                                                    {step.latitude.toFixed(4)}, {step.longitude.toFixed(4)}
                                                                 </Text>
-
-                                                                {/* Alt adım için fotoğraf yükleme butonu - Sadece saha personeli için */}
-                                                                {!isSubstepLocked && !substep.isCompleted && user?.role?.toUpperCase() !== 'ADMIN' && (
-                                                                    <TouchableOpacity
-                                                                        onPress={() => pickImage(step.id, substep.id, 'camera')}
-                                                                        style={[styles.actionButton, { padding: 4, marginLeft: 8 }]}
-                                                                    >
-                                                                        <MaterialIcons name="add-a-photo" size={18} color={theme.colors.primary} />
-                                                                    </TouchableOpacity>
-                                                                )}
                                                             </View>
-                                                            <Text style={[styles.substepText, substep.isCompleted && styles.completedText, { color: theme.colors.text }]}>
-                                                                {substep.title || substep.name}
-                                                            </Text>
-                                                        </View>
-                                                        {substep.photos && substep.photos.length > 0 && (
-                                                            <FlatList
-                                                                data={substep.photos}
-                                                                renderItem={renderPhotoItem}
-                                                                keyExtractor={(p, i) => i.toString()}
-                                                                horizontal
-                                                                showsHorizontalScrollIndicator={false}
-                                                            />
                                                         )}
                                                     </View>
-                                                </GlassCard>
-                                            );
-                                        })}
-                                    </View>
-                                )}
-                            </GlassCard>
-                        );
-                    })}
+                                                )}
 
-                    {job.signatureUrl && (
-                        <GlassCard style={styles.card} theme={theme}>
-                            <Text style={[styles.sectionTitle, { color: theme.colors.text, marginTop: 0 }]}>{t('common.confirm')}</Text>
-                            <View style={styles.signatureDisplayContainer}>
-                                <Image
-                                    source={{ uri: job.signatureUrl }}
-                                    style={styles.signatureImage}
-                                    resizeMode="contain"
-                                />
-                            </View>
-                            <View style={styles.signatureMeta}>
-                                <View style={styles.metaRow}>
-                                    <MaterialIcons name="access-time" size={14} color={theme.colors.subText} />
-                                    <Text style={[styles.metaText, { color: theme.colors.subText }]}>
-                                        {job.completedDate ? formatDate(job.completedDate) : formatDate(new Date())}
+                                                {step.photos && step.photos.length > 0 && (
+                                                    <FlatList
+                                                        data={step.photos}
+                                                        renderItem={renderPhotoItem}
+                                                        keyExtractor={(p, i) => i.toString()}
+                                                        horizontal
+                                                        showsHorizontalScrollIndicator={false}
+                                                        style={{ marginTop: 8 }}
+                                                    />
+                                                )}
+                                            </View>
+                                        </View>
+
+                                        {step.approvalStatus === 'REJECTED' && step.rejectionReason && (
+                                            <Text style={[styles.rejectionReasonText, { color: theme.colors.error }]}>{t('worker.rejectionReason')}: {step.rejectionReason}</Text>
+                                        )}
+
+                                        {!isLocked && step.subSteps && (
+                                            <View style={styles.substepsContainer}>
+                                                {step.subSteps.map((substep, subIndex) => {
+                                                    const isSubstepLocked = subIndex > 0 && !step.subSteps[subIndex - 1].isCompleted;
+                                                    return (
+                                                        <GlassCard key={substep.id} style={[styles.substepWrapper, isSubstepLocked && styles.lockedCard]} theme={theme}>
+                                                            <View style={styles.substepRow}>
+                                                                <TouchableOpacity
+                                                                    style={[styles.checkbox, { width: 20, height: 20 }, substep.isCompleted && styles.checkedBox]}
+                                                                    onPress={() => handleSubstepToggle(step.id, substep.id, substep.isCompleted)}
+                                                                    disabled={isSubstepLocked || user?.role?.toUpperCase() === 'ADMIN'}
+                                                                >
+                                                                    {substep.isCompleted && <MaterialIcons name="check" size={14} color="#FFFFFF" />}
+                                                                </TouchableOpacity>
+                                                                <View style={styles.substepInfo}>
+                                                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                        <Text style={[styles.substepTitle, substep.isCompleted && styles.completedText, { color: theme.colors.text, flex: 1 }]}>
+                                                                            {substep.title}
+                                                                        </Text>
+
+                                                                        {/* Alt adım için fotoğraf yükleme butonu - Sadece saha personeli için */}
+                                                                        {!isSubstepLocked && !substep.isCompleted && user?.role?.toUpperCase() !== 'ADMIN' && (
+                                                                            <TouchableOpacity
+                                                                                onPress={() => pickImage(step.id, substep.id, 'camera')}
+                                                                                style={[styles.actionButton, { padding: 4, marginLeft: 8 }]}
+                                                                            >
+                                                                                <MaterialIcons name="add-a-photo" size={18} color={theme.colors.primary} />
+                                                                            </TouchableOpacity>
+                                                                        )}
+                                                                    </View>
+                                                                    <Text style={[styles.substepText, substep.isCompleted && styles.completedText, { color: theme.colors.text }]}>
+                                                                        {substep.title || substep.name}
+                                                                    </Text>
+                                                                </View>
+                                                                {substep.photos && substep.photos.length > 0 && (
+                                                                    <FlatList
+                                                                        data={substep.photos}
+                                                                        renderItem={renderPhotoItem}
+                                                                        keyExtractor={(p, i) => i.toString()}
+                                                                        horizontal
+                                                                        showsHorizontalScrollIndicator={false}
+                                                                    />
+                                                                )}
+                                                            </View>
+                                                        </GlassCard>
+                                                    );
+                                                })}
+                                            </View>
+                                        )}
+                                    </GlassCard>
+                                );
+                            })}
+
+                            {job.signatureUrl && (
+                                <GlassCard style={styles.card} theme={theme}>
+                                    <Text style={[styles.sectionTitle, { color: theme.colors.text, marginTop: 0 }]}>{t('common.confirm')}</Text>
+                                    <View style={styles.signatureDisplayContainer}>
+                                        <Image
+                                            source={{ uri: job.signatureUrl }}
+                                            style={styles.signatureImage}
+                                            resizeMode="contain"
+                                        />
+                                    </View>
+                                    <View style={styles.signatureMeta}>
+                                        <View style={styles.metaRow}>
+                                            <MaterialIcons name="access-time" size={14} color={theme.colors.subText} />
+                                            <Text style={[styles.metaText, { color: theme.colors.subText }]}>
+                                                {job.completedDate ? formatDate(job.completedDate) : formatDate(new Date())}
+                                            </Text>
+                                        </View>
+                                        {(job.signatureLatitude && job.signatureLongitude) && (
+                                            <View style={styles.metaRow}>
+                                                <MaterialIcons name="location-on" size={14} color={theme.colors.subText} />
+                                                <Text style={[styles.metaText, { color: theme.colors.subText }]}>
+                                                    {job.signatureLatitude.toFixed(6)}, {job.signatureLongitude.toFixed(6)}
+                                                </Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                </GlassCard>
+                            )}
+
+                            <View style={{ height: 100 }} />
+                        </ScrollView>
+                    </View>
+
+                    <View style={[styles.footerContainer, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border }]}>
+                        {!['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) ? (
+                            job.status === 'PENDING' ? (
+                                <TouchableOpacity
+                                    style={[styles.mainCompleteButton, { backgroundColor: theme.colors.primary }]}
+                                    onPress={handleStartJob}
+                                >
+                                    <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>{t('worker.startJob')}</Text>
+                                </TouchableOpacity>
+                            ) : (
+                                <TouchableOpacity
+                                    style={[
+                                        styles.mainCompleteButton,
+                                        (job.status === 'COMPLETED' || job.status === 'PENDING_APPROVAL' || completing) && styles.disabledButton,
+                                        { backgroundColor: (job.status === 'COMPLETED' || job.status === 'PENDING_APPROVAL' || completing) ? theme.colors.border : theme.colors.primary }
+                                    ]}
+                                    onPress={handleCompleteJob}
+                                    disabled={job.status === 'COMPLETED' || job.status === 'PENDING_APPROVAL' || completing}
+                                >
+                                    {completing ? (
+                                        <ActivityIndicator color={theme.colors.textInverse} />
+                                    ) : (
+                                        <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>
+                                            {job.status === 'COMPLETED' ? t('common.success') :
+                                                job.status === 'PENDING_APPROVAL' ? "Onay Bekliyor" :
+                                                    t('worker.completeJob')}
+                                        </Text>
+                                    )}
+                                </TouchableOpacity>
+                            )
+                        ) : (
+                            <View style={{ width: '100%' }}>
+                                <View style={[styles.acceptanceStatusContainer, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
+                                    <Text style={[styles.acceptanceStatusLabel, { color: theme.colors.text }]}>{t('common.status')}:</Text>
+                                    <Text style={[
+                                        styles.acceptanceStatusValue,
+                                        job.acceptanceStatus === 'ACCEPTED' ? { color: theme.colors.success } :
+                                            job.acceptanceStatus === 'REJECTED' ? { color: theme.colors.error } : { color: theme.colors.warning }
+                                    ]}>
+                                        {job.acceptanceStatus === 'ACCEPTED' ? t('common.confirm') :
+                                            job.acceptanceStatus === 'REJECTED' ? t('common.error') : t('common.loading')}
                                     </Text>
                                 </View>
-                                {(job.signatureLatitude && job.signatureLongitude) && (
-                                    <View style={styles.metaRow}>
-                                        <MaterialIcons name="location-on" size={14} color={theme.colors.subText} />
-                                        <Text style={[styles.metaText, { color: theme.colors.subText }]}>
-                                            {job.signatureLatitude.toFixed(6)}, {job.signatureLongitude.toFixed(6)}
-                                        </Text>
-                                    </View>
-                                )}
+                                <View style={{ flexDirection: 'row', gap: 8 }}>
+                                    <TouchableOpacity
+                                        style={[styles.mainCompleteButton, styles.rejectButton, { flex: 1, padding: 12, backgroundColor: theme.colors.error }]}
+                                        onPress={() => setRejectionModalVisible(true)}
+                                    >
+                                        <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>{t('common.delete')}</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.mainCompleteButton, styles.acceptJobButton, { flex: 1, padding: 12, backgroundColor: theme.colors.success }]}
+                                        onPress={handleAcceptJob}
+                                    >
+                                        <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>{t('common.confirm')}</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </GlassCard>
-                    )}
-
-                    <View style={{ height: 100 }} />
-                </ScrollView>
-            </View>
-
-            <View style={[styles.footerContainer, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border }]}>
-                {!['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) ? (
-                    job.status === 'PENDING' ? (
-                        <TouchableOpacity
-                            style={[styles.mainCompleteButton, { backgroundColor: theme.colors.primary }]}
-                            onPress={handleStartJob}
-                        >
-                            <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>{t('worker.startJob')}</Text>
-                        </TouchableOpacity>
-                    ) : (
-                        <TouchableOpacity
-                            style={[
-                                styles.mainCompleteButton,
-                                (job.status === 'COMPLETED' || job.status === 'PENDING_APPROVAL' || completing) && styles.disabledButton,
-                                { backgroundColor: (job.status === 'COMPLETED' || job.status === 'PENDING_APPROVAL' || completing) ? theme.colors.border : theme.colors.primary }
-                            ]}
-                            onPress={handleCompleteJob}
-                            disabled={job.status === 'COMPLETED' || job.status === 'PENDING_APPROVAL' || completing}
-                        >
-                            {completing ? (
-                                <ActivityIndicator color={theme.colors.textInverse} />
-                            ) : (
-                                <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>
-                                    {job.status === 'COMPLETED' ? t('common.success') :
-                                        job.status === 'PENDING_APPROVAL' ? "Onay Bekliyor" :
-                                            t('worker.completeJob')}
-                                </Text>
-                            )}
-                        </TouchableOpacity>
-                    )
-                ) : (
-                    <View style={{ width: '100%' }}>
-                        <View style={[styles.acceptanceStatusContainer, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-                            <Text style={[styles.acceptanceStatusLabel, { color: theme.colors.text }]}>{t('common.status')}:</Text>
-                            <Text style={[
-                                styles.acceptanceStatusValue,
-                                job.acceptanceStatus === 'ACCEPTED' ? { color: theme.colors.success } :
-                                    job.acceptanceStatus === 'REJECTED' ? { color: theme.colors.error } : { color: theme.colors.warning }
-                            ]}>
-                                {job.acceptanceStatus === 'ACCEPTED' ? t('common.confirm') :
-                                    job.acceptanceStatus === 'REJECTED' ? t('common.error') : t('common.loading')}
-                            </Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', gap: 8 }}>
-                            <TouchableOpacity
-                                style={[styles.mainCompleteButton, styles.rejectButton, { flex: 1, padding: 12, backgroundColor: theme.colors.error }]}
-                                onPress={() => setRejectionModalVisible(true)}
-                            >
-                                <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>{t('common.delete')}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.mainCompleteButton, styles.acceptJobButton, { flex: 1, padding: 12, backgroundColor: theme.colors.success }]}
-                                onPress={handleAcceptJob}
-                            >
-                                <Text style={[styles.mainCompleteButtonText, { color: theme.colors.textInverse }]}>{t('common.confirm')}</Text>
-                            </TouchableOpacity>
-                        </View>
+                        )}
                     </View>
-                )}
-            </View>
+                </>
+            )}
 
             <AppModal visible={modalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
                 <View style={[styles.modalContainer, { backgroundColor: 'black' }]}>
