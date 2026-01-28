@@ -146,19 +146,20 @@ const ChatScreen = () => {
         );
     };
 
-    if (loading) {
-        return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#4CAF50" />
-            </View>
-        );
-    }
+    const handleBack = () => {
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+        } else {
+            // Fallback for PWA refresh
+            navigation.navigate('WorkerDashboard');
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                <TouchableOpacity onPress={handleBack} style={styles.backButton}>
                     <ChevronLeft color="#333" />
                 </TouchableOpacity>
                 <View style={styles.headerInfo}>
@@ -169,41 +170,46 @@ const ChatScreen = () => {
                 </View>
             </View>
 
-            {/* Messages List */}
-            <FlatList
-                ref={flatListRef}
-                data={messages}
-                renderItem={renderMessage}
-                keyExtractor={(item) => item.id || item.tempId}
-                contentContainerStyle={styles.listContent}
-                onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-            />
-
-            {/* Input Area */}
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-            >
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Mesaj yazın..."
-                        value={inputText}
-                        onChangeText={(text) => {
-                            setInputText(text);
-                            // Handle typing indicators logic here
-                        }}
-                        multiline
-                    />
-                    <TouchableOpacity 
-                        style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]} 
-                        onPress={handleSend}
-                        disabled={!inputText.trim()}
-                    >
-                        <Send color="#fff" size={20} />
-                    </TouchableOpacity>
+            {loading && messages.length === 0 ? (
+                <View style={styles.centered}>
+                    <ActivityIndicator size="large" color="#4CAF50" />
                 </View>
-            </KeyboardAvoidingView>
+            ) : (
+                <>
+                    {/* Messages List */}
+                    <FlatList
+                        ref={flatListRef}
+                        data={messages}
+                        renderItem={renderMessage}
+                        keyExtractor={(item) => item.id || item.tempId}
+                        contentContainerStyle={styles.listContent}
+                        onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
+                    />
+
+                    {/* Input Area */}
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+                    >
+                        <View style={styles.inputContainer}>
+                            <TextInput
+                                style={styles.input}
+                                value={inputText}
+                                onChangeText={setInputText}
+                                placeholder="Mesaj yazın..."
+                                multiline
+                            />
+                            <TouchableOpacity
+                                style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+                                onPress={handleSendMessage}
+                                disabled={!inputText.trim()}
+                            >
+                                <Send size={24} color="#fff" />
+                            </TouchableOpacity>
+                        </View>
+                    </KeyboardAvoidingView>
+                </>
+            )}
         </SafeAreaView>
     );
 };

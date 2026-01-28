@@ -715,32 +715,28 @@ Assembly Tracker Ltd. Şti.
         }
     };
 
-    if (loading) {
-        return (
-            <View style={[styles.centerContainer, { backgroundColor: theme.colors.background }]}>
-                <ActivityIndicator size="large" color={theme.colors.primary} />
-            </View>
-        );
-    }
-
-    if (!job) {
-        return (
-            <View style={[styles.centerContainer, { backgroundColor: theme.colors.background }]}>
-                <Text style={{ color: theme.colors.text }}>{t('alerts.jobNotFound')}</Text>
-            </View>
-        );
-    }
+    const handleBack = () => {
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+        } else {
+            // Fallback for PWA refresh where history is lost
+            const role = user?.role?.toUpperCase();
+            if (role === 'ADMIN') navigation.navigate('AdminDashboard');
+            else if (role === 'MANAGER') navigation.navigate('ManagerDashboard');
+            else navigation.navigate('WorkerDashboard');
+        }
+    };
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={theme.colors.background} />
             <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                <TouchableOpacity onPress={handleBack} style={styles.backButton}>
                     <MaterialIcons name="arrow-back" size={24} color={theme.colors.primary} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{t('worker.jobDetails')}</Text>
                 <View style={{ flexDirection: 'row', gap: 12 }}>
-                    {['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (
+                    {job && ['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && (
                         <>
                             {user?.role?.toUpperCase() === 'ADMIN' && (
                                 <TouchableOpacity
@@ -761,63 +757,74 @@ Assembly Tracker Ltd. Şti.
                             </TouchableOpacity>
                         </>
                     )}
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('Chat', { jobId: job.id, jobTitle: job.title })}
-                        style={styles.chatButton}
-                    >
-                        <MaterialIcons name="chat" size={24} color={theme.colors.primary} />
-                    </TouchableOpacity>
+                    {job && (
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('Chat', { jobId: job.id, jobTitle: job.title })}
+                            style={styles.chatButton}
+                        >
+                            <MaterialIcons name="chat" size={24} color={theme.colors.primary} />
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
 
-            <View style={{ flex: 1, minHeight: 0 }}>
-                <ScrollView
-                    style={{ flex: 1 }}
-                    contentContainerStyle={[styles.contentContainer, { flexGrow: 1 }]}
-                >
-                    <JobInfoCard job={job} />
+            {loading ? (
+                <View style={[styles.centerContainer, { backgroundColor: theme.colors.background }]}>
+                    <ActivityIndicator size="large" color={theme.colors.primary} />
+                </View>
+            ) : !job ? (
+                <View style={[styles.centerContainer, { backgroundColor: theme.colors.background }]}>
+                    <Text style={{ color: theme.colors.text }}>{t('alerts.jobNotFound')}</Text>
+                </View>
+            ) : (
+                <View style={{ flex: 1, minHeight: 0 }}>
+                    <ScrollView
+                        style={{ flex: 1 }}
+                        contentContainerStyle={[styles.contentContainer, { flexGrow: 1 }]}
+                    >
+                        <JobInfoCard job={job} />
 
-                    <CostSection
-                        job={job}
-                        canAdd={['WORKER', 'TEAM_LEAD'].includes(user?.role?.toUpperCase())}
-                        onAddPress={() => setCostModalVisible(true)}
-                    />
+                        <CostSection
+                            job={job}
+                            canAdd={['WORKER', 'TEAM_LEAD'].includes(user?.role?.toUpperCase())}
+                            onAddPress={() => setCostModalVisible(true)}
+                        />
 
-                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('navigation.teams')}</Text>
-                    {job.assignments && job.assignments.length > 0 ? (
-                        job.assignments.map((assignment, index) => (
-                            <GlassCard key={index} style={styles.card} theme={theme}>
-                                <View style={styles.infoRow}>
-                                    <MaterialIcons name="group" size={20} color={theme.colors.primary} />
-                                    <View style={{ marginLeft: 8 }}>
-                                        {assignment.team ? (
-                                            <>
-                                                <Text style={[styles.infoText, { fontWeight: 'bold', color: theme.colors.text }]}>{assignment.team.name}</Text>
-                                                {assignment.team.members && assignment.team.members.length > 0 && (
-                                                    <Text style={[styles.infoText, { fontSize: 12, color: theme.colors.subText, marginTop: 4 }]}>
-                                                        {assignment.team.members.map(m => m.user?.name).filter(Boolean).join(', ')}
-                                                    </Text>
-                                                )}
-                                            </>
-                                        ) : (
-                                            <Text style={[styles.infoText, { color: theme.colors.text }]}>{assignment.worker?.name}</Text>
-                                        )}
+                        <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('navigation.teams')}</Text>
+                        {job.assignments && job.assignments.length > 0 ? (
+                            job.assignments.map((assignment, index) => (
+                                <GlassCard key={index} style={styles.card} theme={theme}>
+                                    <View style={styles.infoRow}>
+                                        <MaterialIcons name="group" size={20} color={theme.colors.primary} />
+                                        <View style={{ marginLeft: 8 }}>
+                                            {assignment.team ? (
+                                                <>
+                                                    <Text style={[styles.infoText, { fontWeight: 'bold', color: theme.colors.text }]}>{assignment.team.name}</Text>
+                                                    {assignment.team.members && assignment.team.members.length > 0 && (
+                                                        <Text style={[styles.infoText, { fontSize: 12, color: theme.colors.subText, marginTop: 4 }]}>
+                                                            {assignment.team.members.map(m => m.user?.name).filter(Boolean).join(', ')}
+                                                        </Text>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <Text style={[styles.infoText, { color: theme.colors.text }]}>{assignment.worker?.name}</Text>
+                                            )}
+                                        </View>
                                     </View>
-                                </View>
+                                </GlassCard>
+                            ))
+                        ) : (
+                            <GlassCard style={styles.card} theme={theme}>
+                                <Text style={[styles.infoText, { color: theme.colors.subText }]}>{t('recentJobs.noJobs')}</Text>
                             </GlassCard>
-                        ))
-                    ) : (
-                        <GlassCard style={styles.card} theme={theme}>
-                            <Text style={[styles.infoText, { color: theme.colors.subText }]}>{t('recentJobs.noJobs')}</Text>
-                        </GlassCard>
-                    )}
+                        )}
 
-                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('worker.steps')}</Text>
-                    {job.steps && job.steps.map((step, index) => {
-                        const isLocked = index > 0 && !job.steps[index - 1].isCompleted;
+                        <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('worker.steps')}</Text>
+                        {job.steps && job.steps.map((step, index) => {
+                            const isLocked = index > 0 && !job.steps[index - 1].isCompleted;
 
-                        return (
-                            <GlassCard key={step.id} style={[styles.stepCard, isLocked && styles.lockedCard]} theme={theme}>
+                            return (
+                                <GlassCard key={step.id} style={[styles.stepCard, isLocked && styles.lockedCard]} theme={theme}>
                                 <View style={styles.stepHeader}>
                                     <TouchableOpacity
                                         style={[styles.checkbox, step.isCompleted && styles.checkedBox]}

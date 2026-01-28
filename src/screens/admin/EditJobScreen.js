@@ -18,6 +18,7 @@ import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import customerService from '../../services/customer.service';
 import teamService from '../../services/team.service';
+import { useAuth } from '../../context/AuthContext';
 import { useJobForm } from '../../hooks/useJobForm';
 import { CHECKLIST_TEMPLATES } from '../../constants/templates';
 import SelectionModal from '../../components/admin/SelectionModal';
@@ -26,6 +27,7 @@ import ChecklistManager from '../../components/admin/ChecklistManager';
 export default function EditJobScreen({ route, navigation }) {
     const { job } = route.params;
     const { theme, isDark } = useTheme();
+    const { user } = useAuth();
     const [customers, setCustomers] = useState([]);
     const [teams, setTeams] = useState([]);
 
@@ -160,11 +162,23 @@ export default function EditJobScreen({ route, navigation }) {
         );
     };
 
+    const handleBack = () => {
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+        } else {
+            // Fallback for PWA refresh where history is lost
+            const role = user?.role?.toUpperCase();
+            if (role === 'ADMIN') navigation.navigate('AdminDashboard');
+            else if (role === 'MANAGER') navigation.navigate('ManagerDashboard');
+            else navigation.navigate('WorkerDashboard');
+        }
+    };
+
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             {/* Header */}
             <View style={[styles.header, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                <TouchableOpacity onPress={handleBack} style={styles.backButton}>
                     <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: theme.colors.text }]}>İşi Düzenle</Text>
