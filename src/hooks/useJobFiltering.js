@@ -22,7 +22,7 @@ export const useJobFiltering = (jobs) => {
         } else if (selectedFilter === 'Bekleyen') {
             result = result.filter(j => j.status === 'PENDING');
         } else if (selectedFilter === 'Onay Bekleyen') {
-            result = result.filter(j => j.status === 'COMPLETED' && j.acceptanceStatus === 'PENDING');
+            result = result.filter(j => j.status === 'COMPLETED' && (j.acceptanceStatus === 'PENDING' || !j.acceptanceStatus));
         } else if (selectedFilter === 'Onaylanan') {
             result = result.filter(j => j.acceptanceStatus === 'ACCEPTED');
         } else if (selectedFilter === 'Tamamlanan') {
