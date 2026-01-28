@@ -786,8 +786,7 @@ Assembly Tracker Ltd. Şti.
                         >
                             {/* Job Approval Card (Manager/Admin only) */}
                             {['ADMIN', 'MANAGER'].includes(user?.role?.toUpperCase()) && 
-                             job.status === 'COMPLETED' && 
-                             job.acceptanceStatus === 'PENDING' && (
+                             job.status === 'PENDING_APPROVAL' && (
                                 <GlassCard style={[styles.card, { borderColor: theme.colors.warning, backgroundColor: theme.colors.warningBg }]} theme={theme}>
                                     <View style={styles.infoRow}>
                                         <MaterialIcons name="error-outline" size={24} color={theme.colors.tertiary} />
@@ -1113,15 +1112,15 @@ Assembly Tracker Ltd. Şti.
                             <Text style={[
                                 styles.acceptanceStatusValue,
                                 job.acceptanceStatus === 'ACCEPTED' ? { color: theme.colors.success } :
-                                    (job.status === 'COMPLETED' && job.acceptanceStatus === 'PENDING') ? { color: theme.colors.warning } :
+                                    (job.status === 'PENDING_APPROVAL') ? { color: theme.colors.warning } :
                                         job.acceptanceStatus === 'REJECTED' ? { color: theme.colors.error } : { color: theme.colors.subText }
                             ]}>
                                 {job.acceptanceStatus === 'ACCEPTED' ? 'ONAYLANMIŞ' :
                                     job.acceptanceStatus === 'REJECTED' ? 'REDDEDİLMİŞ' :
-                                        job.status === 'COMPLETED' ? 'ONAY BEKLİYOR' : 'MONTAJ DEVAM EDİYOR'}
+                                        job.status === 'PENDING_APPROVAL' ? 'ONAY BEKLİYOR' : 'MONTAJ DEVAM EDİYOR'}
                             </Text>
                         </View>
-                        {job.acceptanceStatus === 'PENDING' && job.status === 'COMPLETED' && (
+                        {job.acceptanceStatus === 'PENDING' && (job.status === 'COMPLETED' || job.status === 'PENDING_APPROVAL') && (
                             <View style={{ flexDirection: 'row', gap: 8 }}>
                                 <TouchableOpacity
                                     style={[styles.mainCompleteButton, styles.rejectButton, { flex: 1, padding: 12, backgroundColor: theme.colors.error }]}
