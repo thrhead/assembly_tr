@@ -825,6 +825,22 @@ Assembly Tracker Ltd. Şti.
                                 onAddPress={() => setCostModalVisible(true)}
                             />
 
+                            {/* Yeni: İş Sorumlusu / Lider Bölümü */}
+                            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>İş Sorumlusu</Text>
+                            <GlassCard style={styles.card} theme={theme}>
+                                <View style={styles.infoRow}>
+                                    <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: theme.colors.warningBg || 'rgba(245, 158, 11, 0.1)', alignItems: 'center', justifyContent: 'center' }}>
+                                        <MaterialIcons name="stars" size={24} color={theme.colors.tertiary} />
+                                    </View>
+                                    <View style={{ marginLeft: 12 }}>
+                                        <Text style={[styles.infoText, { fontWeight: 'bold', fontSize: 16, color: theme.colors.text }]}>
+                                            {job.jobLead?.name || 'Atanmamış'}
+                                        </Text>
+                                        <Text style={[styles.infoText, { fontSize: 12, color: theme.colors.tertiary, fontWeight: 'bold', textTransform: 'uppercase' }]}>Ana Sorumlu</Text>
+                                    </View>
+                                </View>
+                            </GlassCard>
+
                             <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('navigation.teams')}</Text>
                             {job.assignments && job.assignments.length > 0 ? (
                                 job.assignments.map((assignment, index) => (
@@ -836,26 +852,13 @@ Assembly Tracker Ltd. Şti.
                                                     <>
                                                         <Text style={[styles.infoText, { fontWeight: 'bold', color: theme.colors.text }]}>{assignment.team.name}</Text>
                                                         
-                                                        {/* Ekip Lideri Gösterimi */}
-                                                        {assignment.team.lead && (
-                                                            <View style={{ marginTop: 8, padding: 8, backgroundColor: theme.colors.warningBg || 'rgba(245, 158, 11, 0.1)', borderRadius: 8, borderLeftWidth: 3, borderLeftColor: theme.colors.tertiary }}>
-                                                                <Text style={{ fontSize: 10, fontWeight: 'bold', color: theme.colors.tertiary, textTransform: 'uppercase' }}>Ekip Lideri</Text>
-                                                                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-                                                                    <MaterialIcons name="person" size={16} color={theme.colors.tertiary} />
-                                                                    <Text style={[styles.infoText, { fontSize: 14, fontWeight: '600', color: theme.colors.text, marginLeft: 4 }]}>
-                                                                        {assignment.team.lead.name}
-                                                                    </Text>
-                                                                </View>
-                                                            </View>
-                                                        )}
-
-                                                        {/* Çalışanlar Gösterimi */}
+                                                        {/* Çalışanlar Gösterimi - Lider Hariç */}
                                                         {assignment.team.members && assignment.team.members.length > 0 && (
                                                             <View style={{ marginTop: 8 }}>
-                                                                <Text style={{ fontSize: 10, fontWeight: 'bold', color: theme.colors.subText, textTransform: 'uppercase', marginBottom: 4 }}>Çalışanlar</Text>
+                                                                <Text style={{ fontSize: 10, fontWeight: 'bold', color: theme.colors.subText, textTransform: 'uppercase', marginBottom: 4 }}>Ekip Üyeleri</Text>
                                                                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
                                                                     {assignment.team.members
-                                                                        .filter(m => m.user.id !== assignment.team?.lead?.id)
+                                                                        .filter(m => m.user.id !== job.jobLead?.id)
                                                                         .map((member, mIdx) => (
                                                                             <View key={mIdx} style={{ backgroundColor: theme.colors.surface, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: theme.colors.border, flexDirection: 'row', alignItems: 'center' }}>
                                                                                 <MaterialIcons name="person-outline" size={12} color={theme.colors.subText} />
@@ -863,8 +866,8 @@ Assembly Tracker Ltd. Şti.
                                                                             </View>
                                                                         ))
                                                                     }
-                                                                    {assignment.team.members.filter(m => m.user.id !== assignment.team?.lead?.id).length === 0 && (
-                                                                        <Text style={{ fontSize: 12, color: theme.colors.subText, italic: true }}>Başka çalışan bulunmuyor.</Text>
+                                                                    {assignment.team.members.filter(m => m.user.id !== job.jobLead?.id).length === 0 && (
+                                                                        <Text style={{ fontSize: 12, color: theme.colors.subText, italic: true }}>Başka üye bulunmuyor.</Text>
                                                                     )}
                                                                 </View>
                                                             </View>
