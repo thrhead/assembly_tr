@@ -38,7 +38,8 @@
     "jobStartError": "İş başlatılamadı.",
     "completeJobConfirm": "İşi tamamlamak istediğinize emin misiniz? Bu işlem geri alınamaz.",
     "startFirst": "Önce işe başlamalısınız.",
-    "photoRequired": "Tamamlamak için en az 1 fotoğraf yüklemelisiniz."
+    "photoRequired": "Tamamlamak için en az 1 fotoğraf yüklemelisiniz.",
+    "jobDataStale": "İş verisi güncel değil. Sayfa yenileniyor, lütfen tekrar deneyin."
   },
   "auth": {
     "login": "Giriş Yap",
@@ -113,10 +114,10 @@
     "recentJobs": "Son İşler",
     "noJobs": "Henüz iş bulunmuyor.",
     "stats": {
-        "totalJobs": "Toplam İş",
-        "activeTeams": "Aktif Ekip",
-        "completedJobs": "Tamamlanan",
-        "pendingJobs": "Bekleyen"
+      "totalJobs": "Toplam İş",
+      "activeTeams": "Aktif Ekip",
+      "completedJobs": "Tamamlanan",
+      "pendingJobs": "Bekleyen"
     }
   },
   "jobs": {
@@ -206,7 +207,8 @@
     "finished": "Tamamlandı",
     "startJob": "İşi Başlat",
     "completeJob": "İşi Tamamla",
-    "rejectionReason": "Red Sebebi"
+    "rejectionReason": "Red Sebebi",
+    "jobNo": "İş Emri No"
   },
   "settings": {
     "language": "Dil"

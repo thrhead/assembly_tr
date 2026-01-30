@@ -34,6 +34,7 @@ export const useJobFiltering = (jobs) => {
             const lower = searchQuery.toLowerCase();
             result = result.filter(j =>
                 (j.title && j.title.toLowerCase().includes(lower)) ||
+                (j.jobNo && j.jobNo.toLowerCase().includes(lower)) ||
                 (j.customer?.company && j.customer.company.toLowerCase().includes(lower))
             );
         }

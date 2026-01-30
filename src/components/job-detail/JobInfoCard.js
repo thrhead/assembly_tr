@@ -3,10 +3,12 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Svg, Circle } from 'react-native-svg';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import GlassCard from '../ui/GlassCard';
 
 const JobInfoCard = ({ job }) => {
     const { theme } = useTheme();
+    const { t } = useTranslation();
 
     if (!job) return null;
 
@@ -65,6 +67,11 @@ const JobInfoCard = ({ job }) => {
             <View style={styles.headerRow}>
                 <View style={{ flex: 1 }}>
                     <Text style={[styles.jobTitle, { color: theme.colors.text }]}>{job.title}</Text>
+                    {job.jobNo && (
+                        <Text style={{ fontSize: 11, fontWeight: '900', color: theme.colors.tertiary || '#f59e0b', letterSpacing: 1, marginBottom: 4 }}>
+                            {t('worker.jobNo')}: {job.jobNo}
+                        </Text>
+                    )}
                     <View style={styles.infoRow}>
                         <MaterialIcons name="business" size={16} color={theme.colors.subText} />
                         <Text style={[styles.infoText, { color: theme.colors.subText }]}>{job.customer?.company || job.customer?.name || 'Müşteri'}</Text>
@@ -74,7 +81,7 @@ const JobInfoCard = ({ job }) => {
             </View>
 
             <View style={styles.separator} />
-            
+
             <View style={styles.infoRow}>
                 <MaterialIcons name="description" size={16} color={theme.colors.subText} />
                 <Text style={[styles.description, { color: theme.colors.subText }]}>{job.description || 'Açıklama yok'}</Text>

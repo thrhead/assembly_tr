@@ -38,7 +38,8 @@
     "jobStartError": "Failed to start job.",
     "completeJobConfirm": "Are you sure you want to complete the job? This action cannot be undone.",
     "startFirst": "Please start the job first.",
-    "photoRequired": "You must upload at least 1 photo to complete."
+    "photoRequired": "You must upload at least 1 photo to complete.",
+    "jobDataStale": "Job data is not up to date. Refreshing page, please try again."
   },
   "auth": {
     "login": "Login",
@@ -113,10 +114,10 @@
     "recentJobs": "Recent Jobs",
     "noJobs": "No jobs found.",
     "stats": {
-        "totalJobs": "Total Jobs",
-        "activeTeams": "Active Teams",
-        "completedJobs": "Completed",
-        "pendingJobs": "Pending"
+      "totalJobs": "Total Jobs",
+      "activeTeams": "Active Teams",
+      "completedJobs": "Completed",
+      "pendingJobs": "Pending"
     }
   },
   "jobs": {
@@ -206,7 +207,8 @@
     "finished": "Finished",
     "startJob": "Start Job",
     "completeJob": "Complete Job",
-    "rejectionReason": "Rejection Reason"
+    "rejectionReason": "Rejection Reason",
+    "jobNo": "Job Order No"
   },
   "settings": {
     "language": "Language"

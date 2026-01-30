@@ -61,6 +61,11 @@ const JobListItem = ({ item, onPress }) => {
                 item.status === 'COMPLETED' && styles.cardCompleted
             ]}>
                 <View style={styles.cardContent}>
+                    {item.jobNo && (
+                        <Text style={{ fontSize: 10, fontWeight: 'bold', color: theme.colors.tertiary || '#f59e0b', marginBottom: 2 }}>
+                            {item.jobNo}
+                        </Text>
+                    )}
                     <View style={styles.cardHeader}>
                         <Text style={[styles.cardTitle, { color: theme.colors.text }, item.status === 'COMPLETED' && styles.textStrike]}>{item.title}</Text>
                         <View style={styles.headerRight}>

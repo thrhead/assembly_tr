@@ -505,7 +505,15 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('Error starting job:', error);
-            Alert.alert(t('common.error'), t('alerts.jobStartError'));
+            if (error.status === 409) {
+                Alert.alert(
+                    t('common.warning'),
+                    t('alerts.jobDataStale')
+                );
+                loadJobDetails();
+            } else {
+                Alert.alert(t('common.error'), error.message || t('alerts.jobStartError'));
+            }
         } finally {
             setLoading(false);
         }
