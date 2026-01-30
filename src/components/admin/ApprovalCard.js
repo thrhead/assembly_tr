@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Modal } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 // import { COLORS } from '../../constants/theme'; // Removed
@@ -8,6 +8,7 @@ const ApprovalCard = ({ item, onApprove, onReject, theme: propTheme }) => {
     const { theme: contextTheme } = useTheme();
     const theme = propTheme || contextTheme;
     const [isExpanded, setIsExpanded] = React.useState(false);
+    const [selectedImage, setSelectedImage] = React.useState(null);
 
     const cardBg = theme.colors.card;
     const border = theme.colors.cardBorder;
@@ -62,6 +63,21 @@ const ApprovalCard = ({ item, onApprove, onReject, theme: propTheme }) => {
                                     </View>
                                 </View>
                             )}
+                            {item.raw?.attachments && item.raw.attachments.length > 0 && (
+                                <View style={styles.detailRow}>
+                                    <Text style={[styles.detailLabel, { color: textSub }]}>Fiş/Belge:</Text>
+                                    <View style={styles.attachmentContainer}>
+                                        {item.raw.attachments.map((url, index) => (
+                                            <TouchableOpacity key={index} onPress={() => setSelectedImage(url)}>
+                                                <Image
+                                                    source={{ uri: url }}
+                                                    style={{ width: 60, height: 60, borderRadius: 8, marginRight: 8 }}
+                                                />
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                </View>
+                            )}
                         </>
                     ) : (
                         <>
@@ -94,6 +110,22 @@ const ApprovalCard = ({ item, onApprove, onReject, theme: propTheme }) => {
                     <Text style={[styles.approveText, { color: theme.colors.textInverse }]}>Onayla</Text>
                 </TouchableOpacity>
             </View>
+            <Modal
+                visible={!!selectedImage}
+                transparent={true}
+                onRequestClose={() => setSelectedImage(null)}
+            >
+                <View style={styles.modalOverlay}>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedImage(null)}>
+                        <MaterialIcons name="close" size={30} color="#fff" />
+                    </TouchableOpacity>
+                    <Image
+                        source={{ uri: selectedImage }}
+                        style={styles.fullImage}
+                        resizeMode="contain"
+                    />
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -169,6 +201,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
+        marginBottom: 4, // Added margin
     },
     detailLabel: {
         fontSize: 12,
@@ -189,6 +222,30 @@ const styles = StyleSheet.create({
     noteText: {
         fontSize: 12,
         fontStyle: 'italic',
+    },
+    attachmentContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        flex: 0.7,
+        justifyContent: 'flex-end',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
+        zIndex: 1,
+        padding: 8,
+    },
+    fullImage: {
+        width: '100%',
+        height: '80%',
     },
 });
 

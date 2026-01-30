@@ -45,6 +45,7 @@ import SignaturePad from '../../components/SignaturePad';
 import { COLORS, Z_INDEX } from '../../constants/theme';
 import { SocketProvider } from '../../context/SocketContext';
 import { useTranslation } from 'react-i18next';
+import { useAlert } from '../../context/AlertContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_URL } from '../../config';
@@ -79,6 +80,7 @@ export default function JobDetailScreen({ route, navigation }) {
     const { user } = useAuth();
     const { theme, isDark } = useTheme();
     const { t, i18n } = useTranslation();
+    const { showAlert } = useAlert();
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
@@ -131,9 +133,9 @@ export default function JobDetailScreen({ route, navigation }) {
     };
 
     const handleDeletePhoto = (photo) => {
-        Alert.alert(
+        showAlert(
             t('common.delete'),
-            t('common.confirmDelete'), // Make sure this key exists or use readable text
+            t('common.confirmDelete'),
             [
                 { text: t('common.cancel'), style: 'cancel' },
                 {
@@ -149,7 +151,7 @@ export default function JobDetailScreen({ route, navigation }) {
                             loadJobDetails();
                         } catch (error) {
                             console.error('Error deleting photo:', error);
-                            Alert.alert(t('common.error'), "Fotoğraf silinemedi.");
+                            showAlert(t('common.error'), "Fotoğraf silinemedi.", [], 'error');
                         } finally {
                             setLoading(false);
                         }
@@ -179,12 +181,12 @@ export default function JobDetailScreen({ route, navigation }) {
             } else if (data.job) {
                 setJob(data.job);
             } else {
-                Alert.alert(t('common.error'), t('alerts.jobNotFound'));
+                showAlert(t('common.error'), t('alerts.jobNotFound'), [], 'error');
                 navigation.goBack();
             }
         } catch (error) {
             console.error('Error loading job details:', error);
-            Alert.alert(t('common.error'), t('alerts.detailsLoadError'));
+            showAlert(t('common.error'), t('alerts.detailsLoadError'), [], 'error');
         } finally {
             setLoading(false);
         }
@@ -200,9 +202,11 @@ export default function JobDetailScreen({ route, navigation }) {
                 const hasPhotos = substep?.photos && Array.isArray(substep.photos) && substep.photos.length > 0;
 
                 if (!hasPhotos) {
-                    Alert.alert(
+                    showAlert(
                         t('common.warning'),
-                        "bu iş emrini kapatabilmeniz için öncelikle en az 1 adet fotoğraf yüklemeniz gerekmektedir"
+                        "bu iş emrini kapatabilmeniz için öncelikle en az 1 adet fotoğraf yüklemeniz gerekmektedir",
+                        [],
+                        'warning'
                     );
                     return;
                 }
@@ -213,7 +217,7 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('[MOBILE] Error toggling substep:', error);
-            Alert.alert(t('common.error'), t('alerts.processError'));
+            showAlert(t('common.error'), t('alerts.processError'), [], 'error');
         }
     };
 
@@ -246,7 +250,7 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('[MOBILE] Error toggling step:', error);
-            Alert.alert(t('common.error'), t('alerts.processError'));
+            showAlert(t('common.error'), t('alerts.processError'), [], 'error');
         }
     };
 
@@ -276,7 +280,7 @@ export default function JobDetailScreen({ route, navigation }) {
             if (source === 'camera') {
                 const { status } = await ImagePicker.requestCameraPermissionsAsync();
                 if (status !== 'granted') {
-                    Alert.alert(t('alerts.permissionRequired'), t('alerts.cameraPermissionDesc'));
+                    showAlert(t('alerts.permissionRequired'), t('alerts.cameraPermissionDesc'), [], 'warning');
                     return;
                 }
                 result = await ImagePicker.launchCameraAsync({
@@ -289,7 +293,7 @@ export default function JobDetailScreen({ route, navigation }) {
             } else {
                 const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
                 if (status !== 'granted') {
-                    Alert.alert(t('alerts.permissionRequired'), t('alerts.galleryPermissionDesc'));
+                    showAlert(t('alerts.permissionRequired'), t('alerts.galleryPermissionDesc'), [], 'warning');
                     return;
                 }
                 result = await ImagePicker.launchImageLibraryAsync({
@@ -313,7 +317,7 @@ export default function JobDetailScreen({ route, navigation }) {
             }
         } catch (error) {
             console.error("ImagePicker error:", error);
-            Alert.alert(t('common.error'), t('alerts.photoSelectError'));
+            showAlert(t('common.error'), t('alerts.photoSelectError'), [], 'error');
         }
     };
 
@@ -340,7 +344,7 @@ export default function JobDetailScreen({ route, navigation }) {
             console.log('[Mobile] Job details refreshed.');
         } catch (error) {
             console.error('Error uploading photo:', error);
-            Alert.alert(t('common.error'), t('alerts.photoUploadError'));
+            showAlert(t('common.error'), t('alerts.photoUploadError'), [], 'error');
         } finally {
             setUploading(false);
         }
@@ -362,7 +366,7 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('Error uploading audio:', error);
-            Alert.alert(t('common.error'), t('alerts.audioUploadError'));
+            showAlert(t('common.error'), t('alerts.audioUploadError'), [], 'error');
         } finally {
             setUploading(false);
         }
@@ -372,11 +376,11 @@ export default function JobDetailScreen({ route, navigation }) {
         try {
             setLoading(true);
             await jobService.approveStep(stepId);
-            Alert.alert(t('common.success'), t('alerts.stepApproveSuccess'));
+            showAlert(t('common.success'), t('alerts.stepApproveSuccess'), [], 'success');
             loadJobDetails();
         } catch (error) {
             console.error('Error approving step:', error);
-            Alert.alert(t('common.error'), t('alerts.stepApproveError'));
+            showAlert(t('common.error'), t('alerts.stepApproveError'), [], 'error');
         } finally {
             setLoading(false);
         }
@@ -384,21 +388,21 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const handleRejectStep = async () => {
         if (!rejectionReason) {
-            Alert.alert(t('common.warning'), t('alerts.rejectionReasonRequired'));
+            showAlert(t('common.warning'), t('alerts.rejectionReasonRequired'), [], 'warning');
             return;
         }
 
         try {
             setLoading(true);
             await jobService.rejectStep(selectedStepId, rejectionReason);
-            Alert.alert(t('common.success'), t('alerts.stepRejectSuccess'));
+            showAlert(t('common.success'), t('alerts.stepRejectSuccess'), [], 'success');
             setRejectionModalVisible(false);
             setRejectionReason('');
             setSelectedStepId(null);
             loadJobDetails();
         } catch (error) {
             console.error('Error rejecting step:', error);
-            Alert.alert(t('common.error'), t('alerts.stepRejectError'));
+            showAlert(t('common.error'), t('alerts.stepRejectError'), [], 'error');
         } finally {
             setLoading(false);
         }
@@ -408,11 +412,11 @@ export default function JobDetailScreen({ route, navigation }) {
         try {
             setLoading(true);
             await jobService.approveSubstep(substepId);
-            Alert.alert(t('common.success'), t('alerts.stepApproveSuccess'));
+            showAlert(t('common.success'), t('alerts.stepApproveSuccess'), [], 'success');
             loadJobDetails();
         } catch (error) {
-            console.error('Error approving substep:', error);
-            Alert.alert(t('common.error'), t('alerts.stepApproveError'));
+            console.error('Error approving step:', error);
+            showAlert(t('common.error'), t('alerts.processError'), [], 'error');
         } finally {
             setLoading(false);
         }
@@ -420,21 +424,21 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const handleRejectSubstep = async () => {
         if (!rejectionReason) {
-            Alert.alert(t('common.warning'), t('alerts.rejectionReasonRequired'));
+            showAlert(t('common.warning'), t('alerts.rejectionReasonRequired'), [], 'warning');
             return;
         }
 
         try {
             setLoading(true);
             await jobService.rejectSubstep(selectedSubstepId, rejectionReason);
-            Alert.alert(t('common.success'), t('alerts.stepRejectSuccess'));
+            showAlert(t('common.success'), t('alerts.stepRejectSuccess'), [], 'success');
             setRejectionModalVisible(false);
             setRejectionReason('');
             setSelectedSubstepId(null);
             loadJobDetails();
         } catch (error) {
             console.error('Error rejecting substep:', error);
-            Alert.alert(t('common.error'), t('alerts.stepRejectError'));
+            showAlert(t('common.error'), t('alerts.stepRejectError'), [], 'error');
         } finally {
             setLoading(false);
         }
@@ -442,27 +446,27 @@ export default function JobDetailScreen({ route, navigation }) {
 
     const handleRejectJob = async () => {
         if (!rejectionReason) {
-            Alert.alert(t('common.warning'), t('alerts.rejectionReasonRequired'));
+            showAlert(t('common.warning'), t('alerts.rejectionReasonRequired'), [], 'warning');
             return;
         }
 
         try {
             setLoading(true);
             await jobService.rejectJob(jobId, rejectionReason);
-            Alert.alert(t('common.success'), t('alerts.stepRejectSuccess'));
-            setRejectionModalVisible(false);
+            showAlert(t('common.success'), t('alerts.stepRejectSuccess'), [], 'success');
             setRejectionReason('');
+            setModalVisible(false);
             loadJobDetails();
         } catch (error) {
-            console.error('Error rejecting job:', error);
-            Alert.alert(t('common.error'), t('alerts.stepRejectError'));
+            console.error('Error rejecting step:', error);
+            showAlert(t('common.error'), t('alerts.processError'), [], 'error');
         } finally {
             setLoading(false);
         }
     };
 
     const handleDeleteJob = async () => {
-        Alert.alert(
+        showAlert(
             t('common.delete'),
             t('common.confirmDelete') || "Bu işi tamamen silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
             [
@@ -477,13 +481,14 @@ export default function JobDetailScreen({ route, navigation }) {
                             navigation.goBack();
                         } catch (error) {
                             console.error('Error deleting job:', error);
-                            Alert.alert(t('common.error'), "İş silinemedi.");
+                            showAlert(t('common.error'), "İş silinemedi.", [], 'error');
                         } finally {
                             setLoading(false);
                         }
                     }
                 }
-            ]
+            ],
+            'question'
         );
     };
 
@@ -501,18 +506,20 @@ export default function JobDetailScreen({ route, navigation }) {
         try {
             setLoading(true);
             await jobService.startJob(jobId, job.updatedAt);
-            Alert.alert(t('common.success'), t('alerts.jobStartSuccess'));
+            showAlert(t('common.success'), t('alerts.jobStartSuccess'), [], 'success');
             loadJobDetails();
         } catch (error) {
             console.error('Error starting job:', error);
             if (error.status === 409) {
-                Alert.alert(
+                showAlert(
                     t('common.warning'),
-                    t('alerts.jobDataStale')
+                    t('alerts.jobDataStale'),
+                    [],
+                    'warning'
                 );
                 loadJobDetails();
             } else {
-                Alert.alert(t('common.error'), error.message || t('alerts.jobStartError'));
+                showAlert(t('common.error'), error.message || t('alerts.jobStartError'), [], 'error');
             }
         } finally {
             setLoading(false);
@@ -526,7 +533,7 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('Error starting step:', error);
-            Alert.alert(t('common.error'), t('alerts.processError'));
+            showAlert(t('common.error'), t('alerts.processError'), [], 'error');
         } finally {
             setLoading(false);
         }
@@ -539,14 +546,14 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('Error starting substep:', error);
-            Alert.alert(t('common.error'), t('alerts.processError'));
+            showAlert(t('common.error'), t('alerts.processError'), [], 'error');
         } finally {
             setLoading(false);
         }
     };
 
     const handleAcceptJob = async () => {
-        Alert.alert(
+        showAlert(
             t('common.confirm'),
             t('alerts.completeJobConfirm'),
             [
@@ -557,17 +564,18 @@ export default function JobDetailScreen({ route, navigation }) {
                         try {
                             setLoading(true);
                             await jobService.acceptJob(jobId);
-                            Alert.alert(t('common.success'), t('alerts.stepApproveSuccess'));
+                            showAlert(t('common.success'), t('alerts.stepApproveSuccess'), [], 'success');
                             loadJobDetails();
                         } catch (error) {
                             console.error('Error accepting job:', error);
-                            Alert.alert(t('common.error'), t('alerts.processError'));
+                            showAlert(t('common.error'), t('alerts.processError'), [], 'error');
                         } finally {
                             setLoading(false);
                         }
                     }
                 }
-            ]
+            ],
+            'question'
         );
     };
 
@@ -621,7 +629,7 @@ export default function JobDetailScreen({ route, navigation }) {
             return true;
         } catch (error) {
             console.error('Error creating cost:', error);
-            Alert.alert(t('common.error'), t('alerts.processError'));
+            showAlert(t('common.error'), t('alerts.processError'), [], 'error');
             return false;
         } finally {
             setSubmittingCost(false);
@@ -648,9 +656,11 @@ export default function JobDetailScreen({ route, navigation }) {
         console.log('[Mobile] All steps and sub-steps completed:', allStepsCompleted);
 
         if (!allStepsCompleted) {
-            Alert.alert(
+            showAlert(
                 t('common.warning'),
-                "bu montajı tamamlayarak kapatmak için tüm alt iş emirlerini tamamlamanız gerekiyor"
+                "bu montajı tamamlayarak kapatmak için tüm alt iş emirlerini tamamlamanız gerekiyor",
+                [],
+                'warning'
             );
             return;
         }
@@ -676,7 +686,7 @@ export default function JobDetailScreen({ route, navigation }) {
             loadJobDetails();
         } catch (error) {
             console.error('Error completing job:', error);
-            Alert.alert(t('common.error'), "İş tamamlanırken bir hata oluştu.");
+            showAlert(t('common.error'), "İş tamamlanırken bir hata oluştu.", [], 'error');
         } finally {
             setCompleting(false);
         }
@@ -741,7 +751,7 @@ Assembly Tracker Ltd. Şti.
             });
         } catch (error) {
             console.error('Proforma export error:', error);
-            Alert.alert(t('common.error'), 'Dosya paylaşılamadı.');
+            showAlert(t('common.error'), 'Dosya paylaşılamadı.', [], 'error');
         } finally {
             setLoading(false);
         }

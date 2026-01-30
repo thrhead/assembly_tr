@@ -18,6 +18,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import { useAlert } from '../context/AlertContext';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import LoginForm from '../components/LoginForm';
 
 const { width, height } = Dimensions.get('window');
@@ -26,6 +28,7 @@ export default function LoginScreen({ navigation }) {
   const [showLoginForm, setShowLoginForm] = useState(false);
   const { theme, isDark } = useTheme();
   const { t } = useTranslation();
+  const { showAlert } = useAlert();
 
   const renderLanding = () => (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -40,6 +43,9 @@ export default function LoginScreen({ navigation }) {
           style={styles.heroGradient}
         >
           {/* Background Circular Decorations (SVG-like) */}
+          <View style={{ position: 'absolute', top: 50, right: 20, zIndex: 100 }}>
+            <LanguageSwitcher compact />
+          </View>
           <View style={styles.decorationContainer}>
             {/* Large Outer Circle */}
             <View style={[styles.circleOutline, { width: 300, height: 300, borderRadius: 150, opacity: 0.1 }]} />
@@ -101,7 +107,7 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.buttonSection}>
           <TouchableOpacity
             style={[styles.primaryButton, { backgroundColor: theme.colors.primary }]}
-            onPress={() => Alert.alert(t('common.info'), t('auth.registerNotActive'))}
+            onPress={() => showAlert(t('common.info'), t('auth.registerNotActive'), [], 'info')}
           >
             <Text style={[styles.primaryButtonText, { color: '#fff' }]}>{t('auth.getStarted')}</Text>
             <MaterialIcons name="arrow-forward" size={20} color="#fff" />
@@ -109,7 +115,7 @@ export default function LoginScreen({ navigation }) {
 
           <TouchableOpacity
             style={[styles.googleButton, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}
-            onPress={() => Alert.alert(t('common.info'), t('auth.googleLoginNotActive'))}
+            onPress={() => showAlert(t('common.info'), t('auth.googleLoginNotActive'), [], 'info')}
           >
             <View style={{ marginRight: 10 }}>
               {/* Simple Google G icon representation or placeholder */}
@@ -155,7 +161,7 @@ export default function LoginScreen({ navigation }) {
         contentContainerStyle={{ flex: 1 }}
         enabled={Platform.OS !== 'web'}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingBottom: 20 }}
           bounces={false}
           showsVerticalScrollIndicator={false}

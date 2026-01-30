@@ -24,11 +24,13 @@ import UploadJobModal from '../../components/modals/UploadJobModal';
 import { useJobFiltering } from '../../hooks/useJobFiltering';
 import JobFilterTabs from '../../components/worker/JobFilterTabs';
 import JobSearchHeader from '../../components/worker/JobSearchHeader';
+import { useAlert } from '../../context/AlertContext';
 
 export default function WorkerJobsScreen() {
     const navigation = useNavigation();
     const { user } = useAuth();
     const { theme, isDark } = useTheme();
+    const { showAlert } = useAlert();
 
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -48,7 +50,7 @@ export default function WorkerJobsScreen() {
             setJobs(data);
         } catch (error) {
             console.error('Error fetching jobs:', error);
-            Alert.alert('Hata', 'Görevler yüklenirken bir hata oluştu');
+            showAlert('Hata', 'Görevler yüklenirken bir hata oluştu', [], 'error');
         } finally {
             setLoading(false);
         }
@@ -152,7 +154,7 @@ export default function WorkerJobsScreen() {
                 onSuccess={() => {
                     setModalVisible(false);
                     onRefresh();
-                    Alert.alert('Başarılı', 'İş oluşturuldu.');
+                    showAlert('Başarılı', 'İş oluşturuldu.', [], 'success');
                 }}
             />
 

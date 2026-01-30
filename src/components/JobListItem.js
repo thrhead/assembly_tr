@@ -61,11 +61,18 @@ const JobListItem = ({ item, onPress }) => {
                 item.status === 'COMPLETED' && styles.cardCompleted
             ]}>
                 <View style={styles.cardContent}>
-                    {item.jobNo && (
-                        <Text style={{ fontSize: 10, fontWeight: 'bold', color: theme.colors.tertiary || '#f59e0b', marginBottom: 2 }}>
-                            {item.jobNo}
-                        </Text>
-                    )}
+                    <View style={{ flexDirection: 'row', gap: 8, marginBottom: 4 }}>
+                        {item.projectNo && (
+                            <Text style={{ fontSize: 9, fontWeight: 'bold', color: theme.colors.primary, backgroundColor: isDark ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 4 }}>
+                                {item.projectNo}
+                            </Text>
+                        )}
+                        {item.jobNo && (
+                            <Text style={{ fontSize: 9, fontWeight: 'bold', color: theme.colors.tertiary || '#f59e0b', backgroundColor: isDark ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.1)', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 4 }}>
+                                {item.jobNo}
+                            </Text>
+                        )}
+                    </View>
                     <View style={styles.cardHeader}>
                         <Text style={[styles.cardTitle, { color: theme.colors.text }, item.status === 'COMPLETED' && styles.textStrike]}>{item.title}</Text>
                         <View style={styles.headerRight}>

@@ -1,9 +1,10 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Alert } from 'react-native';
 import costService from '../services/cost.service';
 import jobService from '../services/job.service';
+import { useAlert } from '../context/AlertContext';
 
 export const useWorkerExpenses = () => {
+    const { showAlert } = useAlert();
     const [projects, setProjects] = useState([]);
     const [expenses, setExpenses] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -28,7 +29,7 @@ export const useWorkerExpenses = () => {
             }
         } catch (error) {
             console.error('Error loading expenses:', error);
-            Alert.alert('Hata', 'Masraflar yüklenirken bir hata oluştu.');
+            showAlert('Hata', 'Masraflar yüklenirken bir hata oluştu.', [], 'error');
         } finally {
             setLoading(false);
         }
@@ -36,12 +37,12 @@ export const useWorkerExpenses = () => {
 
     const createExpense = useCallback(async (formData, receiptImage) => {
         if (!formData.title || !formData.amount) {
-            Alert.alert('Hata', 'Lütfen başlık ve tutar giriniz.');
+            showAlert('Hata', 'Lütfen başlık ve tutar giriniz.', [], 'error');
             return false;
         }
 
         if (!formData.jobId) {
-            Alert.alert('Hata', 'Lütfen bir proje seçiniz. Eğer projeniz yoksa masraf ekleyemezsiniz.');
+            showAlert('Hata', 'Lütfen bir proje seçiniz. Eğer projeniz yoksa masraf ekleyemezsiniz.', [], 'error');
             return false;
         }
 
@@ -71,12 +72,12 @@ export const useWorkerExpenses = () => {
             }
 
             await costService.create(data);
-            Alert.alert('Başarılı', 'Masraf başarıyla eklendi.');
+            showAlert('Başarılı', 'Masraf başarıyla eklendi.', [], 'success');
             loadData(); // Reload data
             return true;
         } catch (error) {
             console.error('Create expense error:', error);
-            Alert.alert('Hata', 'Masraf eklenirken bir hata oluştu.');
+            showAlert('Hata', 'Masraf eklenirken bir hata oluştu.', [], 'error');
             return false;
         }
     }, [loadData]);

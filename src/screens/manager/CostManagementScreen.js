@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, RefreshControl, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, RefreshControl, TextInput, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import { useCostManagement } from '../../hooks/useCostManagement';
@@ -9,9 +9,11 @@ import CategoryFilter from '../../components/manager/CategoryFilter';
 import ExpenseList from '../../components/manager/ExpenseList';
 import DateFilter from '../../components/manager/DateFilter';
 import UserFilter from '../../components/manager/UserFilter';
+import { useAlert } from '../../context/AlertContext';
 
 export default function CostManagementScreen({ navigation }) {
     const { theme, isDark } = useTheme();
+    const { showAlert } = useAlert();
     const {
         jobs,
         users,
@@ -109,7 +111,7 @@ export default function CostManagementScreen({ navigation }) {
             {/* FAB */}
             <TouchableOpacity
                 style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-                onPress={() => Alert.alert('Yakında', 'Masraf ekleme özelliği yakında gelecek')}
+                onPress={() => showAlert('Yakında', 'Masraf ekleme özelliği yakında gelecek', [], 'warning')}
                 activeOpacity={0.8}
             >
                 <MaterialIcons name="add" size={28} color={theme.colors.textInverse} />

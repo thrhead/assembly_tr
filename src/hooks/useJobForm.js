@@ -6,6 +6,7 @@ import { CHECKLIST_TEMPLATES } from '../constants/templates';
 export const useJobForm = (job = null) => {
     const [formData, setFormData] = useState({
         title: job?.title || '',
+        projectNo: job?.projectNo || '',
         description: job?.description || '',
         customerId: job?.customerId || '',
         teamId: job?.assignments?.[0]?.teamId || '',
@@ -23,7 +24,7 @@ export const useJobForm = (job = null) => {
     const [loading, setLoading] = useState(false);
 
     // ... existing logic (addStep, removeStep, etc.) ...
-    
+
     // Copy existing methods from current file
     const addStep = () => {
         setSteps([...steps, { title: '', description: '', subSteps: [] }]);

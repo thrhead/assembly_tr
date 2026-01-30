@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Alert } from 'react-native';
 import jobService from '../services/job.service';
 import costService from '../services/cost.service';
+import { useAlert } from '../context/AlertContext';
 
 export const useApprovals = () => {
+    const { showAlert } = useAlert();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [approvals, setApprovals] = useState([]);
@@ -18,7 +19,7 @@ export const useApprovals = () => {
             setLoading(true);
             const pendingCosts = await costService.getAll({ status: 'PENDING' });
             const pendingJobs = await jobService.getAllJobs({ status: 'PENDING' });
-
+            // Using existing logic to format...
             const formattedCosts = pendingCosts.map(c => ({
                 id: c.id,
                 type: 'COST',
@@ -42,7 +43,7 @@ export const useApprovals = () => {
             setApprovals([...formattedJobs, ...formattedCosts]);
         } catch (error) {
             console.error('Error loading approvals:', error);
-            Alert.alert('Hata', 'Onay listesi yüklenemedi.');
+            showAlert('Hata', 'Onay listesi yüklenemedi.', [], 'error');
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -61,11 +62,11 @@ export const useApprovals = () => {
             } else if (item.type === 'JOB') {
                 await jobService.acceptJob(item.id);
             }
-            Alert.alert('Başarılı', 'Onaylandı.');
+            showAlert('Başarılı', 'Onaylandı.', [], 'success');
             loadApprovals();
         } catch (error) {
             console.error('Approve error:', error);
-            Alert.alert('Hata', 'İşlem başarısız.');
+            showAlert('Hata', 'İşlem başarısız.', [], 'error');
         }
     };
 
@@ -74,14 +75,14 @@ export const useApprovals = () => {
             if (item.type === 'COST') {
                 await costService.updateStatus(item.id, 'REJECTED', 'Yönetici tarafından reddedildi.');
             } else if (item.type === 'JOB') {
-                Alert.alert('Bilgi', 'İş reddetme henüz aktif değil.');
+                showAlert('Bilgi', 'İş reddetme henüz aktif değil.', [], 'info');
                 return;
             }
-            Alert.alert('Başarılı', 'Reddedildi.');
+            showAlert('Başarılı', 'Reddedildi.', [], 'success');
             loadApprovals();
         } catch (error) {
             console.error('Reject error:', error);
-            Alert.alert('Hata', 'İşlem başarısız.');
+            showAlert('Hata', 'İşlem başarısız.', [], 'error');
         }
     };
 

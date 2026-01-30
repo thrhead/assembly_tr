@@ -11,6 +11,7 @@ import { NetworkProvider } from './src/context/NetworkContext';
 import { OfflineBanner } from './src/components/OfflineBanner';
 import { COLORS } from './src/constants/theme';
 import { ThemeProvider } from './src/context/ThemeContext';
+import { AlertProvider } from './src/context/AlertContext';
 import LoginScreen from './src/screens/LoginScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import WorkerDashboardScreen from './src/screens/worker/WorkerDashboardScreen';
@@ -302,9 +303,11 @@ export default function App() {
             <ThemeProvider>
               <AuthProvider>
                 <SocketProvider>
-                  <OfflineBanner />
-                  <AppNavigator />
-                  <ToastNotification />
+                  <AlertProvider>
+                    <OfflineBanner />
+                    <AppNavigator />
+                    <ToastNotification />
+                  </AlertProvider>
                 </SocketProvider>
               </AuthProvider>
             </ThemeProvider>

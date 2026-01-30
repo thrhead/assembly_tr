@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Modal, Alert, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Modal, ActivityIndicator, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 // import { COLORS } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
@@ -8,9 +8,11 @@ import CustomButton from '../../components/CustomButton';
 import TeamCard from '../../components/manager/TeamCard';
 import MemberCard from '../../components/manager/MemberCard';
 import TeamFormModal from '../../components/manager/TeamFormModal';
+import { useAlert } from '../../context/AlertContext';
 
 export default function TeamListScreen({ navigation }) {
     const { theme, isDark } = useTheme();
+    const { showAlert } = useAlert();
     const {
         teams,
         members,
@@ -46,7 +48,7 @@ export default function TeamListScreen({ navigation }) {
 
     const handleSaveTeam = async (formData) => {
         if (!formData.name) {
-            Alert.alert('Hata', 'Ekip adı zorunludur.');
+            showAlert('Hata', 'Ekip adı zorunludur.', [], 'error');
             return;
         }
 

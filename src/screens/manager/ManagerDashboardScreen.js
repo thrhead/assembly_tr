@@ -7,10 +7,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import GlassCard from '../../components/ui/GlassCard';
 import StatCard from '../../components/StatCard';
 import { useManagerDashboardStats } from '../../hooks/useManagerDashboardStats';
+import { useAlert } from '../../context/AlertContext';
 
 export default function ManagerDashboardScreen({ navigation }) {
     const { user, logout } = useAuth();
     const { theme, toggleTheme, isDark } = useTheme();
+    const { showAlert } = useAlert();
     const { statsData, fetchStats, loading } = useManagerDashboardStats();
 
     React.useEffect(() => {
@@ -18,32 +20,25 @@ export default function ManagerDashboardScreen({ navigation }) {
     }, []);
 
     const handleLogout = async () => {
-        const performLogout = async () => {
-            try {
-                await logout();
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
-        };
-
-        if (Platform.OS === 'web') {
-            if (window.confirm('Çıkış yapmak istediğinize emin misiniz?')) {
-                performLogout();
-            }
-        } else {
-            Alert.alert(
-                'Çıkış Yap',
-                'Çıkmak istediğinize emin misiniz?',
-                [
-                    { text: 'İptal', style: 'cancel' },
-                    {
-                        text: 'Çıkış Yap',
-                        style: 'destructive',
-                        onPress: performLogout
+        showAlert(
+            'Çıkış Yap',
+            'Çıkmak istediğinize emin misiniz?',
+            [
+                { text: 'İptal', style: 'cancel' },
+                {
+                    text: 'Çıkış Yap',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await logout();
+                        } catch (error) {
+                            console.error('Logout error:', error);
+                        }
                     }
-                ]
-            );
-        }
+                }
+            ],
+            'question'
+        );
     };
 
     return (
@@ -116,15 +111,17 @@ export default function ManagerDashboardScreen({ navigation }) {
                 </View>
 
                 <View style={styles.statsContainer}>
-                    <GlassCard theme={theme} style={{ flex: 1, margin: 6, padding: 16 }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <View>
-                                <Text style={{ color: theme.colors.subText, fontSize: 10, fontWeight: '600' }}>BEKLEYEN ONAYLAR</Text>
-                                <Text style={{ color: theme.colors.text, fontSize: 24, fontWeight: 'bold' }}>{statsData.pendingApprovals}</Text>
+                    <TouchableOpacity style={{ flex: 1 }} onPress={() => navigation.navigate('Approvals')}>
+                        <GlassCard theme={theme} style={{ flex: 1, margin: 6, padding: 16 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <View>
+                                    <Text style={{ color: theme.colors.subText, fontSize: 10, fontWeight: '600' }}>BEKLEYEN ONAYLAR</Text>
+                                    <Text style={{ color: theme.colors.text, fontSize: 24, fontWeight: 'bold' }}>{statsData.pendingApprovals}</Text>
+                                </View>
+                                <MaterialIcons name="pending-actions" size={28} color="#f59e0b" />
                             </View>
-                            <MaterialIcons name="pending-actions" size={28} color="#f59e0b" />
-                        </View>
-                    </GlassCard>
+                        </GlassCard>
+                    </TouchableOpacity>
 
                     <GlassCard theme={theme} style={{ flex: 1, margin: 6, padding: 16 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

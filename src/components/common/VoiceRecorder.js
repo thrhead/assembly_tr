@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Audio } from 'expo-av';
 import { Mic, Square, Play, Trash2, Loader2 } from 'lucide-react-native';
 import { COLORS } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
+import { useAlert } from '../../context/AlertContext';
 
 const VoiceRecorder = ({ onRecordingComplete, existingAudioUrl = null, onDelete }) => {
     const { theme } = useTheme();
+    const { showAlert } = useAlert();
     const [recording, setRecording] = useState();
     const [permissionResponse, requestPermission] = Audio.usePermissions();
     const [audioUri, setAudioUri] = useState(existingAudioUrl);
@@ -44,7 +46,7 @@ const VoiceRecorder = ({ onRecordingComplete, existingAudioUrl = null, onDelete 
             console.log('Recording started');
         } catch (err) {
             console.error('Failed to start recording', err);
-            Alert.alert('Hata', 'Ses kaydı başlatılamadı.');
+            showAlert('Hata', 'Ses kaydı başlatılamadı.', [], 'error');
         }
     }
 
@@ -79,7 +81,7 @@ const VoiceRecorder = ({ onRecordingComplete, existingAudioUrl = null, onDelete 
             });
         } catch (error) {
             console.log('Error playing sound', error);
-            Alert.alert('Hata', 'Ses dosyası oynatılamadı.');
+            showAlert('Hata', 'Ses dosyası oynatılamadı.', [], 'error');
         }
     }
 

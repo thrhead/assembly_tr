@@ -16,6 +16,7 @@ import DashboardStatsGrid from '../../components/admin/DashboardStatsGrid';
 import { BarChart } from 'react-native-gifted-charts';
 import RecentJobsList from '../../components/admin/RecentJobsList';
 import DashboardBottomNav from '../../components/admin/DashboardBottomNav';
+import { useAlert } from '../../context/AlertContext';
 import { API_URL } from '../../config';
 
 const { width } = Dimensions.get('window');
@@ -24,6 +25,7 @@ export default function AdminDashboardScreen({ navigation }) {
     const { t } = useTranslation();
     const { user, logout } = useAuth();
     const { theme, toggleTheme, isDark } = useTheme();
+    const { showAlert } = useAlert();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -51,32 +53,25 @@ export default function AdminDashboardScreen({ navigation }) {
     }));
 
     const handleLogout = async () => {
-        const performLogout = async () => {
-            try {
-                await logout();
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
-        };
-
-        if (Platform.OS === 'web') {
-            if (window.confirm(t('profile.logoutConfirmDesc'))) {
-                performLogout();
-            }
-        } else {
-            Alert.alert(
-                t('profile.logoutConfirmTitle'),
-                t('profile.logoutConfirmDesc'),
-                [
-                    { text: t('common.cancel'), style: 'cancel' },
-                    {
-                        text: t('profile.logoutConfirmTitle'),
-                        style: 'destructive',
-                        onPress: performLogout
+        showAlert(
+            t('profile.logoutConfirmTitle'),
+            t('profile.logoutConfirmDesc'),
+            [
+                { text: t('common.cancel'), style: 'cancel' },
+                {
+                    text: t('profile.logoutConfirmTitle'),
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await logout();
+                        } catch (error) {
+                            console.error('Logout error:', error);
+                        }
                     }
-                ]
-            );
-        }
+                }
+            ],
+            'question'
+        );
     };
     const navItems = [
         { id: 'users', title: t('navigation.userManagement'), icon: Users, route: 'UserManagement', color: theme.colors.primary },

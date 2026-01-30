@@ -15,9 +15,24 @@ export default function NotificationsScreen({ navigation }) {
         }
 
         if (notification.link) {
-            const match = /\/jobs\/(\w+)/.exec(notification.link);
-            if (match && match[1]) {
-                navigation.navigate('JobDetail', { jobId: match[1] });
+            const link = notification.link;
+
+            // Job Detail matching
+            const jobMatch = /\/jobs\/([a-zA-Z0-9-]+)/.exec(link);
+            if (jobMatch && jobMatch[1]) {
+                navigation.navigate('JobDetail', { jobId: jobMatch[1] });
+                return;
+            }
+
+            // Other routes
+            if (link.includes('/approvals')) {
+                navigation.navigate('Approvals');
+            } else if (link.includes('/costs') || link.includes('/expenses')) {
+                navigation.navigate('CostManagement');
+            } else if (link.includes('/profile')) {
+                navigation.navigate('Profile');
+            } else if (link.includes('/jobs')) {
+                navigation.navigate('Jobs');
             }
         }
     }, [markAsRead, navigation]);

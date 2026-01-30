@@ -25,6 +25,7 @@ import costService from '../../services/cost.service';
 import { LinearGradient } from 'expo-linear-gradient';
 import StatCard from '../../components/StatCard';
 import JobCard from '../../components/JobCard';
+import { useAlert } from '../../context/AlertContext';
 
 if (Platform.OS === 'android') {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -53,6 +54,7 @@ const GlassCard = ({ children, style, onPress, theme }) => (
 export default function WorkerDashboardScreen({ navigation }) {
     const { user, logout } = useAuth();
     const { theme, toggleTheme, isDark, prefersReducedMotion } = useTheme();
+    const { showAlert } = useAlert();
 
     // State
     const [stats, setStats] = useState({
@@ -164,32 +166,25 @@ export default function WorkerDashboardScreen({ navigation }) {
                         <TouchableOpacity
                             style={[styles.iconButton, { backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }]}
                             onPress={() => {
-                                const performLogout = async () => {
-                                    try {
-                                        await logout();
-                                    } catch (error) {
-                                        console.error('Logout error:', error);
-                                    }
-                                };
-
-                                if (Platform.OS === 'web') {
-                                    if (window.confirm('Çıkış yapmak istediğinize emin misiniz?')) {
-                                        performLogout();
-                                    }
-                                } else {
-                                    Alert.alert(
-                                        'Çıkış Yap',
-                                        'Çıkmak istediğinize emin misiniz?',
-                                        [
-                                            { text: 'İptal', style: 'cancel' },
-                                            {
-                                                text: 'Çıkış Yap',
-                                                style: 'destructive',
-                                                onPress: performLogout
+                                showAlert(
+                                    'Çıkış Yap',
+                                    'Çıkmak istediğinize emin misiniz?',
+                                    [
+                                        { text: 'İptal', style: 'cancel' },
+                                        {
+                                            text: 'Çıkış Yap',
+                                            style: 'destructive',
+                                            onPress: async () => {
+                                                try {
+                                                    await logout();
+                                                } catch (error) {
+                                                    console.error('Logout error:', error);
+                                                }
                                             }
-                                        ]
-                                    );
-                                }
+                                        }
+                                    ],
+                                    'question'
+                                );
                             }}
                         >
                             <MaterialIcons name="logout" size={24} color="#ef4444" />

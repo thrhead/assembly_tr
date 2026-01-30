@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import jobService from '../../services/job.service';
 // import { COLORS } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
 import StatsSummary from '../../components/manager/StatsSummary';
 import JobReportList from '../../components/manager/JobReportList';
+import { useAlert } from '../../context/AlertContext';
 
 export default function JobAssignmentScreen({ navigation }) {
     const { theme, isDark } = useTheme();
+    const { showAlert } = useAlert();
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -24,7 +26,7 @@ export default function JobAssignmentScreen({ navigation }) {
             setJobs(jobsData);
         } catch (error) {
             console.error('Error loading data:', error);
-            Alert.alert('Hata', 'Veriler yüklenemedi');
+            showAlert('Hata', 'Veriler yüklenemedi', [], 'error');
         } finally {
             setLoading(false);
             setRefreshing(false);

@@ -5,12 +5,12 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
-    Alert,
     Platform,
     Modal,
     KeyboardAvoidingView
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useAlert } from '../../context/AlertContext';
 import DateTimePicker from '../../components/CustomDateTimePicker';
 import { COLORS } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
@@ -28,6 +28,7 @@ export default function EditJobScreen({ route, navigation }) {
     const { job } = route.params;
     const { theme, isDark } = useTheme();
     const { user } = useAuth();
+    const { showAlert } = useAlert();
     const [customers, setCustomers] = useState([]);
     const [teams, setTeams] = useState([]);
 
@@ -74,7 +75,7 @@ export default function EditJobScreen({ route, navigation }) {
             setTeams(teamsData);
         } catch (error) {
             console.error('Error loading data:', error);
-            Alert.alert('Hata', 'Veriler yüklenemedi');
+            showAlert('Hata', 'Veriler yüklenemedi', [], 'error');
         }
     };
 
@@ -199,6 +200,14 @@ export default function EditJobScreen({ route, navigation }) {
                             value={formData.title}
                             onChangeText={(text) => setFormData({ ...formData, title: text })}
                             placeholder="Örn: Klima Montajı - A Blok"
+                            theme={theme}
+                        />
+
+                        <CustomInput
+                            label="Proje No"
+                            value={formData.projectNo}
+                            onChangeText={(text) => setFormData({ ...formData, projectNo: text })}
+                            placeholder="Örn: PRJ-2024-001"
                             theme={theme}
                         />
 
@@ -370,31 +379,21 @@ export default function EditJobScreen({ route, navigation }) {
                             onPress={() => {
                                 const onConfirm = () => {
                                     submitJob(() => {
-                                        if (Platform.OS === 'web') {
-                                            window.alert("İş başarıyla güncellendi.");
-                                            navigation.goBack();
-                                        } else {
-                                            Alert.alert("Başarılı", "İş başarıyla güncellendi.", [
-                                                { text: "Tamam", onPress: () => navigation.goBack() }
-                                            ]);
-                                        }
+                                        showAlert("Başarılı", "İş başarıyla güncellendi.", [
+                                            { text: "Tamam", onPress: () => navigation.goBack() }
+                                        ], 'success');
                                     });
                                 };
 
-                                if (Platform.OS === 'web') {
-                                    if (window.confirm("Bu iş emrindeki değişiklikleri kaydetmek istediğinize emin misiniz?")) {
-                                        onConfirm();
-                                    }
-                                } else {
-                                    Alert.alert(
-                                        "Güncellemeyi Onayla",
-                                        "Bu iş emrindeki değişiklikleri kaydetmek istediğinize emin misiniz?",
-                                        [
-                                            { text: "İptal", style: "cancel" },
-                                            { text: "Evet, Kaydet", onPress: onConfirm }
-                                        ]
-                                    );
-                                }
+                                showAlert(
+                                    "Güncellemeyi Onayla",
+                                    "Bu iş emrindeki değişiklikleri kaydetmek istediğinize emin misiniz?",
+                                    [
+                                        { text: "İptal", style: "cancel" },
+                                        { text: "Evet, Kaydet", onPress: onConfirm }
+                                    ],
+                                    'question'
+                                );
                             }}
                             loading={loading}
                             style={{ flex: 1, backgroundColor: theme.colors.primary }}

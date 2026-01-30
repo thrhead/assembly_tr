@@ -7,4 +7,70 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 jest.mock('@react-native-community/netinfo', () => ({
   fetch: jest.fn(),
   addEventListener: jest.fn(),
+  useNetInfo: jest.fn(() => ({ type: 'wifi', isConnected: true })),
 }));
+
+jest.mock('react-native-reanimated', () => {
+  const Reanimated = require('react-native-reanimated/mock');
+  Reanimated.default.call = () => { };
+  return Reanimated;
+});
+
+// Mock Icons
+jest.mock('@expo/vector-icons', () => ({
+  MaterialIcons: 'MaterialIcons',
+  Ionicons: 'Ionicons',
+}));
+
+jest.mock('lucide-react-native', () => ({
+  Mic: 'Mic',
+  Square: 'Square',
+  Play: 'Play',
+  Trash2: 'Trash2',
+  Loader2: 'Loader2',
+  ClipboardCheck: 'ClipboardCheck',
+}));
+
+// Mock AlertContext
+jest.mock('./src/context/AlertContext', () => ({
+  useAlert: () => ({
+    showAlert: jest.fn(),
+  }),
+  AlertProvider: ({ children }) => children,
+}));
+
+// Mock ThemeContext
+jest.mock('./src/context/ThemeContext', () => ({
+  useTheme: () => ({
+    theme: {
+      colors: {
+        background: '#fff',
+        card: '#fff',
+        text: '#000',
+        primary: '#000',
+        border: '#ccc',
+        error: 'red',
+        subText: '#666'
+      }
+    },
+    isDark: false,
+    toggleTheme: jest.fn(),
+  }),
+  ThemeProvider: ({ children }) => children,
+}));
+
+// Mock Navigation
+jest.mock('@react-navigation/native', () => ({
+  ...jest.requireActual('@react-navigation/native'),
+  useNavigation: () => ({
+    navigate: jest.fn(),
+    goBack: jest.fn(),
+    canGoBack: jest.fn(() => true),
+  }),
+  useRoute: () => ({
+    params: {},
+  }),
+}));
+
+// Suppress megaphone errors
+global.setImmediate = global.setImmediate || ((fn, ...args) => setTimeout(fn, 0, ...args));

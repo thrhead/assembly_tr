@@ -67,11 +67,30 @@ const JobInfoCard = ({ job }) => {
             <View style={styles.headerRow}>
                 <View style={{ flex: 1 }}>
                     <Text style={[styles.jobTitle, { color: theme.colors.text }]}>{job.title}</Text>
-                    {job.jobNo && (
-                        <Text style={{ fontSize: 11, fontWeight: '900', color: theme.colors.tertiary || '#f59e0b', letterSpacing: 1, marginBottom: 4 }}>
-                            {t('worker.jobNo')}: {job.jobNo}
-                        </Text>
-                    )}
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 8 }}>
+                        <View>
+                            <Text style={{ fontSize: 10, color: theme.colors.subText, fontWeight: 'bold' }}>KAYIT ID</Text>
+                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: theme.colors.text }}>
+                                #{job.id?.toString().slice(-6).toUpperCase()}
+                            </Text>
+                        </View>
+                        {job.projectNo && (
+                            <View>
+                                <Text style={{ fontSize: 10, color: theme.colors.subText, fontWeight: 'bold' }}>PROJE NO</Text>
+                                <Text style={{ fontSize: 13, fontWeight: 'bold', color: theme.colors.primary }}>
+                                    {job.projectNo}
+                                </Text>
+                            </View>
+                        )}
+                        {job.jobNo && (
+                            <View>
+                                <Text style={{ fontSize: 10, color: theme.colors.subText, fontWeight: 'bold' }}>İŞ EMRİ NO</Text>
+                                <Text style={{ fontSize: 13, fontWeight: 'bold', color: theme.colors.secondary || '#10b981' }}>
+                                    {job.jobNo}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
                     <View style={styles.infoRow}>
                         <MaterialIcons name="business" size={16} color={theme.colors.subText} />
                         <Text style={[styles.infoText, { color: theme.colors.subText }]}>{job.customer?.company || job.customer?.name || 'Müşteri'}</Text>

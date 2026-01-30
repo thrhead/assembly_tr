@@ -22,9 +22,11 @@ import { useJobForm } from '../../hooks/useJobForm';
 import { CHECKLIST_TEMPLATES } from '../../constants/templates';
 import SelectionModal from '../../components/admin/SelectionModal';
 import ChecklistManager from '../../components/admin/ChecklistManager';
+import { useAlert } from '../../context/AlertContext';
 
 export default function CreateJobScreen({ navigation }) {
     const { theme, isDark } = useTheme();
+    const { showAlert } = useAlert();
     const [customers, setCustomers] = useState([]);
     const [teams, setTeams] = useState([]);
 
@@ -66,7 +68,7 @@ export default function CreateJobScreen({ navigation }) {
             setTeams(teamsData);
         } catch (error) {
             console.error('Error loading data:', error);
-            Alert.alert('Hata', 'Veriler yüklenemedi');
+            showAlert('Hata', 'Veriler yüklenemedi', [], 'error');
         }
     };
 
@@ -106,6 +108,14 @@ export default function CreateJobScreen({ navigation }) {
                             value={formData.title}
                             onChangeText={(text) => setFormData({ ...formData, title: text })}
                             placeholder="Örn: Klima Montajı - A Blok"
+                            theme={theme}
+                        />
+
+                        <CustomInput
+                            label="Proje No"
+                            value={formData.projectNo}
+                            onChangeText={(text) => setFormData({ ...formData, projectNo: text })}
+                            placeholder="Örn: PRJ-2024-001"
                             theme={theme}
                         />
 

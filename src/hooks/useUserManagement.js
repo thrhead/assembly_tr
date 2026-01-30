@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Alert } from 'react-native';
 import userService from '../services/user.service';
+import { useAlert } from '../context/AlertContext';
 
 export const useUserManagement = () => {
+    const { showAlert } = useAlert();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -19,7 +20,7 @@ export const useUserManagement = () => {
             setUsers(data);
         } catch (error) {
             console.error('Error loading users:', error);
-            Alert.alert('Hata', 'Kullanıcılar yüklenemedi.');
+            showAlert('Hata', 'Kullanıcılar yüklenemedi.', [], 'error');
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -46,12 +47,12 @@ export const useUserManagement = () => {
     const addUser = async (data) => {
         try {
             await userService.create(data);
-            Alert.alert('Başarılı', 'Kullanıcı oluşturuldu.');
+            showAlert('Başarılı', 'Kullanıcı oluşturuldu.', [], 'success');
             loadUsers();
             return true;
         } catch (error) {
             console.error('Save user error:', error);
-            Alert.alert('Hata', 'İşlem başarısız.');
+            showAlert('Hata', 'İşlem başarısız.', [], 'error');
             return false;
         }
     };
@@ -61,12 +62,12 @@ export const useUserManagement = () => {
             const updateData = { ...data };
             if (!updateData.password) delete updateData.password;
             await userService.update(id, updateData);
-            Alert.alert('Başarılı', 'Kullanıcı güncellendi.');
+            showAlert('Başarılı', 'Kullanıcı güncellendi.', [], 'success');
             loadUsers();
             return true;
         } catch (error) {
             console.error('Update user error:', error);
-            Alert.alert('Hata', 'İşlem başarısız.');
+            showAlert('Hata', 'İşlem başarısız.', [], 'error');
             return false;
         }
     };
@@ -74,12 +75,12 @@ export const useUserManagement = () => {
     const deleteUser = async (id) => {
         try {
             await userService.delete(id);
-            Alert.alert('Başarılı', 'Kullanıcı silindi.');
+            showAlert('Başarılı', 'Kullanıcı silindi.', [], 'success');
             loadUsers();
             return true;
         } catch (error) {
             console.error('Delete user error:', error);
-            Alert.alert('Hata', 'Kullanıcı silinemedi.');
+            showAlert('Hata', 'Kullanıcı silinemedi.', [], 'error');
             return false;
         }
     };

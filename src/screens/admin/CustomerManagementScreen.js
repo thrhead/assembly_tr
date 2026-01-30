@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, TextInput, Alert, Modal, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, TextInput, Modal, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 // import { COLORS } from '../../constants/theme';
 import { useTheme } from '../../context/ThemeContext';
 import { useCustomerManagement } from '../../hooks/useCustomerManagement';
 import CustomerListItem from '../../components/admin/CustomerListItem';
 import CustomerFormModal from '../../components/admin/CustomerFormModal';
+import { useAlert } from '../../context/AlertContext';
 
 export default function CustomerManagementScreen({ navigation, route }) {
     const { theme, isDark } = useTheme();
+    const { showAlert } = useAlert();
     const {
         filteredCustomers,
         loading,
@@ -50,12 +52,12 @@ export default function CustomerManagementScreen({ navigation, route }) {
 
     const handleSaveCustomer = async (formData) => {
         if (!formData.companyName || !formData.contactPerson || !formData.email) {
-            Alert.alert('Hata', 'Lütfen zorunlu alanları doldurun.');
+            showAlert('Hata', 'Lütfen zorunlu alanları doldurun.', [], 'error');
             return;
         }
 
         if (!formData.email.includes('@')) {
-            Alert.alert('Hata', 'Geçerli bir email adresi girin.');
+            showAlert('Hata', 'Geçerli bir email adresi girin.', [], 'error');
             return;
         }
 
@@ -72,7 +74,7 @@ export default function CustomerManagementScreen({ navigation, route }) {
     };
 
     const handleDeleteCustomer = (customer) => {
-        Alert.alert(
+        showAlert(
             'Müşteriyi Sil',
             `${customer.companyName} müşterisini silmek istediğinize emin misiniz?`,
             [
@@ -82,7 +84,8 @@ export default function CustomerManagementScreen({ navigation, route }) {
                     style: 'destructive',
                     onPress: () => deleteCustomer(customer.id)
                 }
-            ]
+            ],
+            'question'
         );
     };
 

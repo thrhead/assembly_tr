@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Switch
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useAlert } from '../context/AlertContext';
 import authService from '../services/auth.service';
 import notificationService from '../services/notification.service';
 import RoleBadge from '../components/RoleBadge';
@@ -15,6 +16,7 @@ export default function ProfileScreen({ navigation }) {
     const { t } = useTranslation();
     const { user, logout } = useAuth();
     const { theme, isDark, toggleTheme } = useTheme();
+    const { showAlert } = useAlert();
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -53,24 +55,24 @@ export default function ProfileScreen({ navigation }) {
 
     const handlePasswordChange = async () => {
         if (newPassword !== confirmPassword) {
-            Alert.alert(t('common.error'), t('profile.passwordMismatch'));
+            showAlert(t('common.error'), t('profile.passwordMismatch'), [], 'error');
             return;
         }
 
         if (newPassword.length < 6) {
-            Alert.alert(t('common.error'), t('profile.passwordTooShort'));
+            showAlert(t('common.error'), t('profile.passwordTooShort'), [], 'error');
             return;
         }
 
         try {
             await authService.changePassword(oldPassword, newPassword);
-            Alert.alert(t('common.success'), t('profile.passwordSuccess'));
+            showAlert(t('common.success'), t('profile.passwordSuccess'), [], 'success');
             setOldPassword('');
             setNewPassword('');
             setConfirmPassword('');
         } catch (error) {
             console.error('Password change error:', error);
-            Alert.alert(t('common.error'), error.message || t('common.error'));
+            showAlert(t('common.error'), error.message || t('common.error'), [], 'error');
         }
     };
 
@@ -84,11 +86,7 @@ export default function ProfileScreen({ navigation }) {
         };
 
         if (Platform.OS === 'web') {
-            if (window.confirm(t('profile.logoutConfirmDesc'))) {
-                performLogout();
-            }
-        } else {
-            Alert.alert(
+            showAlert(
                 t('profile.logoutConfirmTitle'),
                 t('profile.logoutConfirmDesc'),
                 [
@@ -98,7 +96,22 @@ export default function ProfileScreen({ navigation }) {
                         style: 'destructive',
                         onPress: performLogout
                     }
-                ]
+                ],
+                'question'
+            );
+        } else {
+            showAlert(
+                t('profile.logoutConfirmTitle'),
+                t('profile.logoutConfirmDesc'),
+                [
+                    { text: t('common.cancel'), style: 'cancel' },
+                    {
+                        text: t('navigation.logout'),
+                        style: 'destructive',
+                        onPress: performLogout
+                    }
+                ],
+                'question'
             );
         }
     };
@@ -131,7 +144,7 @@ export default function ProfileScreen({ navigation }) {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.inputLabel, { color: theme.colors.subText }]}>{t('profile.currentPassword')}</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]}                            placeholder={t('profile.currentPasswordPlaceholder')}
+                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]} placeholder={t('profile.currentPasswordPlaceholder')}
                             placeholderTextColor={theme.colors.subText}
                             secureTextEntry
                             value={oldPassword}
@@ -141,7 +154,7 @@ export default function ProfileScreen({ navigation }) {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.inputLabel, { color: theme.colors.subText }]}>{t('profile.newPassword')}</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]}                            placeholder={t('profile.newPasswordPlaceholder')}
+                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]} placeholder={t('profile.newPasswordPlaceholder')}
                             placeholderTextColor={theme.colors.subText}
                             secureTextEntry
                             value={newPassword}
@@ -151,7 +164,7 @@ export default function ProfileScreen({ navigation }) {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.inputLabel, { color: theme.colors.subText }]}>{t('profile.confirmPassword')}</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]}                            placeholder={t('profile.confirmPasswordPlaceholder')}
+                            style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: theme.colors.text, borderColor: theme.colors.border }]} placeholder={t('profile.confirmPasswordPlaceholder')}
                             placeholderTextColor={theme.colors.subText}
                             secureTextEntry
                             value={confirmPassword}

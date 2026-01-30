@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, FlatList, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, FlatList, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserManagement } from '../../hooks/useUserManagement';
 import UserListItem from '../../components/admin/UserListItem';
 import UserFormModal from '../../components/admin/UserFormModal';
+import { useAlert } from '../../context/AlertContext';
 
 export default function UserManagementScreen({ navigation, route }) {
     const { theme, isDark } = useTheme();
+    const { showAlert } = useAlert();
     const {
         filteredUsers,
         loading,
@@ -61,7 +63,7 @@ export default function UserManagementScreen({ navigation, route }) {
     };
 
     const handleDeleteUser = (user) => {
-        Alert.alert(
+        showAlert(
             'Kullanıcıyı Sil',
             `${user.name} kullanıcısını silmek istediğinize emin misiniz?`,
             [
@@ -71,7 +73,8 @@ export default function UserManagementScreen({ navigation, route }) {
                     style: 'destructive',
                     onPress: () => deleteUser(user.id)
                 }
-            ]
+            ],
+            'question'
         );
     };
 

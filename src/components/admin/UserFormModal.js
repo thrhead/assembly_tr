@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, ScrollView, TouchableOpacity, StyleSheet, Alert, Switch } from 'react-native';
+import { View, Text, Modal, ScrollView, TouchableOpacity, StyleSheet, Switch } from 'react-native';
 import CustomInput from '../CustomInput';
 import CustomButton from '../CustomButton';
 import { COLORS } from '../../constants/theme';
+import { useAlert } from '../../context/AlertContext';
 
 const UserFormModal = ({ visible, onClose, initialData, onSave, theme }) => {
+    const { showAlert } = useAlert();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -47,11 +49,11 @@ const UserFormModal = ({ visible, onClose, initialData, onSave, theme }) => {
 
     const handleSave = () => {
         if (!formData.name || !formData.email || !formData.role) {
-            Alert.alert('Hata', 'Lütfen tüm zorunlu alanları doldurun.');
+            showAlert('Hata', 'Lütfen tüm zorunlu alanları doldurun.', [], 'error');
             return;
         }
         if (!initialData && !formData.password) {
-            Alert.alert('Hata', 'Yeni kullanıcı için şifre zorunludur.');
+            showAlert('Hata', 'Yeni kullanıcı için şifre zorunludur.', [], 'error');
             return;
         }
         onSave(formData);
