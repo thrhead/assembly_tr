@@ -212,5 +212,34 @@
   },
   "settings": {
     "language": "Dil"
+  },
+  "status": {
+    "PENDING": "Beklemede",
+    "IN_PROGRESS": "Devam Ediyor",
+    "COMPLETED": "Tamamlandı",
+    "CANCELLED": "İptal Edildi"
+  },
+  "acceptance": {
+    "PENDING": "Onay Bekliyor",
+    "ACCEPTED": "Kabul Edildi",
+    "REJECTED": "Reddedildi"
+  },
+  "editJob": {
+    "title": "İşi Düzenle",
+    "projectNo": "Proje No",
+    "projectNoPlaceholder": "Örn: PRJ-2024-001",
+    "jobStatus": "İş Durumu",
+    "acceptanceStatus": "Kabul Durumu",
+    "plannedDates": "Planlanan Tarihler",
+    "actualDates": "Gerçekleşen Tarihler",
+    "actualStart": "Gerçek Başlangıç",
+    "actualEnd": "Gerçek Bitiş",
+    "notSpecified": "Belirtilmemiş",
+    "update": "Güncelle",
+    "updateSuccess": "İş başarıyla güncellendi.",
+    "confirmUpdateTitle": "Güncellemeyi Onayla",
+    "confirmUpdateDesc": "Bu iş emrindeki değişiklikleri kaydetmek istediğinize emin misiniz?",
+    "yesSave": "Evet, Kaydet",
+    "selectDate": "Tarih Seç"
   }
 }

@@ -75,37 +75,26 @@ export default function EditJobScreen({ route, navigation }) {
             setTeams(teamsData);
         } catch (error) {
             console.error('Error loading data:', error);
-            showAlert('Hata', 'Veriler yüklenemedi', [], 'error');
+            showAlert(t('common.error'), t('jobs.fetchError'), [], 'error');
         }
     };
 
     const getCustomerLabel = () => {
         const customer = customers.find(c => c.id === formData.customerId);
-        return customer ? `${customer.company || customer.companyName} (${customer.user?.name || customer.contactPerson})` : 'Müşteri Seçiniz';
+        return customer ? `${customer.company || customer.companyName} (${customer.user?.name || customer.contactPerson})` : t('jobs.selectCustomer');
     };
 
     const getTeamLabel = () => {
         const team = teams.find(t => t.id === formData.teamId);
-        return team ? team.name : 'Ekip Seçiniz (Opsiyonel)';
+        return team ? team.name : `${t('jobs.selectTeam')} ${t('jobs.optional')}`;
     };
 
     const getStatusLabel = (status) => {
-        const labels = {
-            'PENDING': 'Beklemede',
-            'IN_PROGRESS': 'Devam Ediyor',
-            'COMPLETED': 'Tamamlandı',
-            'CANCELLED': 'İptal Edildi'
-        };
-        return labels[status] || status;
+        return t(`status.${status}`) || status;
     };
 
     const getAcceptanceLabel = (status) => {
-        const labels = {
-            'PENDING': 'Onay Bekliyor',
-            'ACCEPTED': 'Kabul Edildi',
-            'REJECTED': 'Reddedildi'
-        };
-        return labels[status] || status;
+        return t(`acceptance.${status}`) || status;
     };
 
     const renderDatePicker = (show, setShow, dateValue, field) => {
@@ -117,7 +106,7 @@ export default function EditJobScreen({ route, navigation }) {
                     <View style={styles.modalOverlay}>
                         <View style={[styles.modalContent, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
                             <View style={[styles.modalHeader, { borderBottomColor: theme.colors.border }]}>
-                                <Text style={[styles.modalTitle, { color: theme.colors.text }]}>Tarih Seç</Text>
+                                <Text style={[styles.modalTitle, { color: theme.colors.text }]}>{t('editJob.selectDate')}</Text>
                                 <TouchableOpacity onPress={() => setShow(false)}>
                                     <MaterialIcons name="close" size={24} color={theme.colors.subText} />
                                 </TouchableOpacity>
@@ -182,7 +171,7 @@ export default function EditJobScreen({ route, navigation }) {
                 <TouchableOpacity onPress={handleBack} style={styles.backButton}>
                     <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: theme.colors.text }]}>İşi Düzenle</Text>
+                <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{t('editJob.title')}</Text>
                 <View style={{ width: 40 }} />
             </View>
 
@@ -196,24 +185,24 @@ export default function EditJobScreen({ route, navigation }) {
                 >
                     <View style={styles.section}>
                         <CustomInput
-                            label="İş Başlığı *"
+                            label={`${t('jobs.jobTitle')} *`}
                             value={formData.title}
                             onChangeText={(text) => setFormData({ ...formData, title: text })}
-                            placeholder="Örn: Klima Montajı - A Blok"
+                            placeholder={t('jobs.titlePlaceholder')}
                             theme={theme}
                         />
 
                         <CustomInput
-                            label="Proje No"
+                            label={t('editJob.projectNo')}
                             value={formData.projectNo}
                             onChangeText={(text) => setFormData({ ...formData, projectNo: text })}
-                            placeholder="Örn: PRJ-2024-001"
+                            placeholder={t('editJob.projectNoPlaceholder')}
                             theme={theme}
                         />
 
                         <View style={styles.row}>
                             <View style={styles.col}>
-                                <Text style={[styles.label, { color: theme.colors.subText }]}>Müşteri *</Text>
+                                <Text style={[styles.label, { color: theme.colors.subText }]}>{t('jobs.customer')} *</Text>
                                 <TouchableOpacity
                                     style={[styles.selector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
                                     onPress={() => setShowCustomerModal(true)}
@@ -222,7 +211,7 @@ export default function EditJobScreen({ route, navigation }) {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.col}>
-                                <Text style={[styles.label, { color: theme.colors.subText }]}>Atanacak Ekip</Text>
+                                <Text style={[styles.label, { color: theme.colors.subText }]}>{t('jobs.assignTeam')}</Text>
                                 <TouchableOpacity
                                     style={[styles.selector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
                                     onPress={() => setShowTeamModal(true)}
@@ -234,7 +223,7 @@ export default function EditJobScreen({ route, navigation }) {
 
                         <View style={styles.row}>
                             <View style={styles.col}>
-                                <Text style={[styles.label, { color: theme.colors.subText }]}>İş Durumu</Text>
+                                <Text style={[styles.label, { color: theme.colors.subText }]}>{t('editJob.jobStatus')}</Text>
                                 <TouchableOpacity
                                     style={[styles.selector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
                                     onPress={() => setShowStatusModal(true)}
@@ -243,7 +232,7 @@ export default function EditJobScreen({ route, navigation }) {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.col}>
-                                <Text style={[styles.label, { color: theme.colors.subText }]}>Kabul Durumu</Text>
+                                <Text style={[styles.label, { color: theme.colors.subText }]}>{t('editJob.acceptanceStatus')}</Text>
                                 <TouchableOpacity
                                     style={[styles.selector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
                                     onPress={() => setShowAcceptanceStatusModal(true)}
@@ -255,17 +244,17 @@ export default function EditJobScreen({ route, navigation }) {
 
                         <View style={styles.row}>
                             <View style={styles.col}>
-                                <Text style={[styles.label, { color: theme.colors.subText }]}>Öncelik</Text>
+                                <Text style={[styles.label, { color: theme.colors.subText }]}>{t('jobs.priority')}</Text>
                                 <TouchableOpacity
                                     style={[styles.selector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
                                     onPress={() => setShowPriorityModal(true)}
                                 >
-                                    <Text style={[styles.selectorText, { color: theme.colors.text }]}>{formData.priority}</Text>
+                                    <Text style={[styles.selectorText, { color: theme.colors.text }]}>{formData.priority ? t(`jobs.${formData.priority.toLowerCase()}`) : formData.priority}</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.col}>
                                 <CustomInput
-                                    label="Konum"
+                                    label={t('jobs.location')}
                                     value={formData.location}
                                     onChangeText={(text) => setFormData({ ...formData, location: text })}
                                     theme={theme}
@@ -273,10 +262,10 @@ export default function EditJobScreen({ route, navigation }) {
                             </View>
                         </View>
 
-                        <Text style={[styles.sectionSubtitle, { color: theme.colors.primary }]}>Planlanan Tarihler</Text>
+                        <Text style={[styles.sectionSubtitle, { color: theme.colors.primary }]}>{t('editJob.plannedDates')}</Text>
                         <View style={styles.row}>
                             <View style={styles.col}>
-                                <Text style={[styles.label, { color: theme.colors.subText }]}>Başlangıç</Text>
+                                <Text style={[styles.label, { color: theme.colors.subText }]}>{t('jobs.start')}</Text>
                                 <TouchableOpacity
                                     style={[styles.dateSelector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
                                     onPress={() => setShowStartDatePicker(true)}
@@ -290,7 +279,7 @@ export default function EditJobScreen({ route, navigation }) {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.col}>
-                                <Text style={[styles.label, { color: theme.colors.subText }]}>Bitiş</Text>
+                                <Text style={[styles.label, { color: theme.colors.subText }]}>{t('jobs.end')}</Text>
                                 <TouchableOpacity
                                     style={[styles.dateSelector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
                                     onPress={() => setShowEndDatePicker(true)}
@@ -305,16 +294,16 @@ export default function EditJobScreen({ route, navigation }) {
                             </View>
                         </View>
 
-                        <Text style={[styles.sectionSubtitle, { color: theme.colors.primary, marginTop: 12 }]}>Gerçekleşen Tarihler</Text>
+                        <Text style={[styles.sectionSubtitle, { color: theme.colors.primary, marginTop: 12 }]}>{t('editJob.actualDates')}</Text>
                         <View style={styles.row}>
                             <View style={styles.col}>
-                                <Text style={[styles.label, { color: theme.colors.subText }]}>Gerçek Başlangıç</Text>
+                                <Text style={[styles.label, { color: theme.colors.subText }]}>{t('editJob.actualStart')}</Text>
                                 <TouchableOpacity
                                     style={[styles.dateSelector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
                                     onPress={() => setShowActualStartDatePicker(true)}
                                 >
                                     <Text style={[styles.dateText, { color: formData.startedAt ? theme.colors.text : theme.colors.subText }]}>
-                                        {formData.startedAt ? formData.startedAt.toLocaleDateString('tr-TR') : 'Belirtilmemiş'}
+                                        {formData.startedAt ? formData.startedAt.toLocaleDateString('tr-TR') : t('editJob.notSpecified')}
                                     </Text>
                                     {formData.startedAt && (
                                         <Text style={[styles.timeText, { color: theme.colors.subText }]}>
@@ -324,13 +313,13 @@ export default function EditJobScreen({ route, navigation }) {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.col}>
-                                <Text style={[styles.label, { color: theme.colors.subText }]}>Gerçek Bitiş</Text>
+                                <Text style={[styles.label, { color: theme.colors.subText }]}>{t('editJob.actualEnd')}</Text>
                                 <TouchableOpacity
                                     style={[styles.dateSelector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
                                     onPress={() => setShowActualEndDatePicker(true)}
                                 >
                                     <Text style={[styles.dateText, { color: formData.completedDate ? theme.colors.text : theme.colors.subText }]}>
-                                        {formData.completedDate ? formData.completedDate.toLocaleDateString('tr-TR') : 'Belirtilmemiş'}
+                                        {formData.completedDate ? formData.completedDate.toLocaleDateString('tr-TR') : t('editJob.notSpecified')}
                                     </Text>
                                     {formData.completedDate && (
                                         <Text style={[styles.timeText, { color: theme.colors.subText }]}>
@@ -342,10 +331,10 @@ export default function EditJobScreen({ route, navigation }) {
                         </View>
 
                         <CustomInput
-                            label="Açıklama"
+                            label={t('jobs.description')}
                             value={formData.description}
                             onChangeText={(text) => setFormData({ ...formData, description: text })}
-                            placeholder="İş detayları..."
+                            placeholder={t('jobs.descriptionPlaceholder')}
                             multiline
                             numberOfLines={3}
                             theme={theme}
@@ -368,29 +357,29 @@ export default function EditJobScreen({ route, navigation }) {
 
                     <View style={styles.footer}>
                         <CustomButton
-                            title="İptal"
+                            title={t('common.cancel')}
                             variant="outline"
                             onPress={() => navigation.goBack()}
                             style={{ flex: 1, marginRight: 8, borderColor: theme.colors.border }}
                             textStyle={{ color: theme.colors.text }}
                         />
                         <CustomButton
-                            title="Güncelle"
+                            title={t('editJob.update')}
                             onPress={() => {
                                 const onConfirm = () => {
                                     submitJob(() => {
-                                        showAlert("Başarılı", "İş başarıyla güncellendi.", [
-                                            { text: "Tamam", onPress: () => navigation.goBack() }
+                                        showAlert(t('common.success'), t('editJob.updateSuccess'), [
+                                            { text: t('common.confirm'), onPress: () => navigation.goBack() }
                                         ], 'success');
                                     });
                                 };
 
                                 showAlert(
-                                    "Güncellemeyi Onayla",
-                                    "Bu iş emrindeki değişiklikleri kaydetmek istediğinize emin misiniz?",
+                                    t('editJob.confirmUpdateTitle'),
+                                    t('editJob.confirmUpdateDesc'),
                                     [
-                                        { text: "İptal", style: "cancel" },
-                                        { text: "Evet, Kaydet", onPress: onConfirm }
+                                        { text: t('common.cancel'), style: "cancel" },
+                                        { text: t('editJob.yesSave'), onPress: onConfirm }
                                     ],
                                     'question'
                                 );
@@ -408,7 +397,7 @@ export default function EditJobScreen({ route, navigation }) {
             <SelectionModal
                 visible={showCustomerModal}
                 onClose={() => setShowCustomerModal(false)}
-                title="Müşteri Seç"
+                title={t('jobs.selectCustomer')}
                 items={customers}
                 onSelect={(item) => setFormData({ ...formData, customerId: item.id })}
                 selectedId={formData.customerId}
@@ -419,7 +408,7 @@ export default function EditJobScreen({ route, navigation }) {
             <SelectionModal
                 visible={showTeamModal}
                 onClose={() => setShowTeamModal(false)}
-                title="Ekip Seç"
+                title={t('jobs.selectTeam')}
                 items={teams}
                 onSelect={(item) => setFormData({ ...formData, teamId: item.id })}
                 selectedId={formData.teamId}
@@ -430,7 +419,7 @@ export default function EditJobScreen({ route, navigation }) {
             <SelectionModal
                 visible={showPriorityModal}
                 onClose={() => setShowPriorityModal(false)}
-                title="Öncelik Seç"
+                title={t('jobs.selectPriority')}
                 items={['LOW', 'MEDIUM', 'HIGH', 'URGENT']}
                 onSelect={(item) => setFormData({ ...formData, priority: item })}
                 selectedId={formData.priority}
@@ -440,12 +429,12 @@ export default function EditJobScreen({ route, navigation }) {
             <SelectionModal
                 visible={showStatusModal}
                 onClose={() => setShowStatusModal(false)}
-                title="İş Durumu Seç"
+                title={t('editJob.jobStatus') + ' ' + t('common.select') || 'Seç'} // Fallback if common.select not exists
                 items={[
-                    { id: 'PENDING', name: 'Beklemede' },
-                    { id: 'IN_PROGRESS', name: 'Devam Ediyor' },
-                    { id: 'COMPLETED', name: 'Tamamlandı' },
-                    { id: 'CANCELLED', name: 'İptal Edildi' }
+                    { id: 'PENDING', name: t('status.PENDING') },
+                    { id: 'IN_PROGRESS', name: t('status.IN_PROGRESS') },
+                    { id: 'COMPLETED', name: t('status.COMPLETED') },
+                    { id: 'CANCELLED', name: t('status.CANCELLED') }
                 ]}
                 onSelect={(item) => setFormData({ ...formData, status: item.id })}
                 selectedId={formData.status}
@@ -456,11 +445,11 @@ export default function EditJobScreen({ route, navigation }) {
             <SelectionModal
                 visible={showAcceptanceStatusModal}
                 onClose={() => setShowAcceptanceStatusModal(false)}
-                title="Kabul Durumu Seç"
+                title={t('editJob.acceptanceStatus') + ' ' + t('common.select') || 'Seç'}
                 items={[
-                    { id: 'PENDING', name: 'Onay Bekliyor' },
-                    { id: 'ACCEPTED', name: 'Kabul Edildi' },
-                    { id: 'REJECTED', name: 'Reddedildi' }
+                    { id: 'PENDING', name: t('acceptance.PENDING') },
+                    { id: 'ACCEPTED', name: t('acceptance.ACCEPTED') },
+                    { id: 'REJECTED', name: t('acceptance.REJECTED') }
                 ]}
                 onSelect={(item) => setFormData({ ...formData, acceptanceStatus: item.id })}
                 selectedId={formData.acceptanceStatus}
@@ -471,7 +460,7 @@ export default function EditJobScreen({ route, navigation }) {
             <SelectionModal
                 visible={showTemplateModal}
                 onClose={() => setShowTemplateModal(false)}
-                title="Şablon Seç"
+                title={t('jobs.selectTemplate')}
                 items={Object.keys(CHECKLIST_TEMPLATES).map(key => ({ key, ...CHECKLIST_TEMPLATES[key] }))}
                 onSelect={(item) => {
                     loadTemplate(item.key);
