@@ -23,8 +23,10 @@ import { useJobForm } from "../../hooks/useJobForm";
 import { CHECKLIST_TEMPLATES } from "../../constants/templates";
 import SelectionModal from "../../components/admin/SelectionModal";
 import ChecklistManager from "../../components/admin/ChecklistManager";
+import { useTranslation } from "react-i18next";
 
 export default function EditJobScreen({ route, navigation }) {
+  const { t } = useTranslation();
   const { job } = route.params;
   const { theme, isDark } = useTheme();
   const { user } = useAuth();

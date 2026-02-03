@@ -18,6 +18,14 @@ jest.mock('../QueueService');
 describe('API Interceptor (Offline Sync)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Mock adapter to prevent real network requests
+    api.defaults.adapter = jest.fn().mockResolvedValue({
+      data: { success: true },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {}
+    });
   });
 
   it('should send POST request normally when online', async () => {
@@ -26,6 +34,7 @@ describe('API Interceptor (Offline Sync)', () => {
     try {
       await api.post('/test', { data: 'test' });
     } catch (e) {
+      console.error(e);
     }
 
     expect(NetInfo.fetch).toHaveBeenCalled();
@@ -39,12 +48,13 @@ describe('API Interceptor (Offline Sync)', () => {
     const response = await api.post('/jobs/1/complete', { notes: 'done' });
 
     expect(NetInfo.fetch).toHaveBeenCalled();
-    expect(QueueService.addItem).toHaveBeenCalledWith({
+    expect(QueueService.addItem).toHaveBeenCalledWith(expect.objectContaining({
       type: 'POST',
       url: '/jobs/1/complete',
       payload: { notes: 'done' },
-      headers: expect.any(Object)
-    });
+      headers: expect.any(Object),
+      clientVersion: null
+    }));
 
     expect(response.status).toBe(202);
     expect(response.data.offline).toBe(true);

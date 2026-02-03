@@ -20,7 +20,12 @@ describe('JobService (Offline Support)', () => {
 
     const result = await jobService.completeJob('123');
 
-    expect(api.post).toHaveBeenCalledWith('/api/worker/jobs/123/complete');
+    expect(api.post).toHaveBeenCalledWith('/api/worker/jobs/123/complete', {
+      signature: undefined,
+      signatureLatitude: undefined,
+      signatureLongitude: undefined,
+      updatedAt: undefined
+    });
     expect(result.offline).toBe(true);
     expect(result.message).toContain('kuyruğa alındı');
   });

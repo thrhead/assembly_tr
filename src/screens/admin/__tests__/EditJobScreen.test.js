@@ -58,8 +58,8 @@ const mockRoute = {
 
 describe('EditJobScreen', () => {
     beforeEach(() => {
-        (customerService.getAll as jest.Mock).mockResolvedValue([]);
-        (teamService.getAll as jest.Mock).mockResolvedValue([]);
+        customerService.getAll.mockResolvedValue([]);
+        teamService.getAll.mockResolvedValue([]);
     });
 
     it('renders correctly with job data', async () => {

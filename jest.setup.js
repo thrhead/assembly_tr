@@ -10,7 +10,20 @@ jest.mock('@react-native-community/netinfo', () => ({
   useNetInfo: jest.fn(() => ({ type: 'wifi', isConnected: true })),
 }));
 
-// Reanimated mock removed
+// Mock Expo File System
+jest.mock('expo-file-system', () => ({
+  documentDirectory: 'file:///test-directory/',
+  getInfoAsync: jest.fn(() => Promise.resolve({ exists: true, isDirectory: true })),
+  makeDirectoryAsync: jest.fn(() => Promise.resolve()),
+  writeAsStringAsync: jest.fn(() => Promise.resolve()),
+  deleteAsync: jest.fn(() => Promise.resolve()),
+  readAsStringAsync: jest.fn(() => Promise.resolve('')),
+}));
+
+// Mock Expo Constants (common dependency)
+jest.mock('expo-constants', () => ({
+  manifest: { extra: {} },
+}));
 
 // Mock Icons
 jest.mock('@expo/vector-icons', () => ({
