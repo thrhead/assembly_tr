@@ -10,11 +10,7 @@ jest.mock('@react-native-community/netinfo', () => ({
   useNetInfo: jest.fn(() => ({ type: 'wifi', isConnected: true })),
 }));
 
-jest.mock('react-native-reanimated', () => {
-  const Reanimated = require('react-native-reanimated/mock');
-  Reanimated.default.call = () => { };
-  return Reanimated;
-});
+// Reanimated mock removed
 
 // Mock Icons
 jest.mock('@expo/vector-icons', () => ({
@@ -70,6 +66,18 @@ jest.mock('@react-navigation/native', () => ({
   useRoute: () => ({
     params: {},
   }),
+}));
+
+// Mock i18n
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key) => key,
+    i18n: {
+      changeLanguage: jest.fn(),
+      language: 'tr',
+    },
+  }),
+  Trans: ({ children }) => children,
 }));
 
 // Suppress megaphone errors
