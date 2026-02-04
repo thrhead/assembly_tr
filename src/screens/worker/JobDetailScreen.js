@@ -998,9 +998,16 @@ Assembly Tracker Ltd. Şti.
                                             </TouchableOpacity>
                                             <View style={{ flex: 1 }}>
                                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <Text style={[styles.stepTitle, step.isCompleted && styles.completedText, { color: theme.colors.text }]}>
-                                                        {step.title || step.name}
-                                                    </Text>
+                                                    <View style={{ flex: 1 }}>
+                                                        {step.stepNo && (
+                                                            <Text style={{ fontSize: 10, color: theme.colors.primary, fontWeight: 'bold', fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>
+                                                                {step.stepNo}
+                                                            </Text>
+                                                        )}
+                                                        <Text style={[styles.stepTitle, step.isCompleted && styles.completedText, { color: theme.colors.text }]}>
+                                                            {step.title || step.name}
+                                                        </Text>
+                                                    </View>
                                                     {step.isCompleted && (
                                                         <View style={[
                                                             styles.badge,
