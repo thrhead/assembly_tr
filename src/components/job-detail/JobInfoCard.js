@@ -108,7 +108,28 @@ const JobInfoCard = ({ job }) => {
               marginTop: 4
             }}
           >
-            {job.projectNo && (
+            <View>
+              <Text
+                style={{
+                  fontSize: 10,
+                  color: theme.colors.subText,
+                  fontWeight: "bold",
+                }}
+              >
+                PROJE NO
+              </Text>
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: "bold",
+                  color: theme.colors.primary,
+                }}
+              >
+                {job.jobNo || job.projectNo || "OTOMATİK"}
+              </Text>
+            </View>
+
+            {job.projectNo && job.projectNo !== job.jobNo && (
               <View>
                 <Text
                   style={{
@@ -117,29 +138,7 @@ const JobInfoCard = ({ job }) => {
                     fontWeight: "bold",
                   }}
                 >
-                  PROJE NO
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 13,
-                    fontWeight: "bold",
-                    color: theme.colors.primary,
-                  }}
-                >
-                  {job.projectNo}
-                </Text>
-              </View>
-            )}
-            {job.jobNo && (
-              <View>
-                <Text
-                  style={{
-                    fontSize: 10,
-                    color: theme.colors.subText,
-                    fontWeight: "bold",
-                  }}
-                >
-                  İŞ EMRİ NO
+                  REF NO
                 </Text>
                 <Text
                   style={{
@@ -148,10 +147,11 @@ const JobInfoCard = ({ job }) => {
                     color: theme.colors.secondary || "#10b981",
                   }}
                 >
-                  {job.jobNo}
+                  {job.projectNo}
                 </Text>
               </View>
             )}
+            
             <View>
               <Text
                 style={{
