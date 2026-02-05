@@ -44,6 +44,7 @@ import { SocketProvider } from './src/context/SocketContext';
 import ToastNotification from './src/components/ToastNotification';
 import { QueueService } from './src/services/QueueService';
 import { SyncManager } from './src/services/SyncManager';
+import { LoggerService } from './src/services/LoggerService';
 import { linking } from './src/utils/linking';
 import { useTranslation } from 'react-i18next';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -283,6 +284,8 @@ export default function App() {
       QueueService.initialize().catch(e => console.error('Queue error:', e));
       // Initialize Sync Manager
       SyncManager.init();
+      // Initialize Logger Service (periodic sync)
+      LoggerService.init();
     } catch (error) {
       console.error('App initialization error:', error);
     }

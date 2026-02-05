@@ -14,6 +14,19 @@ export const LogLevel = {
 };
 
 export const LoggerService = {
+    _interval: null,
+
+    /**
+     * Initialize the Logger Service (starts background sync)
+     */
+    init: () => {
+        if (LoggerService._interval) return;
+        // Sync every 60 seconds to ensure logs are not stuck
+        LoggerService._interval = setInterval(() => {
+            LoggerService.sync();
+        }, 60000);
+    },
+
     /**
      * Adds a new log to the queue
      */
