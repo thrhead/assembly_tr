@@ -3,7 +3,7 @@ import api from './api';
 import NetInfo from '@react-native-community/netinfo';
 
 const STORAGE_KEY = 'SYSTEM_LOGS';
-const BATCH_SIZE = 20;
+const BATCH_SIZE = 5; // Reduced from 20 for faster testing
 
 export const LogLevel = {
     DEBUG: 'DEBUG',
