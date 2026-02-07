@@ -55,6 +55,9 @@ const JobCard = ({ job, onPress, style }) => {
                 <MoreHorizontal size={20} color={theme.colors.subText} />
             </View>
 
+            <Text style={[styles.jobId, { color: theme.colors.primary }]}>
+                #{job.jobNo || (job.id ? job.id.toString().slice(-6).toUpperCase() : '---')}
+            </Text>
             <Text style={[styles.title, { color: theme.colors.text }]} numberOfLines={2}>{job.title}</Text>
 
             <View style={styles.infoContainer}>
@@ -104,6 +107,12 @@ const styles = StyleSheet.create({
     statusText: {
         fontSize: 12,
         fontWeight: '700',
+    },
+    jobId: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        marginBottom: 2,
+        opacity: 0.8,
     },
     title: {
         fontSize: 16,
