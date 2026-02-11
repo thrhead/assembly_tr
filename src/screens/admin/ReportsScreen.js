@@ -194,7 +194,7 @@ const ReportsScreen = () => {
                     <View style={styles.animateContent}>
                         <View style={styles.statsGrid}>
                             <GlassCard style={styles.statCard} theme={theme}>
-                                <BriefcaseIcon size={20} color={theme.colors.primary} />
+                                <Briefcase size={20} color={theme.colors.primary} />
                                 <Text style={[styles.statVal, { color: theme.colors.text }]}>{perfData?.stats?.totalJobs}</Text>
                                 <Text style={[styles.statLabel, { color: theme.colors.subText }]}>Toplam İş</Text>
                             </GlassCard>
