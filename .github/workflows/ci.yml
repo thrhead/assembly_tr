@@ -1,0 +1,42 @@
+name: Assembly Tracker CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install Dependencies
+      # Using npm install instead of ci because package-lock might vary across environments/versions in dev
+      run: npm install
+
+    - name: Verification - Web Tests
+      id: web-tests
+      run: npm run test --workspace=apps/web
+      
+    - name: Verification - Mobile Tests
+      id: mobile-tests
+      # Mobile tests often have issues with native modules in Node environment, 
+      # but we run them to verify logic where possible.
+      run: npm run test --workspace=apps/mobile
+      
+    - name: Test Summary
+      if: always()
+      run: |
+        echo "Web Tests Status: ${{ steps.web-tests.outcome }}"
+        echo "Mobile Tests Status: ${{ steps.mobile-tests.outcome }}"
