@@ -8,7 +8,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate",
+    "postinstall": "if [ -n \"$DATABASE_URL\" ]; then prisma generate; else echo \"Skipping prisma generate: DATABASE_URL not set\"; fi",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
